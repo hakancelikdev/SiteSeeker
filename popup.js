@@ -1,3 +1,6 @@
+// Tarayıcı API'sini belirle
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("search");
     const resultsContainer = document.getElementById("results");
@@ -47,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        chrome.storage.local.get({ savedHistory: [] }, (data) => {
+        browserAPI.storage.local.get({ savedHistory: [] }, (data) => {
             let savedHistory = data.savedHistory;
             savedHistory.sort((a, b) => b.score - a.score);
 

@@ -1,6 +1,9 @@
 const INITIAL_SCORE = 1;
 const MAX_ITEMS = 10000; // Maksimum kayıt sayısı limiti
 
+// Tarayıcı API'sini belirle
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 // Storage'a kaydetme işlemini wrap eden yardımcı fonksiyon
 async function saveToStorage(savedHistory) {
     try {
@@ -10,20 +13,20 @@ async function saveToStorage(savedHistory) {
             savedHistory = savedHistory.slice(0, MAX_ITEMS);
         }
 
-        await chrome.storage.local.set({ savedHistory });
+        await browserAPI.storage.local.set({ savedHistory });
     } catch (error) {
         console.error('Storage error:', error);
     }
 }
 
 // Tekil URL ziyaretlerini işle
-chrome.history.onVisited.addListener(async (historyItem) => {
+browserAPI.history.onVisited.addListener(async (historyItem) => {
     try {
         if (!historyItem.title) {
             return;
         }
 
-        const data = await chrome.storage.local.get({ savedHistory: [] });
+        const data = await browserAPI.storage.local.get({ savedHistory: [] });
         let savedHistory = data.savedHistory || [];
         let existingItem = savedHistory.find(item => item.url === historyItem.url);
 
@@ -48,17 +51,17 @@ chrome.history.onVisited.addListener(async (historyItem) => {
 });
 
 // Silinen geçmiş kayıtlarını işle
-chrome.history.onVisitRemoved.addListener(async (removed) => {
+browserAPI.history.onVisitRemoved.addListener(async (removed) => {
     try {
         if (removed.allHistory) {
             // Tüm geçmiş silindiyse, indexi de temizle
-            await chrome.storage.local.set({ savedHistory: [] });
+            await browserAPI.storage.local.set({ savedHistory: [] });
             console.log("All history cleared");
             return;
         }
 
         // Belirli URL'ler silindiyse
-        const data = await chrome.storage.local.get({ savedHistory: [] });
+        const data = await browserAPI.storage.local.get({ savedHistory: [] });
         let savedHistory = data.savedHistory || [];
         let updatedHistory = savedHistory.filter(item => 
             !removed.urls.includes(item.url)
@@ -75,7 +78,7 @@ chrome.history.onVisitRemoved.addListener(async (removed) => {
 async function initializeHistory() {
     try {
         console.log("Initializing history index...");
-        const results = await chrome.history.search({ 
+        const results = await browserAPI.history.search({ 
             text: "", 
             startTime: 1, 
             maxResults: MAX_ITEMS 
@@ -97,6 +100,6 @@ async function initializeHistory() {
 }
 
 // Sadece ilk kurulumda çalıştır
-chrome.runtime.onInstalled.addListener(() => {
+browserAPI.runtime.onInstalled.addListener(() => {
     initializeHistory();
 });
