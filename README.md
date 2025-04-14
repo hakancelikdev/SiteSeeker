@@ -56,15 +56,35 @@ git clone https://github.com/hakancelikdev/FastHistorySearch.git
 # Dizine gidin
 cd FastHistorySearch
 
+# Chrome için manifest dosyasını hazırlama
+cp manifest.chrome.json manifest.json
+
 # Geliştirme için Chrome'da yükleme:
 1. Chrome'da chrome://extensions/ adresine gidin
 2. Geliştirici modunu aktif edin
 3. "Paketlenmemiş öğe yükle" ile proje klasörünü seçin
 
+# Firefox için manifest dosyasını hazırlama
+cp manifest.firefox.json manifest.json
+
 # Geliştirme için Firefox'ta yükleme:
 1. Firefox'ta about:debugging adresine gidin
 2. "Bu Firefox" sekmesine tıklayın
 3. "Geçici Eklenti Yükle" ile manifest.json dosyasını seçin
+```
+
+## Dağıtım
+
+### Chrome Web Store için Hazırlama
+```bash
+cp manifest.chrome.json manifest.json
+zip -r extension.zip * -x "manifest.firefox.json"
+```
+
+### Firefox Add-ons için Hazırlama
+```bash
+cp manifest.firefox.json manifest.json
+zip -r extension.zip * -x "manifest.chrome.json"
 ```
 
 ## Katkıda Bulunma
