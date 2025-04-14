@@ -9,20 +9,14 @@
   ],
   "browser_action": {
     "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_icon": "icon.png"
   },
   "background": {
     "scripts": ["background.js"],
     "persistent": true
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "128": "icon.png"
   },
   "browser_specific_settings": {
     "gecko": {
