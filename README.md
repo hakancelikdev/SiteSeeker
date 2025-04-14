@@ -1,58 +1,86 @@
-# Quick History
+# Fast History Search
 
-![Quick History](app.png)
-
-Quick History, Chrome tarayıcınızın geçmiş kayıtlarını etkili bir şekilde yönetmenizi ve aramanızı sağlayan kullanıcı dostu bir Chrome uzantısıdır.
+Tarayıcı geçmişinizde hızlı arama yapmanızı sağlayan bir tarayıcı eklentisi.
 
 ## Özellikler
 
-- 🔍 Tarayıcı geçmişinde hızlı arama yapma
+- 🚀 Hızlı ve anlık arama
+- 📊 Ziyaret ve yazma sıklığına göre akıllı sıralama
+- 🔄 Gerçek zamanlı geçmiş güncellemesi
+- 🌐 Chrome ve Firefox uyumluluğu
+- 🔍 Başlık ve URL'lerde arama
 - 📱 Kullanıcı dostu arayüz
-- ⚡ Hızlı ve verimli çalışma
-- 🔒 Güvenli ve özel veri yönetimi
 
 ## Kurulum
 
-### Chrome Uzantısını Yükleme
+### Chrome
 
-1. Bu projeyi bilgisayarınıza indirin veya klonlayın
-   ```bash
-   git clone https://github.com/hakancelikdev/QuickHistory.git
-   ```
+1. [Chrome Web Store](#) üzerinden eklentiyi yükleyin
+2. Eklenti otomatik olarak aktif hale gelecektir
+3. Sağ üst köşedeki eklenti ikonuna tıklayarak kullanmaya başlayabilirsiniz
 
-2. Google Chrome'u açın ve `chrome://extensions/` adresine gidin
+### Firefox
 
-3. Sağ üst köşedeki "Geliştirici modu" düğmesini etkinleştirin
-
-4. Sol üst köşedeki "Paketlenmemiş öğe yükle" düğmesine tıklayın
-
-5. 1. adımda indirdiğiniz/klonladığınız klasörü seçin
-
-6. Uzantı artık Chrome araç çubuğunuzda görünecektir
+1. [Firefox Add-ons](#) üzerinden eklentiyi yükleyin
+2. Eklenti otomatik olarak aktif hale gelecektir
+3. Sağ üst köşedeki eklenti ikonuna tıklayarak kullanmaya başlayabilirsiniz
 
 ## Kullanım
 
-1. Chrome araç çubuğundaki Quick History simgesine tıklayın
-2. Arama kutusuna aramak istediğiniz kelimeyi yazın
-3. Sonuçlar anında görüntülenecektir
-4. İstediğiniz sonuca tıklayarak ilgili sayfaya hızlıca gidebilirsiniz
+1. Eklenti ikonuna tıklayın
+2. Arama kutusuna en az 2 karakter girin
+3. Sonuçlar otomatik olarak görüntülenecektir
+4. Sonuçlar ziyaret sıklığı ve yazma sıklığına göre sıralanır
+5. İstediğiniz sonuca tıklayarak ilgili sayfaya gidebilirsiniz
+
+## Teknik Detaylar
+
+- Manifest V2 (Firefox) ve V3 (Chrome) uyumluluğu
+- Tarayıcı geçmişi olaylarını (onVisited, onVisitRemoved) dinleyerek gerçek zamanlı güncelleme
+- Yerel depolama kullanarak hızlı erişim
+- Maksimum 10,000 kayıt depolama limiti
+- Akıllı puanlama sistemi ile alakalı sonuçları önceliklendirme
+
+## Gizlilik
+
+- Tüm veriler yerel olarak saklanır
+- Hiçbir veri harici sunuculara gönderilmez
+- Sadece ziyaret edilen sayfaların başlık ve URL bilgileri kaydedilir
 
 ## Geliştirme
 
-Projeyi geliştirmek isterseniz:
+```bash
+# Depoyu klonlayın
+git clone https://github.com/hakancelikdev/FastHistorySearch.git
 
-1. Projeyi fork edin
+# Dizine gidin
+cd FastHistorySearch
+
+# Geliştirme için Chrome'da yükleme:
+1. Chrome'da chrome://extensions/ adresine gidin
+2. Geliştirici modunu aktif edin
+3. "Paketlenmemiş öğe yükle" ile proje klasörünü seçin
+
+# Geliştirme için Firefox'ta yükleme:
+1. Firefox'ta about:debugging adresine gidin
+2. "Bu Firefox" sekmesine tıklayın
+3. "Geçici Eklenti Yükle" ile manifest.json dosyasını seçin
+```
+
+## Katkıda Bulunma
+
+1. Bu depoyu forklayın
 2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: Add some amazing feature'`)
+3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
 4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
 5. Bir Pull Request oluşturun
 
 ## Lisans
 
-Bu proje GNU General Public License v3.0 (GPL-3.0) altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+[MIT License](LICENSE)
 
 ## İletişim
 
-Proje Sahibi - [@hakancelikdev](https://github.com/hakancelikdev)
+Hakan Çelik - [@hakancelikdev](https://twitter.com/hakancelikdev)
 
-Proje Linki: [https://github.com/hakancelikdev/QuickHistory](https://github.com/hakancelikdev/QuickHistory)
+Proje Linki: [https://github.com/hakancelikdev/FastHistorySearch](https://github.com/hakancelikdev/FastHistorySearch)
