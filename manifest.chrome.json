@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "SiteSeeker",
+  "name": "Fast History Search",
   "version": "1.0",
   "description": "Tarayıcı geçmişini kullanarak hızlı arama yapmanı sağlar.",
   "permissions": [
