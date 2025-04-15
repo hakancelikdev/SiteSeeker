@@ -1,106 +1,84 @@
-# Fast History Search
+# SiteSeeker 🚀
 
-Tarayıcı geçmişinizde hızlı arama yapmanızı sağlayan bir tarayıcı eklentisi.
+Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık bir arayüz ile geçmişinize hızlıca erişin.
 
-## Özellikler
+![SiteSeeker Banner](assets/banner.png)
 
-- 🚀 Hızlı ve anlık arama
-- 📊 Ziyaret ve yazma sıklığına göre akıllı sıralama
-- 🔄 Gerçek zamanlı geçmiş güncellemesi
-- 🌐 Chrome ve Firefox uyumluluğu
-- 🔍 Başlık ve URL'lerde arama
-- 📱 Kullanıcı dostu arayüz
+## ✨ Neden SiteSeeker?
 
-## Kurulum
+- **⚡️ Anında Arama**: Millisaniyeler içinde sonuçlar
+- **🎯 Akıllı Sıralama**: En çok ziyaret ettiğiniz sayfalar her zaman üstte
+- **🔍 Çoklu Tarayıcı Desteği**: Chrome, Firefox ve Safari geçmişinizi tek bir yerden arayın
+- **⌨️ Global Kısayol**: ⌘+⇧+Space ile her yerden hızlıca erişin
+- **🎨 Modern Tasarım**: macOS Sonoma tarzında şık ve modern arayüz
+- **🔄 Gerçek Zamanlı**: Geçmiş güncellemelerini anında yakalar
+- **🔒 Gizlilik Odaklı**: Tüm veriler sadece sizin bilgisayarınızda
+- **📱 İki Kullanım Seçeneği**: İster masaüstü uygulaması, ister Chrome uzantısı olarak kullanın
 
-### Chrome
+## 🎬 Hızlı Başlangıç
 
-1. [Chrome Web Store](#) üzerinden eklentiyi yükleyin
-2. Eklenti otomatik olarak aktif hale gelecektir
-3. Sağ üst köşedeki eklenti ikonuna tıklayarak kullanmaya başlayabilirsiniz
+### 💻 Masaüstü Uygulaması Olarak
 
-### Firefox
+1. [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) sayfasından son sürümü indirin
+2. DMG dosyasını açın ve uygulamayı yükleyin
+3. ⌘+⇧+Space kısayolu ile her yerden erişin!
 
-1. [Firefox Add-ons](#) üzerinden eklentiyi yükleyin
-2. Eklenti otomatik olarak aktif hale gelecektir
-3. Sağ üst köşedeki eklenti ikonuna tıklayarak kullanmaya başlayabilirsiniz
+### 🔌 Chrome Uzantısı Olarak
 
-## Kullanım
+1. Chrome Web Store'dan "SiteSeeker" uzantısını yükleyin
+2. Tarayıcı çubuğundaki ikona tıklayarak kullanmaya başlayın
 
-1. Eklenti ikonuna tıklayın
-2. Arama kutusuna en az 2 karakter girin
-3. Sonuçlar otomatik olarak görüntülenecektir
-4. Sonuçlar ziyaret sıklığı ve yazma sıklığına göre sıralanır
-5. İstediğiniz sonuca tıklayarak ilgili sayfaya gidebilirsiniz
+## 🌟 Öne Çıkan Özellikler
 
-## Teknik Detaylar
+### 🎯 Akıllı Arama Algoritması
+- Ziyaret sıklığına göre akıllı sıralama
+- URL ve başlıklarda anında arama
+- Yazım hatalarına karşı toleranslı
 
-- Manifest V2 (Firefox) ve V3 (Chrome) uyumluluğu
-- Tarayıcı geçmişi olaylarını (onVisited, onVisitRemoved) dinleyerek gerçek zamanlı güncelleme
-- Yerel depolama kullanarak hızlı erişim
-- Maksimum 10,000 kayıt depolama limiti
-- Akıllı puanlama sistemi ile alakalı sonuçları önceliklendirme
+### 🎨 Modern ve Şık Arayüz
+- macOS Sonoma tarzında tasarım
+- Dinamik pencere boyutlandırma
+- Pürüzsüz animasyonlar
+- Koyu mod desteği
 
-## Gizlilik
+### ⚡️ Performans Odaklı
+- Millisaniyeler içinde sonuçlar
+- Düşük sistem kaynağı kullanımı
+- Arka planda minimum etki
 
-- Tüm veriler yerel olarak saklanır
-- Hiçbir veri harici sunuculara gönderilmez
-- Sadece ziyaret edilen sayfaların başlık ve URL bilgileri kaydedilir
+### 🔒 Gizlilik ve Güvenlik
+- Veriler sadece yerel cihazınızda
+- Hiçbir veri paylaşımı yok
+- Açık kaynak kod
 
-## Geliştirme
+## 📊 Kullanıcı Deneyimi
 
-```bash
-# Depoyu klonlayın
-git clone https://github.com/hakancelikdev/FastHistorySearch.git
+- **Hızlı Erişim**: Global kısayol ile her yerden anında erişim
+- **Kolay Kullanım**: Sezgisel arayüz, minimum öğrenme eğrisi
+- **Akıllı Sonuçlar**: En çok kullandığınız sayfalar her zaman üstte
+- **İstatistikler**: İçe aktarılan ve taranan geçmiş sayısını görün
 
-# Dizine gidin
-cd FastHistorySearch
+## 🛠 Teknik Özellikler
 
-# Chrome için manifest dosyasını hazırlama
-cp manifest.chrome.json manifest.json
+- **Electron Tabanlı**: Modern ve hızlı masaüstü uygulaması
+- **Chrome Manifest V3**: En son teknoloji uzantı desteği
+- **SQLite Entegrasyonu**: Hızlı ve güvenilir veri depolama
+- **Otomatik Güncelleme**: Her zaman en son sürüme sahip olun
 
-# Geliştirme için Chrome'da yükleme:
-1. Chrome'da chrome://extensions/ adresine gidin
-2. Geliştirici modunu aktif edin
-3. "Paketlenmemiş öğe yükle" ile proje klasörünü seçin
+## 🤝 Topluluk ve Destek
 
-# Firefox için manifest dosyasını hazırlama
-cp manifest.firefox.json manifest.json
+- [GitHub Issues](https://github.com/hakancelikdev/SiteSeeker/issues): Hata raporları ve öneriler
+- [Twitter](https://twitter.com/hakancelikdev): Güncellemeler ve duyurular
+- [GitHub Discussions](https://github.com/hakancelikdev/SiteSeeker/discussions): Topluluk tartışmaları
 
-# Geliştirme için Firefox'ta yükleme:
-1. Firefox'ta about:debugging adresine gidin
-2. "Bu Firefox" sekmesine tıklayın
-3. "Geçici Eklenti Yükle" ile manifest.json dosyasını seçin
-```
+## 📝 Lisans
 
-## Dağıtım
+[GNU General Public License v3.0](LICENSE) - Bu yazılım özgür bir yazılımdır. Herkes bu yazılımı kopyalayabilir, dağıtabilir ve/veya değiştirebilir.
 
-### Chrome Web Store için Hazırlama
-```bash
-cp manifest.chrome.json manifest.json
-zip -r extension.zip * -x "manifest.firefox.json"
-```
+## 👨‍💻 Geliştirici
 
-### Firefox Add-ons için Hazırlama
-```bash
-cp manifest.firefox.json manifest.json
-zip -r extension.zip * -x "manifest.chrome.json"
-```
+Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 
-## Katkıda Bulunma
+---
 
-1. Bu depoyu forklayın
-2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Bir Pull Request oluşturun
-
-## Lisans
-
-[MIT License](LICENSE)
-
-## İletişim
-
-Hakan Çelik - [@hakancelikdev](https://twitter.com/hakancelikdev)
-
-Proje Linki: [https://github.com/hakancelikdev/FastHistorySearch](https://github.com/hakancelikdev/FastHistorySearch)
+⭐️ Eğer SiteSeeker'ı beğendiyseniz, yıldız vermeyi unutmayın!

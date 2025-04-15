@@ -1,0 +1,55 @@
+{
+  "name": "siteseeker",
+  "version": "1.0.0",
+  "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.siteseeker.app",
+    "productName": "SiteSeeker",
+    "mac": {
+      "category": "public.app-category.utilities",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "darkModeSupport": true,
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "sign": false
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hakancelikdev",
+      "repo": "SiteSeeker"
+    }
+  },
+  "keywords": [
+    "electron",
+    "history",
+    "search",
+    "macos"
+  ],
+  "author": "Hakan Çelik",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^27.1.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-log": "^5.3.3",
+    "electron-store": "^7.0.3",
+    "electron-updater": "^6.6.2",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  }
+}

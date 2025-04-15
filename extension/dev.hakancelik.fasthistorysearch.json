@@ -1,0 +1,9 @@
+{
+  "name": "dev.hakancelik.siteseeker",
+  "description": "SiteSeeker native messaging host",
+  "path": "HOST_PATH",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://EXTENSION_ID/"
+  ]
+} 
