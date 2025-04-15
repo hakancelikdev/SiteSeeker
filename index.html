@@ -45,36 +45,78 @@
 
         .app-container {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             height: 100%;
             min-height: 100px;
             position: relative;
+            padding: 16px;
+        }
+
+        .toolbar {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
             gap: 16px;
+            margin-bottom: 24px;
+            height: 36px;
         }
 
         .url-counter {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: var(--button-radius);
-            min-width: 100px;
-            height: fit-content;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(28, 28, 28, 0.7);
+            border-radius: 8px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
         .url-counter-value {
-            font-size: 24px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 4px;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
         }
 
         .url-counter-label {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-secondary);
-            text-align: center;
+            font-weight: 500;
+        }
+
+        .keyboard-shortcut {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 12px;
+            background: rgba(28, 28, 28, 0.7);
+            border-radius: 8px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .key {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 6px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
         }
 
         .main-content {
@@ -128,11 +170,12 @@
         }
 
         .results-header {
-            padding: 12px 16px;
-            font-size: 13px;
+            padding: 16px;
+            font-size: 14px;
             color: var(--text-secondary);
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             font-weight: 500;
+            background: rgba(255, 255, 255, 0.02);
         }
 
         .result-item {
@@ -192,14 +235,6 @@
             border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.06);
             font-weight: 500;
-        }
-
-        .toolbar {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
-            padding: 0 0 16px 0;
-            flex-shrink: 0;
         }
 
         .toolbar button {
@@ -287,35 +322,6 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        .keyboard-shortcut {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: var(--text-secondary);
-            font-size: 12px;
-            user-select: none;
-            pointer-events: none;
-        }
-
-        .key {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 20px;
-            height: 20px;
-            padding: 0 4px;
-            border-radius: 4px;
-            background-color: rgba(255, 255, 255, 0.06);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-size: 11px;
-            font-weight: 500;
-        }
-
         .no-results {
             padding: 24px;
             text-align: center;
@@ -330,15 +336,15 @@
         .source-tag {
             display: inline-flex;
             align-items: center;
-            padding: 2px 8px;
+            padding: 4px 8px;
             border-radius: 4px;
-            background-color: rgba(255, 255, 255, 0.06);
+            background-color: rgba(255, 255, 255, 0.08);
             font-size: 11px;
             color: var(--text-secondary);
-            margin-left: 8px;
+            margin-left: 12px;
             font-weight: 500;
             letter-spacing: 0.3px;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
         }
 
         .import-modal {
@@ -468,30 +474,34 @@
 <body>
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="app-container">
-        <div class="url-counter">
-            <span class="url-counter-value">0</span>
-            <span class="url-counter-label">URLs</span>
+        <div class="toolbar">
+            <button onclick="importHistory()" title="Import Browser History">
+                <i class="fas fa-download"></i>
+                Import History
+            </button>
+            <button onclick="resetHistory()" title="Reset All History" class="reset-button">
+                <i class="fas fa-trash"></i>
+                Reset
+            </button>
         </div>
-        <div class="main-content">
-            <div class="toolbar">
-                <button onclick="importHistory()" title="Import Browser History">
-                    <i class="fas fa-download"></i>
-                    Import History
-                </button>
-                <button onclick="resetHistory()" title="Reset All History" class="reset-button">
-                    <i class="fas fa-trash"></i>
-                    Reset
-                </button>
+        <div class="top-bar">
+            <div class="url-counter">
+                <span class="url-counter-value">2025</span>
+                <span class="url-counter-label">URLs</span>
             </div>
-            <div id="search-container">
-                <input type="text" id="search-input" placeholder="Search in history..." autofocus>
-                <div class="keyboard-shortcut">
-                    <span class="key">⌘</span> + <span class="key">⇧</span> + <span class="key">Space</span>
-                </div>
-                <div id="results-container"></div>
+            <div class="keyboard-shortcut">
+                <span class="key">⌘</span>
+                <span>+</span>
+                <span class="key">⇧</span>
+                <span>+</span>
+                <span class="key">Space</span>
             </div>
-            <div id="notification"></div>
         </div>
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="Search in history..." autofocus>
+            <div id="results-container"></div>
+        </div>
+        <div id="notification"></div>
     </div>
 
     <script>
@@ -552,7 +562,7 @@
 
         searchInput.addEventListener('input', (e) => {
             clearTimeout(debounceTimeout);
-            const searchTerm = e.target.value.trim();
+            const searchTerm = e.target.value?.trim() || '';
 
             if (searchTerm.length === 0) {
                 resultsContainer.style.display = 'none';
@@ -561,7 +571,9 @@
             }
 
             debounceTimeout = setTimeout(() => {
-                ipcRenderer.send('search-history', searchTerm);
+                if (searchTerm.length > 0) {
+                    ipcRenderer.send('search-history', searchTerm);
+                }
             }, 300);
         });
 

@@ -78,14 +78,19 @@ async function saveHistory(history) {
 
 // Geçmişte arama yap
 async function searchHistory(searchTerm) {
+  if (!searchTerm || typeof searchTerm !== 'string') {
+    console.log('Geçersiz arama terimi:', searchTerm);
+    return [];
+  }
+
   console.log(`Arama terimi: "${searchTerm}"`);
   const history = await loadHistory();
   const searchTermLower = searchTerm.toLowerCase();
   
   const results = history
     .filter(item => 
-      item.title.toLowerCase().includes(searchTermLower) ||
-      item.url.toLowerCase().includes(searchTermLower)
+      item.title?.toLowerCase().includes(searchTermLower) ||
+      item.url?.toLowerCase().includes(searchTermLower)
     )
     .sort((a, b) => b.score - a.score)
     .slice(0, 50);
@@ -542,6 +547,12 @@ app.on('before-quit', () => {
 // IPC olayları
 ipcMain.on('search-history', async (event, searchTerm) => {
   try {
+    if (!searchTerm || typeof searchTerm !== 'string') {
+      console.log('Geçersiz arama terimi alındı:', searchTerm);
+      event.reply('search-results', []);
+      return;
+    }
+
     const results = await searchHistory(searchTerm);
     event.reply('search-results', results);
   } catch (error) {
