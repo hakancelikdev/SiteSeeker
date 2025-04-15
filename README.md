@@ -1,51 +1,71 @@
 # Fast History Search
 
-Tarayıcı geçmişinizde hızlı arama yapmanızı sağlayan bir tarayıcı eklentisi.
+Tarayıcı geçmişinizde hızlı arama yapmanızı sağlayan bir masaüstü uygulaması ve tarayıcı eklentisi.
 
 ## Özellikler
 
 - 🚀 Hızlı ve anlık arama
 - 📊 Ziyaret ve yazma sıklığına göre akıllı sıralama
 - 🔄 Gerçek zamanlı geçmiş güncellemesi
-- 🌐 Chrome ve Firefox uyumluluğu
+- 🌐 Chrome, Firefox ve Safari uyumluluğu
 - 🔍 Başlık ve URL'lerde arama
-- 📱 Kullanıcı dostu arayüz
+- 📱 macOS Sonoma tarzında modern arayüz
+- ⌨️ Global kısayol tuşu desteği (⌘+⇧+Space)
+- 🔄 Otomatik güncelleme sistemi
+- 📊 İçe aktarma istatistikleri
+- 🎨 Dinamik pencere boyutlandırma
 
 ## Kurulum
 
-### Chrome
+### Masaüstü Uygulaması
 
-1. [Chrome Web Store](#) üzerinden eklentiyi yükleyin
-2. Eklenti otomatik olarak aktif hale gelecektir
-3. Sağ üst köşedeki eklenti ikonuna tıklayarak kullanmaya başlayabilirsiniz
+1. En son sürümü [Releases](https://github.com/hakancelikdev/FastHistorySearch/releases) sayfasından indirin
+2. DMG dosyasını açın ve uygulamayı Applications klasörüne sürükleyin
+3. İlk çalıştırmada Safari geçmişine erişim için "Tam Disk Erişimi" izni vermeniz gerekebilir:
+   - Sistem Ayarları > Gizlilik ve Güvenlik > Tam Disk Erişimi
+   - "Fast History Search" uygulamasını etkinleştirin
 
-### Firefox
+### Chrome Eklentisi
 
-1. [Firefox Add-ons](#) üzerinden eklentiyi yükleyin
-2. Eklenti otomatik olarak aktif hale gelecektir
-3. Sağ üst köşedeki eklenti ikonuna tıklayarak kullanmaya başlayabilirsiniz
+1. `extension` klasörünü Chrome'da `chrome://extensions/` adresine yükleyin
+2. Geliştirici modunu aktif edin
+3. "Paketlenmemiş öğe yükle" ile extension klasörünü seçin
+4. Native messaging host'u kurmak için:
+   ```bash
+   cd extension
+   chmod +x install_host.sh
+   ./install_host.sh
+   ```
 
 ## Kullanım
 
-1. Eklenti ikonuna tıklayın
-2. Arama kutusuna en az 2 karakter girin
-3. Sonuçlar otomatik olarak görüntülenecektir
-4. Sonuçlar ziyaret sıklığı ve yazma sıklığına göre sıralanır
-5. İstediğiniz sonuca tıklayarak ilgili sayfaya gidebilirsiniz
+1. Uygulamayı başlatın
+2. ⌘+⇧+Space kısayolunu kullanarak arama penceresini açın
+3. Arama yapmak istediğiniz terimi girin
+4. Sonuçlar otomatik olarak görüntülenecektir
+5. Sonuçlar ziyaret sıklığı ve yazma sıklığına göre sıralanır
+6. İstediğiniz sonuca tıklayarak ilgili sayfaya gidebilirsiniz
+7. Geçmişi içe aktarmak için 🔄 butonunu kullanın
+8. Geçmişi sıfırlamak için 🗑️ butonunu kullanın
 
 ## Teknik Detaylar
 
-- Manifest V2 (Firefox) ve V3 (Chrome) uyumluluğu
-- Tarayıcı geçmişi olaylarını (onVisited, onVisitRemoved) dinleyerek gerçek zamanlı güncelleme
-- Yerel depolama kullanarak hızlı erişim
+- Electron tabanlı masaüstü uygulaması
+- Chrome Manifest V3 uyumlu eklenti
+- Native messaging ile uygulama-eklenti iletişimi
+- SQLite veritabanı entegrasyonu
+- Akıllı puanlama sistemi
+- Otomatik güncelleme sistemi
 - Maksimum 10,000 kayıt depolama limiti
-- Akıllı puanlama sistemi ile alakalı sonuçları önceliklendirme
+- electron-store ile yerel veri depolama
+- Gerçek zamanlı geçmiş senkronizasyonu
 
 ## Gizlilik
 
 - Tüm veriler yerel olarak saklanır
 - Hiçbir veri harici sunuculara gönderilmez
 - Sadece ziyaret edilen sayfaların başlık ve URL bilgileri kaydedilir
+- Safari geçmişi için Tam Disk Erişimi gereklidir
 
 ## Geliştirme
 
@@ -56,35 +76,25 @@ git clone https://github.com/hakancelikdev/FastHistorySearch.git
 # Dizine gidin
 cd FastHistorySearch
 
-# Chrome için manifest dosyasını hazırlama
-cp manifest.chrome.json manifest.json
+# Bağımlılıkları yükleyin
+npm install
 
-# Geliştirme için Chrome'da yükleme:
-1. Chrome'da chrome://extensions/ adresine gidin
-2. Geliştirici modunu aktif edin
-3. "Paketlenmemiş öğe yükle" ile proje klasörünü seçin
+# Geliştirme modunda çalıştırın
+npm start
 
-# Firefox için manifest dosyasını hazırlama
-cp manifest.firefox.json manifest.json
-
-# Geliştirme için Firefox'ta yükleme:
-1. Firefox'ta about:debugging adresine gidin
-2. "Bu Firefox" sekmesine tıklayın
-3. "Geçici Eklenti Yükle" ile manifest.json dosyasını seçin
+# Uygulamayı paketleyin
+npm run dist
 ```
 
 ## Dağıtım
 
-### Chrome Web Store için Hazırlama
 ```bash
-cp manifest.chrome.json manifest.json
-zip -r extension.zip * -x "manifest.firefox.json"
-```
+# macOS için uygulama oluşturma
+npm run dist
 
-### Firefox Add-ons için Hazırlama
-```bash
-cp manifest.firefox.json manifest.json
-zip -r extension.zip * -x "manifest.chrome.json"
+# Oluşturulan dosyalar dist/ klasöründe:
+# - Fast History Search-1.0.0-arm64.dmg
+# - Fast History Search-1.0.0-arm64-mac.zip
 ```
 
 ## Katkıda Bulunma

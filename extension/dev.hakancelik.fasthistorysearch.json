@@ -1,0 +1,9 @@
+{
+  "name": "dev.hakancelik.fasthistorysearch",
+  "description": "Fast History Search Native Messaging Host",
+  "path": "/Applications/Fast History Search.app/Contents/MacOS/Fast History Search",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://*"
+  ]
+} 

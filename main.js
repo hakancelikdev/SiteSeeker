@@ -363,8 +363,35 @@ async function importBrowserHistories() {
     // Kaydet
     await saveHistory(savedHistory);
     
+    // Kaynak bazında istatistikleri hesapla
+    const sourceStats = new Map();
+    savedHistory.forEach(item => {
+      if (item.source) {
+        const count = sourceStats.get(item.source) || 0;
+        sourceStats.set(item.source, count + 1);
+      }
+      if (item.sources) {
+        item.sources.forEach(source => {
+          const count = sourceStats.get(source) || 0;
+          sourceStats.set(source, count + 1);
+        });
+      }
+    });
+
+    const sources = Array.from(sourceStats.entries()).map(([name, count]) => ({
+      name,
+      count
+    }));
+    
     console.log('Tüm tarayıcı geçmişleri başarıyla import edildi');
-    return { success: true, safariPermissionError };
+    return { 
+      success: true, 
+      safariPermissionError,
+      totalRecords: savedHistory.length,
+      addedCount,
+      updatedCount,
+      sources
+    };
   } catch (error) {
     console.error('Tarayıcı geçmişleri içe aktarılırken hata:', error);
     return { success: false, error: error.message };
@@ -418,6 +445,24 @@ app.whenReady().then(async () => {
     store.set('initialImportDone', true);
   }
 
+  // Her dakika otomatik import işlemini başlat
+  setInterval(async () => {
+    console.log('Otomatik import başlatılıyor...');
+    try {
+      const result = await importBrowserHistories();
+      if (result.success) {
+        console.log('Otomatik import başarılı');
+        if (mainWindow) {
+          mainWindow.webContents.send('import-complete', result);
+        }
+      } else {
+        console.error('Otomatik import başarısız:', result.error);
+      }
+    } catch (error) {
+      console.error('Otomatik import sırasında hata:', error);
+    }
+  }, 60000); // 60 saniye = 1 dakika
+
   // Güncellemeleri kontrol et
   autoUpdater.checkForUpdatesAndNotify();
 
@@ -428,6 +473,10 @@ app.whenReady().then(async () => {
       createWindow();
     }
   });
+
+  // Native messaging host'u kur
+  setupNativeMessagingHost();
+  setupNativeMessaging();
 });
 
 function toggleWindow() {
@@ -556,4 +605,201 @@ ipcMain.on('reset-history', async (event) => {
     console.error('Error resetting history:', error);
     event.reply('reset-complete', { success: false, error: error.message });
   }
-}); 
+});
+
+// Son kontrol edilen zaman damgasını sakla
+let lastCheckedTime = Date.now();
+
+// Periyodik olarak geçmiş değişikliklerini kontrol et
+async function checkHistoryChanges() {
+  try {
+    const os = require('os');
+    const fs = require('fs');
+    const sqlite3 = require('sqlite3');
+    const { open } = require('sqlite');
+    
+    // Chrome için kontrol
+    const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+    if (fs.existsSync(chromeBasePath)) {
+      const profiles = fs.readdirSync(chromeBasePath)
+        .filter(item => {
+          const itemPath = path.join(chromeBasePath, item);
+          return fs.existsSync(itemPath) && 
+                 fs.statSync(itemPath).isDirectory() && 
+                 fs.existsSync(path.join(itemPath, 'History'));
+        });
+
+      for (const profile of profiles) {
+        try {
+          const historyPath = path.join(chromeBasePath, profile, 'History');
+          const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
+          fs.copyFileSync(historyPath, tempPath);
+          
+          const db = await open({
+            filename: tempPath,
+            driver: sqlite3.Database
+          });
+          
+          // Son kontrolden sonra eklenen kayıtları al
+          const results = await db.all(`
+            SELECT url, title, visit_count, typed_count, last_visit_time
+            FROM urls
+            WHERE title IS NOT NULL AND last_visit_time/1000000 > ?
+            ORDER BY last_visit_time DESC
+          `, [lastCheckedTime]);
+          
+          if (results.length > 0) {
+            console.log(`${profile} profilinde ${results.length} yeni ziyaret bulundu`);
+            
+            // Mevcut geçmişi yükle
+            let savedHistory = await loadHistory();
+            let updated = false;
+            
+            // Her yeni kayıt için
+            for (const item of results) {
+              const existingItem = savedHistory.find(h => h.url === item.url);
+              if (existingItem) {
+                // Mevcut kaydın skorunu artır
+                existingItem.score += 1;
+                updated = true;
+              } else {
+                // Yeni kayıt ekle
+                savedHistory.push({
+                  url: item.url,
+                  title: item.title,
+                  score: INITIAL_SCORE + (item.visit_count + (item.typed_count || 0)),
+                  source: `Chrome (${profile})`
+                });
+                updated = true;
+              }
+            }
+            
+            // Değişiklik varsa kaydet
+            if (updated) {
+              await saveHistory(savedHistory);
+              console.log('Geçmiş güncellendi');
+            }
+          }
+          
+          await db.close();
+          fs.unlinkSync(tempPath);
+        } catch (error) {
+          console.error(`Chrome ${profile} geçmişi kontrol edilirken hata:`, error);
+        }
+      }
+    }
+    
+    // Firefox için benzer kontrol eklenebilir...
+    
+    // Son kontrol zamanını güncelle
+    lastCheckedTime = Date.now();
+  } catch (error) {
+    console.error('Geçmiş değişiklikleri kontrol edilirken hata:', error);
+  }
+}
+
+// Uygulama başladığında periyodik kontrolü başlat
+app.on('ready', () => {
+  // Her 5 dakikada bir kontrol et
+  setInterval(checkHistoryChanges, 5 * 60 * 1000);
+});
+
+// Native messaging host için gerekli yapılandırma
+function setupNativeMessagingHost() {
+  const fs = require('fs');
+  const os = require('os');
+  const path = require('path');
+
+  // Native messaging host manifest dosyası
+  const manifest = {
+    name: 'dev.hakancelik.fasthistorysearch',
+    description: 'Fast History Search Native Messaging Host',
+    path: process.execPath,
+    type: 'stdio',
+    allowed_origins: [
+      'chrome-extension://*' // Geliştirme sırasında tüm uzantılara izin ver
+    ]
+  };
+
+  // Manifest dosyasının kaydedileceği dizin
+  const manifestPath = path.join(
+    os.homedir(),
+    'Library/Application Support/Google/Chrome/NativeMessagingHosts',
+    'dev.hakancelik.fasthistorysearch.json'
+  );
+
+  // Dizini oluştur
+  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
+
+  // Manifest dosyasını kaydet
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+  console.log('Native messaging host manifest dosyası oluşturuldu:', manifestPath);
+}
+
+// URL ziyaret olayını işle
+async function handleVisit(data) {
+  try {
+    let savedHistory = await loadHistory();
+    const existingItem = savedHistory.find(item => item.url === data.url);
+
+    if (existingItem) {
+      // Mevcut kaydın skorunu artır
+      existingItem.score += 1;
+      existingItem.lastVisited = data.timestamp;
+    } else {
+      // Yeni kayıt ekle
+      savedHistory.push({
+        url: data.url,
+        title: data.title,
+        score: INITIAL_SCORE,
+        lastVisited: data.timestamp,
+        source: 'Chrome Extension'
+      });
+    }
+
+    await saveHistory(savedHistory);
+    console.log('Geçmiş güncellendi - URL:', data.url);
+  } catch (error) {
+    console.error('URL ziyareti işlenirken hata:', error);
+  }
+}
+
+// URL silme olayını işle
+async function handleRemove(data) {
+  try {
+    let savedHistory = await loadHistory();
+    
+    if (data.allHistory) {
+      // Tüm geçmişi sil
+      savedHistory = [];
+    } else {
+      // Belirtilen URL'leri sil
+      savedHistory = savedHistory.filter(item => !data.urls.includes(item.url));
+    }
+
+    await saveHistory(savedHistory);
+    console.log('Silinen URL sayısı:', data.urls ? data.urls.length : 'tümü');
+  } catch (error) {
+    console.error('URL silme işlenirken hata:', error);
+  }
+}
+
+// Native messaging bağlantısını kur
+function setupNativeMessaging() {
+  const { ipcMain } = require('electron');
+
+  ipcMain.on('extension-message', (event, message) => {
+    console.log('Uzantıdan mesaj alındı:', message);
+
+    switch (message.type) {
+      case 'visit':
+        handleVisit(message.data);
+        break;
+      case 'remove':
+        handleRemove(message.data);
+        break;
+      default:
+        console.log('Bilinmeyen mesaj tipi:', message.type);
+    }
+  });
+} 
