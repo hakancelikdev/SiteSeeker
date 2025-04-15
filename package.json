@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
   "main": "main.js",
   "type": "commonjs",
