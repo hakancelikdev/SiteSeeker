@@ -4,6 +4,8 @@ const log = require('electron-log');
 const path = require('path');
 const Store = require('electron-store');
 const Database = require('better-sqlite3');
+const fs = require('fs');
+const os = require('os');
 
 let store;
 
@@ -389,138 +391,72 @@ async function importBrowserHistories() {
 }
 
 function createWindow() {
-  if (mainWindow === null || mainWindow.isDestroyed()) {
-    mainWindow = new BrowserWindow({
-      width: 800,
-      height: 60,
-      frame: false,
-      transparent: true,
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false
-      },
-      skipTaskbar: true,
-      alwaysOnTop: true,
-      resizable: false,
-      useContentSize: true
-    });
-
-    mainWindow.loadFile('index.html');
-    mainWindow.hide();
-
-    // macOS'a özel pencere yönetimi
-    mainWindow.on('blur', () => {
-      if (!mainWindow.webContents.isDevToolsOpened()) {
-        mainWindow.hide();
-        isVisible = false;
-      }
-    });
-
-    mainWindow.on('closed', () => {
-      mainWindow = null;
-    });
-  }
-}
-
-app.whenReady().then(async () => {
-  createWindow();
-  
-  // İlk çalıştırmada Chrome geçmişini içe aktar
-  if (!store) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  
-  if (store && !store.get('initialImportDone')) {
-    await importBrowserHistories();
-    store.set('initialImportDone', true);
-  }
-
-  // Her dakika otomatik import işlemini başlat
-  setInterval(async () => {
-    console.log('Otomatik import başlatılıyor...');
-    try {
-      const result = await importBrowserHistories();
-      if (result.success) {
-        console.log('Otomatik import başarılı');
-        if (mainWindow) {
-          mainWindow.webContents.send('import-complete', result);
-        }
-      } else {
-        console.error('Otomatik import başarısız:', result.error);
-      }
-    } catch (error) {
-      console.error('Otomatik import sırasında hata:', error);
-    }
-  }, 60000); // 60 saniye = 1 dakika
-
-  // Güncellemeleri kontrol et
-  autoUpdater.checkForUpdatesAndNotify();
-
-  globalShortcut.register('CommandOrControl+Shift+Space', toggleWindow);
-
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    resizable: false,
+    frame: false,
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
     }
   });
 
-  // Native messaging host'u kur
-  setupNativeMessagingHost();
-  setupNativeMessaging();
-});
+  mainWindow.loadFile('index.html');
 
-function toggleWindow() {
-  if (!mainWindow || mainWindow.isDestroyed()) {
-    createWindow();
-  }
+  // Pencereyi ekranın ortasına yerleştir
+  const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  mainWindow.setPosition(
+    Math.floor(width / 2 - 400),
+    Math.floor(height / 2 - 300)
+  );
 
-  if (isVisible) {
-    mainWindow.hide();
-  } else {
-    // Ekranın ortasında göster
-    const { screen } = require('electron');
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { width, height } = primaryDisplay.workAreaSize;
-    const windowBounds = mainWindow.getBounds();
-    
-    mainWindow.setPosition(
-      Math.round(width / 2 - windowBounds.width / 2),
-      Math.round(height / 3 - windowBounds.height / 2)
-    );
-    
-    mainWindow.show();
-    mainWindow.focus();
-  }
-  
-  isVisible = !isVisible;
+  mainWindow.on('blur', () => {
+    if (!mainWindow.webContents.isDevToolsOpened()) {
+      mainWindow.hide();
+      isVisible = false;
+    }
+  });
+
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+      isVisible = false;
+    }
+  });
 }
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
-});
-
-// Geçmiş araması için IPC iletişimi
-ipcMain.on('search-history', async (event, searchTerm) => {
-  console.log('Arama isteği alındı:', searchTerm);
-  const results = await searchHistory(searchTerm);
-  console.log('Arama sonuçları gönderiliyor:', results.length);
-  event.reply('search-results', results);
-});
-
-// Eski importChromeHistory fonksiyonunu kaldır ve yerine yeni fonksiyonu kullan
-ipcMain.on('import-chrome-history', async (event) => {
+// İlk çalıştırmada ve her dakikada bir geçmişi içe aktar
+let isFirstRun = true;
+async function autoImportHistory() {
   try {
     const result = await importBrowserHistories();
-    event.reply('import-complete', result);
+    if (result.success) {
+      log.info(`Otomatik geçmiş içe aktarma başarılı. Eklenen: ${result.added}, Güncellenen: ${result.updated}`);
+    } else {
+      log.error('Otomatik geçmiş içe aktarma başarısız:', result.error);
+    }
   } catch (error) {
-    console.error('Error importing browser histories:', error);
-    event.reply('import-complete', { success: false, error: error.message });
+    log.error('Otomatik geçmiş içe aktarma hatası:', error);
   }
-});
+  
+  if (isFirstRun) {
+    isFirstRun = false;
+    // İlk çalıştırmadan sonra her dakikada bir çalıştır
+    setInterval(autoImportHistory, 60000);
+  }
+}
 
-// Otomatik güncelleme olayları
+// Otomatik güncelleme ayarları
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+
 autoUpdater.on('checking-for-update', () => {
   log.info('Güncellemeler kontrol ediliyor...');
 });
@@ -538,253 +474,105 @@ autoUpdater.on('error', (err) => {
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-  let message = `Hız: ${progressObj.bytesPerSecond} - İndirilen: ${progressObj.percent}%`;
-  log.info(message);
+  let logMessage = `İndirme hızı: ${progressObj.bytesPerSecond}`;
+  logMessage += ` - İndirilen: ${progressObj.percent}%`;
+  logMessage += ` (${progressObj.transferred}/${progressObj.total})`;
+  log.info(logMessage);
 });
 
 autoUpdater.on('update-downloaded', (info) => {
   log.info('Güncelleme indirildi:', info);
-  // 5 saniye sonra güncellemeyi yükle ve yeniden başlat
-  setTimeout(() => {
-    autoUpdater.quitAndInstall();
-  }, 5000);
+  autoUpdater.quitAndInstall();
 });
 
-// URL açma için IPC iletişimi
+app.on('ready', () => {
+  createWindow();
+  autoImportHistory();
+
+  // Global kısayol tuşu kaydet
+  globalShortcut.register('CommandOrControl+Shift+Space', () => {
+    if (isVisible) {
+      mainWindow.hide();
+      isVisible = false;
+    } else {
+      mainWindow.show();
+      isVisible = true;
+      mainWindow.webContents.send('show-window');
+    }
+  });
+
+  // Güncellemeleri kontrol et
+  if (process.env.NODE_ENV !== 'development') {
+    autoUpdater.checkForUpdates();
+  }
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (mainWindow === null) {
+    createWindow();
+  }
+});
+
+app.on('before-quit', () => {
+  app.isQuitting = true;
+});
+
+// IPC olayları
+ipcMain.on('search-history', async (event, searchTerm) => {
+  try {
+    const results = await searchHistory(searchTerm);
+    event.reply('search-results', results);
+  } catch (error) {
+    console.error('Arama hatası:', error);
+    event.reply('search-results', []);
+  }
+});
+
+ipcMain.on('import-chrome-history', async (event) => {
+  try {
+    const result = await importBrowserHistories();
+    event.reply('import-complete', result);
+  } catch (error) {
+    console.error('İçe aktarma hatası:', error);
+    event.reply('import-complete', { success: false, error: error.message });
+  }
+});
+
 ipcMain.on('open-url', (event, url) => {
   require('electron').shell.openExternal(url);
 });
 
-// Pencere boyutlandırma için IPC iletişimi
-ipcMain.on('resize-window', (event, height) => {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    const currentBounds = mainWindow.getBounds();
-    mainWindow.setBounds({
-      x: currentBounds.x,
-      y: currentBounds.y,
-      width: currentBounds.width,
-      height: height
-    });
+ipcMain.on('resize-window', (event, { width, height }) => {
+  if (mainWindow) {
+    const currentPosition = mainWindow.getPosition();
+    mainWindow.setSize(width, height);
+    mainWindow.setPosition(currentPosition[0], currentPosition[1]);
   }
 });
 
-// Geçmiş verilerini sıfırla
+// Geçmişi sıfırla
 async function resetHistory() {
-  if (!store) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  if (!store) return false;
-  
   try {
-    store.delete('savedHistory');
-    store.delete('initialImportDone');
-    console.log('Geçmiş başarıyla sıfırlandı');
-    return true;
+    await saveHistory([]);
+    return { success: true };
   } catch (error) {
-    console.error('Geçmiş sıfırlanırken hata:', error);
-    return false;
+    console.error('Geçmiş sıfırlama hatası:', error);
+    return { success: false, error: error.message };
   }
 }
 
-// Reset için IPC iletişimi
 ipcMain.on('reset-history', async (event) => {
   try {
-    const success = await resetHistory();
-    event.reply('reset-complete', { success });
+    const result = await resetHistory();
+    event.reply('reset-complete', result);
   } catch (error) {
-    console.error('Error resetting history:', error);
+    console.error('Sıfırlama hatası:', error);
     event.reply('reset-complete', { success: false, error: error.message });
   }
-});
-
-// Son kontrol edilen zaman damgasını sakla
-let lastCheckedTime = Date.now();
-
-// Periyodik olarak geçmiş değişikliklerini kontrol et
-async function checkHistoryChanges() {
-  try {
-    const os = require('os');
-    const fs = require('fs');
-    
-    // Chrome için kontrol
-    const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
-    if (fs.existsSync(chromeBasePath)) {
-      const profiles = fs.readdirSync(chromeBasePath)
-        .filter(item => {
-          const itemPath = path.join(chromeBasePath, item);
-          return fs.existsSync(itemPath) && 
-                 fs.statSync(itemPath).isDirectory() && 
-                 fs.existsSync(path.join(itemPath, 'History'));
-        });
-
-      for (const profile of profiles) {
-        try {
-          const historyPath = path.join(chromeBasePath, profile, 'History');
-          const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
-          fs.copyFileSync(historyPath, tempPath);
-          
-          const db = new Database(tempPath, { readonly: true });
-          
-          // Son kontrolden sonra eklenen kayıtları al
-          const results = db.prepare(`
-            SELECT url, title, visit_count, typed_count, last_visit_time
-            FROM urls
-            WHERE title IS NOT NULL AND last_visit_time/1000000 > ?
-            ORDER BY last_visit_time DESC
-          `).all(lastCheckedTime);
-          
-          if (results.length > 0) {
-            console.log(`${profile} profilinde ${results.length} yeni ziyaret bulundu`);
-            
-            // Mevcut geçmişi yükle
-            let savedHistory = await loadHistory();
-            let updated = false;
-            
-            // Her yeni kayıt için
-            for (const item of results) {
-              const existingItem = savedHistory.find(h => h.url === item.url);
-              if (existingItem) {
-                // Mevcut kaydın skorunu artır
-                existingItem.score += 1;
-                updated = true;
-              } else {
-                // Yeni kayıt ekle
-                savedHistory.push({
-                  url: item.url,
-                  title: item.title,
-                  score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
-                  source: `Chrome (${profile})`
-                });
-                updated = true;
-              }
-            }
-            
-            // Değişiklik varsa kaydet
-            if (updated) {
-              await saveHistory(savedHistory);
-              console.log('Geçmiş güncellendi');
-            }
-          }
-          
-          db.close();
-          fs.unlinkSync(tempPath);
-        } catch (error) {
-          console.error(`Chrome ${profile} geçmişi kontrol edilirken hata:`, error);
-        }
-      }
-    }
-    
-    // Firefox için benzer kontrol eklenebilir...
-    
-    // Son kontrol zamanını güncelle
-    lastCheckedTime = Date.now();
-  } catch (error) {
-    console.error('Geçmiş değişiklikleri kontrol edilirken hata:', error);
-  }
-}
-
-// Uygulama başladığında periyodik kontrolü başlat
-app.on('ready', () => {
-  // Her 5 dakikada bir kontrol et
-  setInterval(checkHistoryChanges, 5 * 60 * 1000);
-});
-
-// Native messaging host için gerekli yapılandırma
-function setupNativeMessagingHost() {
-  const fs = require('fs');
-  const os = require('os');
-  const path = require('path');
-
-  // Native messaging host manifest dosyası
-  const manifest = {
-    name: 'dev.hakancelik.siteseeker',
-    description: 'SiteSeeker Native Messaging Host',
-    path: process.execPath,
-    type: 'stdio',
-    allowed_origins: [
-      'chrome-extension://*' // Geliştirme sırasında tüm uzantılara izin ver
-    ]
-  };
-
-  // Manifest dosyasının kaydedileceği dizin
-  const manifestPath = path.join(
-    os.homedir(),
-    'Library/Application Support/Google/Chrome/NativeMessagingHosts',
-    'dev.hakancelik.siteseeker.json'
-  );
-
-  // Dizini oluştur
-  fs.mkdirSync(path.dirname(manifestPath), { recursive: true });
-
-  // Manifest dosyasını kaydet
-  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
-  console.log('Native messaging host manifest dosyası oluşturuldu:', manifestPath);
-}
-
-// URL ziyaret olayını işle
-async function handleVisit(data) {
-  try {
-    let savedHistory = await loadHistory();
-    const existingItem = savedHistory.find(item => item.url === data.url);
-
-    if (existingItem) {
-      // Mevcut kaydın skorunu artır
-      existingItem.score += 1;
-      existingItem.lastVisited = data.timestamp;
-    } else {
-      // Yeni kayıt ekle
-      savedHistory.push({
-        url: data.url,
-        title: data.title,
-        score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
-        lastVisited: data.timestamp,
-        source: 'Chrome Extension'
-      });
-    }
-
-    await saveHistory(savedHistory);
-    console.log('Geçmiş güncellendi - URL:', data.url);
-  } catch (error) {
-    console.error('URL ziyareti işlenirken hata:', error);
-  }
-}
-
-// URL silme olayını işle
-async function handleRemove(data) {
-  try {
-    let savedHistory = await loadHistory();
-    
-    if (data.allHistory) {
-      // Tüm geçmişi sil
-      savedHistory = [];
-    } else {
-      // Belirtilen URL'leri sil
-      savedHistory = savedHistory.filter(item => !data.urls.includes(item.url));
-    }
-
-    await saveHistory(savedHistory);
-    console.log('Silinen URL sayısı:', data.urls ? data.urls.length : 'tümü');
-  } catch (error) {
-    console.error('URL silme işlenirken hata:', error);
-  }
-}
-
-// Native messaging bağlantısını kur
-function setupNativeMessaging() {
-  const { ipcMain } = require('electron');
-
-  ipcMain.on('extension-message', (event, message) => {
-    console.log('Uzantıdan mesaj alındı:', message);
-
-    switch (message.type) {
-      case 'visit':
-        handleVisit(message.data);
-        break;
-      case 'remove':
-        handleRemove(message.data);
-        break;
-      default:
-        console.log('Bilinmeyen mesaj tipi:', message.type);
-    }
-  });
-} 
+}); 
