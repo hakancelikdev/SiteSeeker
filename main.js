@@ -3,6 +3,7 @@ const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
 const path = require('path');
 const Store = require('electron-store');
+const Database = require('better-sqlite3');
 
 let store;
 
@@ -147,8 +148,6 @@ async function importBrowserHistories() {
     console.log('Tarayıcı geçmişleri import işlemi başlatılıyor...');
     const os = require('os');
     const fs = require('fs');
-    const sqlite3 = require('sqlite3');
-    const { open } = require('sqlite');
     
     let allHistory = [];
     let safariPermissionError = false;
@@ -170,18 +169,15 @@ async function importBrowserHistories() {
           const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
           fs.copyFileSync(historyPath, tempPath);
           
-          const db = await open({
-            filename: tempPath,
-            driver: sqlite3.Database
-          });
+          const db = new Database(tempPath, { readonly: true });
           
-          const results = await db.all(`
+          const results = db.prepare(`
             SELECT url, title, visit_count, typed_count
             FROM urls
             WHERE title IS NOT NULL
             ORDER BY last_visit_time DESC
             LIMIT 1000
-          `);
+          `).all();
           
           allHistory.push(...results.map(item => ({
             url: item.url,
@@ -190,7 +186,7 @@ async function importBrowserHistories() {
             source: `Chrome (${profile})`
           })));
           
-          await db.close();
+          db.close();
           fs.unlinkSync(tempPath);
         } catch (error) {
           console.error(`Chrome ${profile} geçmişi alınırken hata:`, error);
@@ -212,18 +208,15 @@ async function importBrowserHistories() {
           const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
           fs.copyFileSync(historyPath, tempPath);
           
-          const db = await open({
-            filename: tempPath,
-            driver: sqlite3.Database
-          });
+          const db = new Database(tempPath, { readonly: true });
           
-          const results = await db.all(`
+          const results = db.prepare(`
             SELECT url, title, visit_count
             FROM moz_places
             WHERE title IS NOT NULL
             ORDER BY last_visit_date DESC
             LIMIT 1000
-          `);
+          `).all();
           
           allHistory.push(...results.map(item => ({
             url: item.url,
@@ -232,7 +225,7 @@ async function importBrowserHistories() {
             source: `Firefox (${profile})`
           })));
           
-          await db.close();
+          db.close();
           fs.unlinkSync(tempPath);
         } catch (error) {
           console.error(`Firefox ${profile} geçmişi alınırken hata:`, error);
@@ -247,26 +240,23 @@ async function importBrowserHistories() {
         const tempPath = path.join(app.getPath('temp'), 'safari_history_temp');
         fs.copyFileSync(safariHistoryPath, tempPath);
         
-        const db = await open({
-          filename: tempPath,
-          driver: sqlite3.Database
-        });
+        const db = new Database(tempPath, { readonly: true });
 
         // Safari'nin History.db şemasını kontrol et
-        const tables = await db.all(`
+        const tables = db.prepare(`
           SELECT name FROM sqlite_master 
           WHERE type='table' AND name NOT LIKE 'sqlite_%'
-        `);
+        `).all();
         console.log('Safari veritabanı tabloları:', tables);
 
         // Önce tabloların yapısını kontrol et
         for (const table of tables) {
-          const columns = await db.all(`PRAGMA table_info(${table.name})`);
+          const columns = db.prepare(`PRAGMA table_info(${table.name})`).all();
           console.log(`${table.name} tablosunun yapısı:`, columns);
         }
         
         // Farklı bir sorgu deneyelim
-        const results = await db.all(`
+        let results = db.prepare(`
           SELECT h.url, h.title, COUNT(v.id) as visit_count
           FROM history_items h
           LEFT JOIN history_visits v ON v.history_item = h.id
@@ -274,19 +264,18 @@ async function importBrowserHistories() {
           GROUP BY h.id
           ORDER BY MAX(v.visit_time) DESC
           LIMIT 1000
-        `);
+        `).all();
         
         if (results.length === 0) {
           console.log('Safari geçmişinde kayıt bulunamadı, alternatif sorgu deneniyor...');
           // Alternatif sorgu dene
-          const altResults = await db.all(`
+          results = db.prepare(`
             SELECT url, title, 1 as visit_count
             FROM history_items
             WHERE title IS NOT NULL AND title != ''
             ORDER BY id DESC
             LIMIT 1000
-          `);
-          results.push(...altResults);
+          `).all();
         }
         
         console.log('Safari geçmişinden alınan kayıt sayısı:', results.length);
@@ -298,7 +287,7 @@ async function importBrowserHistories() {
           source: 'Safari'
         })));
         
-        await db.close();
+        db.close();
         fs.unlinkSync(tempPath);
       } catch (error) {
         console.error('Safari geçmişi alınırken hata:', error);
@@ -616,8 +605,6 @@ async function checkHistoryChanges() {
   try {
     const os = require('os');
     const fs = require('fs');
-    const sqlite3 = require('sqlite3');
-    const { open } = require('sqlite');
     
     // Chrome için kontrol
     const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
@@ -636,18 +623,15 @@ async function checkHistoryChanges() {
           const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
           fs.copyFileSync(historyPath, tempPath);
           
-          const db = await open({
-            filename: tempPath,
-            driver: sqlite3.Database
-          });
+          const db = new Database(tempPath, { readonly: true });
           
           // Son kontrolden sonra eklenen kayıtları al
-          const results = await db.all(`
+          const results = db.prepare(`
             SELECT url, title, visit_count, typed_count, last_visit_time
             FROM urls
             WHERE title IS NOT NULL AND last_visit_time/1000000 > ?
             ORDER BY last_visit_time DESC
-          `, [lastCheckedTime]);
+          `).all(lastCheckedTime);
           
           if (results.length > 0) {
             console.log(`${profile} profilinde ${results.length} yeni ziyaret bulundu`);
@@ -682,7 +666,7 @@ async function checkHistoryChanges() {
             }
           }
           
-          await db.close();
+          db.close();
           fs.unlinkSync(tempPath);
         } catch (error) {
           console.error(`Chrome ${profile} geçmişi kontrol edilirken hata:`, error);

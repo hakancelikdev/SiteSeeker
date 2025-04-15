@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
   "main": "main.js",
   "type": "commonjs",
@@ -49,7 +49,6 @@
     "electron-log": "^5.3.3",
     "electron-store": "^7.0.3",
     "electron-updater": "^6.6.2",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "better-sqlite3": "^9.4.3"
   }
 }
