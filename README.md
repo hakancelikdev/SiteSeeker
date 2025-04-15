@@ -69,6 +69,24 @@ Instantly search through your browser history and save time! Access your history
 2. Open the DMG file and install the application
 3. Access from anywhere with ⌘+⇧+Space!
 
+### 🔄 Manual Updates
+
+While SiteSeeker checks for updates automatically when launched, you can also manually check and install updates:
+
+1. Visit the [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) page
+2. Find the latest version (marked with a "Latest" tag)
+3. Download the appropriate file:
+   - For a fresh installation: Download `SiteSeeker-{version}.dmg`
+   - For updating: You can use either the `.dmg` or `.zip` file
+4. If using the DMG:
+   - Open the downloaded DMG file
+   - Drag SiteSeeker to the Applications folder
+   - Replace the existing application if prompted
+5. If using ZIP:
+   - Extract the ZIP file
+   - Move the extracted SiteSeeker app to your Applications folder
+   - Replace the existing application if prompted
+
 ### 🔌 As Chrome Extension
 
 1. Install the "SiteSeeker" extension from Chrome Web Store
@@ -109,7 +127,11 @@ Instantly search through your browser history and save time! Access your history
 - **Electron-Based**: Modern and fast desktop application
 - **Chrome Manifest V3**: Latest technology extension support
 - **SQLite Integration**: Fast and reliable data storage
-- **Auto-Update**: Always have the latest version
+- **Auto-Update System**: 
+  - Automatic update checks on application launch
+  - Silent download and installation of updates
+  - Manual update option via GitHub Releases
+  - Seamless version transitions
 
 ## 🤝 Community and Support
 
