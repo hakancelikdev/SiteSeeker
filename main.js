@@ -73,10 +73,12 @@ async function searchHistory(searchTerm) {
       item.url.toLowerCase().includes(searchTermLower)
     )
     .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
+    .slice(0, 50);
 
   console.log(`Bulunan sonuç sayısı: ${results.length}`);
-  console.log('İlk birkaç sonuç:', results.slice(0, 3));
+  if (results.length > 0) {
+    console.log('İlk birkaç sonuç:', results.slice(0, 3));
+  }
   
   return results;
 }
@@ -248,16 +250,45 @@ async function importBrowserHistories() {
           filename: tempPath,
           driver: sqlite3.Database
         });
+
+        // Safari'nin History.db şemasını kontrol et
+        const tables = await db.all(`
+          SELECT name FROM sqlite_master 
+          WHERE type='table' AND name NOT LIKE 'sqlite_%'
+        `);
+        console.log('Safari veritabanı tabloları:', tables);
+
+        // Önce tabloların yapısını kontrol et
+        for (const table of tables) {
+          const columns = await db.all(`PRAGMA table_info(${table.name})`);
+          console.log(`${table.name} tablosunun yapısı:`, columns);
+        }
         
+        // Farklı bir sorgu deneyelim
         const results = await db.all(`
-          SELECT i.url, i.title, v.visit_count
-          FROM history_items i
-          LEFT JOIN history_visits v ON v.history_item = i.id
-          WHERE i.title IS NOT NULL
-          GROUP BY i.id
-          ORDER BY v.visit_time DESC
+          SELECT h.url, h.title, COUNT(v.id) as visit_count
+          FROM history_items h
+          LEFT JOIN history_visits v ON v.history_item = h.id
+          WHERE h.title IS NOT NULL AND h.title != ''
+          GROUP BY h.id
+          ORDER BY MAX(v.visit_time) DESC
           LIMIT 1000
         `);
+        
+        if (results.length === 0) {
+          console.log('Safari geçmişinde kayıt bulunamadı, alternatif sorgu deneniyor...');
+          // Alternatif sorgu dene
+          const altResults = await db.all(`
+            SELECT url, title, 1 as visit_count
+            FROM history_items
+            WHERE title IS NOT NULL AND title != ''
+            ORDER BY id DESC
+            LIMIT 1000
+          `);
+          results.push(...altResults);
+        }
+        
+        console.log('Safari geçmişinden alınan kayıt sayısı:', results.length);
         
         allHistory.push(...results.map(item => ({
           url: item.url,
@@ -283,37 +314,51 @@ async function importBrowserHistories() {
     // URL'ye göre benzersiz kayıtları birleştir
     const urlMap = new Map();
     
-    // Önce mevcut kayıtları ekle
-    savedHistory.forEach(item => {
-      urlMap.set(item.url, item);
+    // Önce yeni kayıtları ekle (score değeri geçerli olanları)
+    allHistory.forEach(item => {
+      // Score değeri kontrolü
+      if (!item.score || item.score <= 0) {
+        return; // Score değeri geçersiz olan kayıtları atla
+      }
+
+      urlMap.set(item.url, {
+        ...item,
+        sources: [item.source]
+      });
     });
     
-    // Yeni kayıtları ekle veya mevcut kayıtları güncelle
+    // Mevcut kayıtları kontrol et ve sadece geçerli score değeri olanları ekle
     let addedCount = 0;
     let updatedCount = 0;
     
-    allHistory.forEach(item => {
-      if (urlMap.has(item.url)) {
-        const existingItem = urlMap.get(item.url);
-        existingItem.score += item.score;
-        existingItem.sources = existingItem.sources || [existingItem.source];
-        if (item.source && !existingItem.sources.includes(item.source)) {
-          existingItem.sources.push(item.source);
+    savedHistory.forEach(item => {
+      // Mevcut kayıtlarda da score kontrolü yap
+      if (!item.score || item.score <= 0) {
+        return; // Score değeri geçersiz olan kayıtları atla
+      }
+
+      if (!urlMap.has(item.url)) {
+        // Eğer URL yeni kayıtlarda yoksa, mevcut kaydı koru
+        urlMap.set(item.url, item);
+      } else {
+        // Eğer URL yeni kayıtlarda varsa, source bilgisini güncelle
+        const newItem = urlMap.get(item.url);
+        if (item.sources) {
+          item.sources.forEach(source => {
+            if (!newItem.sources.includes(source)) {
+              newItem.sources.push(source);
+            }
+          });
         }
         updatedCount++;
-      } else {
-        urlMap.set(item.url, {
-          ...item,
-          sources: [item.source]
-        });
-        addedCount++;
       }
     });
     
     // Map'ten final listeyi oluştur
     savedHistory = Array.from(urlMap.values());
+    addedCount = savedHistory.length - updatedCount;
     
-    console.log(`Eklenen yeni kayıt: ${addedCount}, Güncellenen kayıt: ${updatedCount}`);
+    console.log(`Eklenen yeni kayıt: ${addedCount}, Güncellenen kayıt: ${updatedCount}, Toplam kayıt: ${savedHistory.length}`);
     
     // Kaydet
     await saveHistory(savedHistory);
@@ -481,5 +526,34 @@ ipcMain.on('resize-window', (event, height) => {
       width: currentBounds.width,
       height: height
     });
+  }
+});
+
+// Geçmiş verilerini sıfırla
+async function resetHistory() {
+  if (!store) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  if (!store) return false;
+  
+  try {
+    store.delete('savedHistory');
+    store.delete('initialImportDone');
+    console.log('Geçmiş başarıyla sıfırlandı');
+    return true;
+  } catch (error) {
+    console.error('Geçmiş sıfırlanırken hata:', error);
+    return false;
+  }
+}
+
+// Reset için IPC iletişimi
+ipcMain.on('reset-history', async (event) => {
+  try {
+    const success = await resetHistory();
+    event.reply('reset-complete', { success });
+  } catch (error) {
+    console.error('Error resetting history:', error);
+    event.reply('reset-complete', { success: false, error: error.message });
   }
 }); 
