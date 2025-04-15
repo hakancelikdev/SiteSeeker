@@ -21,35 +21,31 @@ Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık 
 
 #### Gereksinimler
 - Node.js ve npm yüklü olmalı
+- macOS için Xcode Command Line Tools yüklü olmalı
 
-#### Chrome ve Firefox için Build
+#### Hızlı Build (Önerilen Yöntem)
 1. Projeyi klonlayın:
    ```bash
    git clone https://github.com/hakancelikdev/SiteSeeker.git
    cd SiteSeeker
    ```
 
-2. Build alın:
+2. Build script'i kullanarak build alın:
    ```bash
-   # dist dizinini temizle ve yeni dizinleri oluştur
-   rm -rf dist && mkdir -p dist/chrome dist/firefox
+   # Tüm platformlar için build almak (macOS app + browser extensions)
+   ./build.sh all
 
-   # Chrome için dosyaları kopyala
-   cp background.js popup.js popup.html icon.png dist/chrome/
-   cp manifest.chrome.json dist/chrome/manifest.json
+   # Sadece browser extensions için build almak
+   ./build.sh extensions
 
-   # Firefox için dosyaları kopyala
-   cp background.js popup.js popup.html icon.png dist/firefox/
-   cp manifest.firefox.json dist/firefox/manifest.json
-
-   # ZIP dosyalarını oluştur
-   cd dist/chrome && zip -r ../siteseeker-chrome.zip .
-   cd ../firefox && zip -r ../siteseeker-firefox.zip .
+   # Sadece macOS uygulaması için build almak
+   ./build.sh macos
    ```
 
 3. Build çıktıları:
-   - Chrome: `dist/siteseeker-chrome.zip`
-   - Firefox: `dist/siteseeker-firefox.zip`
+   - Chrome Extension: `dist/siteseeker-chrome.zip`
+   - Firefox Extension: `dist/siteseeker-firefox.zip`
+   - macOS Uygulaması: `dist/SiteSeeker-1.0.0-arm64.dmg` (Apple Silicon) ve `dist/SiteSeeker-1.0.0-arm64-mac.zip`
 
 #### Eklentiyi Test Etme
 
