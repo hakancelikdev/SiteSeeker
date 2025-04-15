@@ -185,7 +185,7 @@ async function importBrowserHistories() {
           allHistory.push(...results.map(item => ({
             url: item.url,
             title: item.title,
-            score: INITIAL_SCORE + (item.visit_count + (item.typed_count || 0)),
+            score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
             source: `Chrome (${profile})`
           })));
           
@@ -667,7 +667,7 @@ async function checkHistoryChanges() {
                 savedHistory.push({
                   url: item.url,
                   title: item.title,
-                  score: INITIAL_SCORE + (item.visit_count + (item.typed_count || 0)),
+                  score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
                   source: `Chrome (${profile})`
                 });
                 updated = true;
@@ -751,7 +751,7 @@ async function handleVisit(data) {
       savedHistory.push({
         url: data.url,
         title: data.title,
-        score: INITIAL_SCORE,
+        score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
         lastVisited: data.timestamp,
         source: 'Chrome Extension'
       });

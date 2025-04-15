@@ -92,7 +92,7 @@ async function processHistoryBatch(startTime, endTime) {
             .map(item => ({
                 url: item.url,
                 title: item.title,
-                score: INITIAL_SCORE + Math.log(1 + item.visitCount + (item.typedCount || 0)),
+                score: INITIAL_SCORE + item.visitCount + (item.typedCount || 0),
                 lastVisitTime: item.lastVisitTime
             }));
     } catch (error) {

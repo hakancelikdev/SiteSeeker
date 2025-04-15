@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Skor bilgisi
             const scoreSpan = document.createElement("span");
-            scoreSpan.textContent = `Skor: ${item.score.toFixed(2)}`;
+            scoreSpan.textContent = `Skor: ${Math.round(item.score)}`;
             scoreSpan.className = "score";
 
             listItem.appendChild(titleLink);
