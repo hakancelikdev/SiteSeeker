@@ -1,116 +1,84 @@
-# Fast History Search
+# Fast History Search 🚀
 
-Tarayıcı geçmişinizde hızlı arama yapmanızı sağlayan bir masaüstü uygulaması ve tarayıcı eklentisi.
+Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık bir arayüz ile geçmişinize hızlıca erişin.
 
-## Özellikler
+![Fast History Search Banner](assets/banner.png)
 
-- 🚀 Hızlı ve anlık arama
-- 📊 Ziyaret ve yazma sıklığına göre akıllı sıralama
-- 🔄 Gerçek zamanlı geçmiş güncellemesi
-- 🌐 Chrome, Firefox ve Safari uyumluluğu
-- 🔍 Başlık ve URL'lerde arama
-- 📱 macOS Sonoma tarzında modern arayüz
-- ⌨️ Global kısayol tuşu desteği (⌘+⇧+Space)
-- 🔄 Otomatik güncelleme sistemi
-- 📊 İçe aktarma istatistikleri
-- 🎨 Dinamik pencere boyutlandırma
+## ✨ Neden Fast History Search?
 
-## Kurulum
+- **⚡️ Anında Arama**: Millisaniyeler içinde sonuçlar
+- **🎯 Akıllı Sıralama**: En çok ziyaret ettiğiniz sayfalar her zaman üstte
+- **🔍 Çoklu Tarayıcı Desteği**: Chrome, Firefox ve Safari geçmişinizi tek bir yerden arayın
+- **⌨️ Global Kısayol**: ⌘+⇧+Space ile her yerden hızlıca erişin
+- **🎨 Modern Tasarım**: macOS Sonoma tarzında şık ve modern arayüz
+- **🔄 Gerçek Zamanlı**: Geçmiş güncellemelerini anında yakalar
+- **🔒 Gizlilik Odaklı**: Tüm veriler sadece sizin bilgisayarınızda
+- **📱 İki Kullanım Seçeneği**: İster masaüstü uygulaması, ister Chrome uzantısı olarak kullanın
 
-### Masaüstü Uygulaması
+## 🎬 Hızlı Başlangıç
 
-1. En son sürümü [Releases](https://github.com/hakancelikdev/FastHistorySearch/releases) sayfasından indirin
-2. DMG dosyasını açın ve uygulamayı Applications klasörüne sürükleyin
-3. İlk çalıştırmada Safari geçmişine erişim için "Tam Disk Erişimi" izni vermeniz gerekebilir:
-   - Sistem Ayarları > Gizlilik ve Güvenlik > Tam Disk Erişimi
-   - "Fast History Search" uygulamasını etkinleştirin
+### 💻 Masaüstü Uygulaması Olarak
 
-### Chrome Eklentisi
+1. [Releases](https://github.com/hakancelikdev/FastHistorySearch/releases) sayfasından son sürümü indirin
+2. DMG dosyasını açın ve uygulamayı yükleyin
+3. ⌘+⇧+Space kısayolu ile her yerden erişin!
 
-1. `extension` klasörünü Chrome'da `chrome://extensions/` adresine yükleyin
-2. Geliştirici modunu aktif edin
-3. "Paketlenmemiş öğe yükle" ile extension klasörünü seçin
-4. Native messaging host'u kurmak için:
-   ```bash
-   cd extension
-   chmod +x install_host.sh
-   ./install_host.sh
-   ```
+### 🔌 Chrome Uzantısı Olarak
 
-## Kullanım
+1. Chrome Web Store'dan "Fast History Search" uzantısını yükleyin
+2. Tarayıcı çubuğundaki ikona tıklayarak kullanmaya başlayın
 
-1. Uygulamayı başlatın
-2. ⌘+⇧+Space kısayolunu kullanarak arama penceresini açın
-3. Arama yapmak istediğiniz terimi girin
-4. Sonuçlar otomatik olarak görüntülenecektir
-5. Sonuçlar ziyaret sıklığı ve yazma sıklığına göre sıralanır
-6. İstediğiniz sonuca tıklayarak ilgili sayfaya gidebilirsiniz
-7. Geçmişi içe aktarmak için 🔄 butonunu kullanın
-8. Geçmişi sıfırlamak için 🗑️ butonunu kullanın
+## 🌟 Öne Çıkan Özellikler
 
-## Teknik Detaylar
+### 🎯 Akıllı Arama Algoritması
+- Ziyaret sıklığına göre akıllı sıralama
+- URL ve başlıklarda anında arama
+- Yazım hatalarına karşı toleranslı
 
-- Electron tabanlı masaüstü uygulaması
-- Chrome Manifest V3 uyumlu eklenti
-- Native messaging ile uygulama-eklenti iletişimi
-- SQLite veritabanı entegrasyonu
-- Akıllı puanlama sistemi
-- Otomatik güncelleme sistemi
-- Maksimum 10,000 kayıt depolama limiti
-- electron-store ile yerel veri depolama
-- Gerçek zamanlı geçmiş senkronizasyonu
+### 🎨 Modern ve Şık Arayüz
+- macOS Sonoma tarzında tasarım
+- Dinamik pencere boyutlandırma
+- Pürüzsüz animasyonlar
+- Koyu mod desteği
 
-## Gizlilik
+### ⚡️ Performans Odaklı
+- Millisaniyeler içinde sonuçlar
+- Düşük sistem kaynağı kullanımı
+- Arka planda minimum etki
 
-- Tüm veriler yerel olarak saklanır
-- Hiçbir veri harici sunuculara gönderilmez
-- Sadece ziyaret edilen sayfaların başlık ve URL bilgileri kaydedilir
-- Safari geçmişi için Tam Disk Erişimi gereklidir
+### 🔒 Gizlilik ve Güvenlik
+- Veriler sadece yerel cihazınızda
+- Hiçbir veri paylaşımı yok
+- Açık kaynak kod
 
-## Geliştirme
+## 📊 Kullanıcı Deneyimi
 
-```bash
-# Depoyu klonlayın
-git clone https://github.com/hakancelikdev/FastHistorySearch.git
+- **Hızlı Erişim**: Global kısayol ile her yerden anında erişim
+- **Kolay Kullanım**: Sezgisel arayüz, minimum öğrenme eğrisi
+- **Akıllı Sonuçlar**: En çok kullandığınız sayfalar her zaman üstte
+- **İstatistikler**: İçe aktarılan ve taranan geçmiş sayısını görün
 
-# Dizine gidin
-cd FastHistorySearch
+## 🛠 Teknik Özellikler
 
-# Bağımlılıkları yükleyin
-npm install
+- **Electron Tabanlı**: Modern ve hızlı masaüstü uygulaması
+- **Chrome Manifest V3**: En son teknoloji uzantı desteği
+- **SQLite Entegrasyonu**: Hızlı ve güvenilir veri depolama
+- **Otomatik Güncelleme**: Her zaman en son sürüme sahip olun
 
-# Geliştirme modunda çalıştırın
-npm start
+## 🤝 Topluluk ve Destek
 
-# Uygulamayı paketleyin
-npm run dist
-```
+- [GitHub Issues](https://github.com/hakancelikdev/FastHistorySearch/issues): Hata raporları ve öneriler
+- [Twitter](https://twitter.com/hakancelikdev): Güncellemeler ve duyurular
+- [GitHub Discussions](https://github.com/hakancelikdev/FastHistorySearch/discussions): Topluluk tartışmaları
 
-## Dağıtım
+## 📝 Lisans
 
-```bash
-# macOS için uygulama oluşturma
-npm run dist
+[GNU General Public License v3.0](LICENSE) - Bu yazılım özgür bir yazılımdır. Herkes bu yazılımı kopyalayabilir, dağıtabilir ve/veya değiştirebilir.
 
-# Oluşturulan dosyalar dist/ klasöründe:
-# - Fast History Search-1.0.0-arm64.dmg
-# - Fast History Search-1.0.0-arm64-mac.zip
-```
+## 👨‍💻 Geliştirici
 
-## Katkıda Bulunma
+Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 
-1. Bu depoyu forklayın
-2. Yeni bir branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'feat: add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Bir Pull Request oluşturun
+---
 
-## Lisans
-
-[MIT License](LICENSE)
-
-## İletişim
-
-Hakan Çelik - [@hakancelikdev](https://twitter.com/hakancelikdev)
-
-Proje Linki: [https://github.com/hakancelikdev/FastHistorySearch](https://github.com/hakancelikdev/FastHistorySearch)
+⭐️ Eğer Fast History Search'ü beğendiyseniz, yıldız vermeyi unutmayın!
