@@ -564,10 +564,10 @@ ipcMain.on('open-url', (event, url) => {
   require('electron').shell.openExternal(url);
 });
 
-ipcMain.on('resize-window', (event, height) => {
+ipcMain.on('resize-window', (event, { width, height }) => {
   if (mainWindow) {
     const currentPosition = mainWindow.getPosition();
-    mainWindow.setSize(800, height); // Sabit genişlik: 800px
+    mainWindow.setSize(width, height);
     mainWindow.setPosition(currentPosition[0], currentPosition[1]);
   }
 });
