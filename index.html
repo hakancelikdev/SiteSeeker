@@ -4,126 +4,229 @@
     <title>Fast History Search</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        body {
+        :root {
+            --primary-bg: rgba(28, 28, 28, 0.85);
+            --secondary-bg: rgba(255, 255, 255, 0.08);
+            --text-primary: rgba(255, 255, 255, 0.95);
+            --text-secondary: rgba(255, 255, 255, 0.65);
+            --accent-color: #0A84FF;
+            --danger-color: #FF453A;
+            --success-color: #32D74B;
+            --border-radius: 12px;
+            --button-radius: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
             margin: 0;
-            padding: 10px;
-            background-color: rgba(28, 28, 28, 0.95);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            border-radius: 10px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
             overflow: hidden;
+            background: transparent;
+        }
+
+        body {
+            padding: 16px;
+            background-color: var(--primary-bg);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            border-radius: var(--border-radius);
+            color: var(--text-primary);
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 100px;
+            position: relative;
         }
 
         #search-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
         }
 
         #search-input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 12px 16px;
             border: none;
-            border-radius: 6px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
+            border-radius: var(--button-radius);
+            background-color: rgba(0, 0, 0, 0.25);
+            color: var(--text-primary);
             font-size: 16px;
             outline: none;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1),
+                       0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        #search-input:focus {
+            background-color: rgba(0, 0, 0, 0.35);
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2),
+                       0 0 0 4px rgba(10, 132, 255, 0.3);
         }
 
         #search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
         }
 
         #results-container {
-            max-height: 600px;
+            flex: 1;
             overflow-y: auto;
             display: none;
+            border-radius: var(--border-radius);
+            background-color: rgba(0, 0, 0, 0.2);
+            margin-top: 4px;
+            min-height: 0;
         }
 
         .results-header {
-            padding: 8px 12px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
             margin-bottom: 8px;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            background-color: rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.3px;
+            z-index: 1;
         }
 
         .result-item {
-            padding: 8px 12px;
+            padding: 12px 16px;
             cursor: pointer;
-            border-radius: 6px;
-            color: white;
+            border-radius: var(--button-radius);
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            margin: 4px 8px;
+            transition: var(--transition);
+            background-color: rgba(255, 255, 255, 0.03);
+            min-height: 64px;
         }
 
         .result-item:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.08);
+            transform: translateX(4px) scale(1.01);
+        }
+
+        .result-item:active {
+            transform: translateX(4px) scale(0.99);
         }
 
         .result-icon {
-            width: 16px;
-            height: 16px;
+            width: 24px;
+            height: 24px;
             object-fit: contain;
+            border-radius: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
 
         .result-content {
             flex: 1;
+            min-width: 0;
         }
 
         .result-title {
             font-size: 14px;
             margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 500;
         }
 
         .result-url {
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
         }
 
         .result-score {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.7);
+            background-color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: white;
             margin-left: auto;
+            min-width: 24px;
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
 
-        #toolbar {
+        .toolbar {
             display: flex;
             justify-content: flex-end;
             gap: 8px;
-            padding: 0 0 10px 0;
+            padding: 0 0 16px 0;
+            flex-shrink: 0;
         }
 
         .toolbar button {
-            background: none;
+            background: rgba(255, 255, 255, 0.05);
             border: none;
-            color: rgba(255, 255, 255, 0.7);
-            padding: 6px 12px;
+            color: var(--text-primary);
+            padding: 8px 16px;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: var(--button-radius);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             font-size: 13px;
-            transition: all 0.2s;
+            font-weight: 500;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+            min-width: 120px;
+            justify-content: center;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+                       inset 0 0 0 1px rgba(255, 255, 255, 0.08);
         }
 
         .toolbar button:hover {
             background-color: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                       inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .toolbar button:active {
+            transform: translateY(0);
+            background-color: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1),
+                       inset 0 0 0 1px rgba(255, 255, 255, 0.05);
         }
 
         .toolbar .reset-button {
-            color: rgba(255, 99, 71, 0.7);
+            color: var(--danger-color);
+            background: rgba(255, 69, 58, 0.1);
         }
 
         .toolbar .reset-button:hover {
-            background-color: rgba(255, 99, 71, 0.2);
-            color: rgba(255, 99, 71, 0.9);
+            background-color: rgba(255, 69, 58, 0.15);
+            box-shadow: 0 4px 12px rgba(255, 69, 58, 0.2),
+                       inset 0 0 0 1px rgba(255, 69, 58, 0.2);
         }
 
         #notification {
@@ -133,11 +236,16 @@
             transform: translateX(-50%);
             background-color: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
+            padding: 12px 20px;
+            border-radius: 30px;
             font-size: 13px;
+            font-weight: 500;
             display: none;
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            letter-spacing: 0.3px;
         }
 
         @keyframes fadeIn {
@@ -145,7 +253,6 @@
             to { opacity: 1; transform: translate(-50%, 0); }
         }
 
-        /* macOS tarzı scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -155,44 +262,92 @@
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.2);
         }
 
-        .notification {
-            position: fixed;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 8px 16px;
+        .keyboard-shortcut {
+            display: inline-flex;
+            gap: 4px;
+            margin-left: 8px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            align-items: center;
+            opacity: 0.7;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .keyboard-shortcut:hover {
+            opacity: 1;
+        }
+
+        .key {
+            background-color: rgba(255, 255, 255, 0.06);
+            padding: 3px 8px;
             border-radius: 4px;
-            display: none;
-            z-index: 1000;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", monospace;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2),
+                       inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .no-results {
+            padding: 32px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+
+        .no-results i {
+            font-size: 32px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .no-results p {
+            margin: 8px 0 0 0;
+            font-weight: 500;
+        }
+
+        .source-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.06);
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-left: 8px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
         }
     </style>
 </head>
 <body>
-    <div class="toolbar">
-        <button onclick="importHistory()" title="Import Browser History">
-            <i class="fas fa-download"></i>
-            Import
-        </button>
-        <button onclick="resetHistory()" title="Reset All History" class="reset-button">
-            <i class="fas fa-trash"></i>
-            Reset
-        </button>
+    <div class="app-container">
+        <div class="toolbar">
+            <button onclick="importHistory()" title="Import Browser History">
+                <i class="fas fa-download"></i>
+                Import History
+            </button>
+            <button onclick="resetHistory()" title="Reset All History" class="reset-button">
+                <i class="fas fa-trash"></i>
+                Reset
+            </button>
+        </div>
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="Search in history..." autofocus>
+            <div class="keyboard-shortcut">
+                <span class="key">⌘</span> + <span class="key">⇧</span> + <span class="key">Space</span>
+            </div>
+            <div id="results-container"></div>
+        </div>
+        <div id="notification"></div>
     </div>
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="Geçmişte ara... (⌘ + Shift + Space)" autofocus>
-        <div id="results-container"></div>
-    </div>
-    <div id="notification"></div>
 
     <script>
         const { ipcRenderer } = require('electron');
@@ -202,11 +357,18 @@
 
         let debounceTimeout;
 
-        function showNotification(message, isError = false, isWarning = false) {
+        // Pencere yüklendiğinde başlangıç yüksekliğini ayarla
+        window.addEventListener('DOMContentLoaded', () => {
+            ipcRenderer.send('resize-window', 150);
+        });
+
+        function showNotification(message, type = 'info') {
             notification.textContent = message;
-            notification.style.backgroundColor = isError ? 'rgba(255, 0, 0, 0.8)' : 
-                                               isWarning ? 'rgba(255, 165, 0, 0.8)' : 
-                                               'rgba(0, 0, 0, 0.8)';
+            notification.style.backgroundColor = 
+                type === 'error' ? 'rgba(255, 74, 74, 0.9)' :
+                type === 'warning' ? 'rgba(255, 165, 0, 0.9)' :
+                type === 'success' ? 'rgba(74, 255, 74, 0.9)' :
+                'rgba(0, 0, 0, 0.9)';
             notification.style.display = 'block';
             setTimeout(() => {
                 notification.style.display = 'none';
@@ -214,36 +376,40 @@
         }
 
         function resetHistory() {
-            if (confirm('Tüm geçmiş silinecek. Emin misiniz?')) {
+            if (confirm('Are you sure you want to reset all history?')) {
                 ipcRenderer.send('reset-history');
-                showNotification('Geçmiş sıfırlanıyor...');
+                showNotification('Resetting history...', 'warning');
                 resultsContainer.style.display = 'none';
                 searchInput.value = '';
+                ipcRenderer.send('resize-window', 150);
             }
         }
 
         function importHistory() {
             ipcRenderer.send('import-chrome-history');
-            showNotification('Tarayıcı geçmişleri içe aktarılıyor...');
+            showNotification('Importing browser history...', 'info');
         }
 
-        ipcRenderer.on('reset-complete', () => {
-            showNotification('Geçmiş başarıyla sıfırlandı!');
+        ipcRenderer.on('reset-complete', (event, result) => {
+            if (result.success) {
+                showNotification('History has been reset successfully!', 'success');
+            } else {
+                showNotification('Failed to reset history: ' + result.error, 'error');
+            }
         });
 
         ipcRenderer.on('import-complete', (event, result) => {
             if (result.success) {
                 if (result.safariPermissionError) {
                     showNotification(
-                        'Geçmişler içe aktarıldı, ancak Safari geçmişine erişim izni yok. Safari geçmişini eklemek için System Preferences > Security & Privacy > Full Disk Access\'den uygulamaya izin verin.',
-                        false,
-                        true
+                        'History imported, but Safari access was denied. Enable Full Disk Access in System Preferences to import Safari history.',
+                        'warning'
                     );
                 } else {
-                    showNotification('Tarayıcı geçmişleri başarıyla içe aktarıldı!');
+                    showNotification('Browser history imported successfully!', 'success');
                 }
             } else {
-                showNotification('Geçmiş içe aktarılırken bir hata oluştu: ' + result.error, true);
+                showNotification('Failed to import history: ' + result.error, 'error');
             }
         });
 
@@ -253,6 +419,7 @@
 
             if (searchTerm.length === 0) {
                 resultsContainer.style.display = 'none';
+                ipcRenderer.send('resize-window', 150);
                 return;
             }
 
@@ -266,34 +433,54 @@
                 resultsContainer.style.display = 'block';
                 resultsContainer.innerHTML = `
                     <div class="results-header">
-                        ${results.length} sonuç bulundu
+                        Found ${results.length} results
                     </div>
                     ${results.map(result => `
                         <div class="result-item" onclick="openUrl('${result.url}')">
-                            <img src="https://www.google.com/s2/favicons?domain=${new URL(result.url).hostname}" class="result-icon" onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+                            <img src="https://www.google.com/s2/favicons?domain=${new URL(result.url).hostname}&sz=32" class="result-icon" 
+                                onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
                             <div class="result-content">
-                                <div class="result-title">${result.title}</div>
+                                <div class="result-title">
+                                    ${result.title}
+                                    ${result.sources ? `<span class="source-tag">${result.sources[0]}</span>` : ''}
+                                </div>
                                 <div class="result-url">${result.url}</div>
                             </div>
-                            <div class="result-score" title="Alaka puanı">
+                            <div class="result-score" title="Relevance score">
                                 ${Math.round(result.score)}
                             </div>
                         </div>
                     `).join('')}`;
 
-                // Pencere boyutunu ayarla
-                const height = Math.min(60 + (results.length * 60) + 30, 600); // Maksimum yükseklik 600px olarak güncellendi
+                // Yeni yükseklik hesaplama mantığı
+                const toolbarHeight = 60;
+                const searchInputHeight = 40;
+                const shortcutHeight = 30;
+                const headerHeight = 40;
+                const resultItemHeight = 72;
+                const padding = 32;
+                
+                // Her sonuç için gereken yükseklik
+                const resultsHeight = Math.min(results.length * resultItemHeight, 400);
+                
+                // Toplam içerik yüksekliği
+                const contentHeight = toolbarHeight + searchInputHeight + shortcutHeight + headerHeight + resultsHeight + padding;
+                
+                // Minimum 200px, maksimum 600px olacak şekilde ayarla
+                const height = Math.max(200, Math.min(contentHeight, 600));
+                
                 ipcRenderer.send('resize-window', height);
             } else {
                 resultsContainer.style.display = 'block';
                 resultsContainer.innerHTML = `
                     <div class="results-header">
-                        Sonuç bulunamadı
+                        No results found
                     </div>
-                    <div class="result-item" style="cursor: default;">
-                        Arama kriterlerinize uygun sonuç bulunamadı
+                    <div class="no-results">
+                        <i class="fas fa-search" style="font-size: 24px; margin-bottom: 12px;"></i>
+                        <p>No matches found for your search</p>
                     </div>`;
-                ipcRenderer.send('resize-window', 120);
+                ipcRenderer.send('resize-window', 200);
             }
         });
 
@@ -301,7 +488,6 @@
             ipcRenderer.send('open-url', url);
         }
 
-        // Escape tuşu ile pencereyi kapatma
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 window.close();
