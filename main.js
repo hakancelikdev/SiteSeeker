@@ -40,7 +40,7 @@ app.setLoginItemSettings({
 async function loadHistory() {
   if (!store) {
     console.log('Store henüz yüklenmedi, bekleniyor...');
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Daha uzun bekleme süresi
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
   if (!store) {
     console.error('Store hala yüklenemedi!');
@@ -48,6 +48,12 @@ async function loadHistory() {
   }
   const history = store.get('savedHistory', []);
   console.log(`Yüklenen geçmiş kayıt sayısı: ${history.length}`);
+  
+  // URL sayısını ana pencereye gönder
+  if (mainWindow) {
+    mainWindow.webContents.send('update-url-count', history.length);
+  }
+  
   return history;
 }
 
@@ -63,6 +69,11 @@ async function saveHistory(history) {
     history = history.slice(0, MAX_ITEMS);
   }
   store.set('savedHistory', history);
+  
+  // URL sayısını ana pencereye gönder
+  if (mainWindow) {
+    mainWindow.webContents.send('update-url-count', history.length);
+  }
 }
 
 // Geçmişte arama yap
@@ -488,6 +499,9 @@ autoUpdater.on('update-downloaded', (info) => {
 app.on('ready', () => {
   createWindow();
   autoImportHistory();
+  
+  // İlk yüklemede URL sayısını güncelle
+  loadHistory();
 
   // Global kısayol tuşu kaydet
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
@@ -498,6 +512,8 @@ app.on('ready', () => {
       mainWindow.show();
       isVisible = true;
       mainWindow.webContents.send('show-window');
+      // Pencere gösterildiğinde URL sayısını güncelle
+      loadHistory();
     }
   });
 

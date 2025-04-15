@@ -14,32 +14,29 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        urlCountElement.textContent = `${history.length} kayıt arasından ${history.length} sonuç bulundu.`;
+        const urlCount = history.length;
+        urlCountElement.textContent = `${urlCount} URL${urlCount !== 1 ? 's' : ''} found`;
 
         history.forEach(item => {
-            const listItem = document.createElement("li");
-
-            // Başlık linki
-            const titleLink = document.createElement("a");
-            titleLink.textContent = item.title;
-            titleLink.href = item.url;
-            titleLink.target = "_blank";
-
-            // URL bilgisi
+            const li = document.createElement("li");
+            
+            const link = document.createElement("a");
+            link.href = item.url;
+            link.textContent = item.title || item.url;
+            link.target = "_blank";
+            
             const urlSpan = document.createElement("span");
             urlSpan.textContent = item.url;
-            urlSpan.style.display = "block";
-            urlSpan.style.wordBreak = "break-all";
-
-            // Skor bilgisi
+            
             const scoreSpan = document.createElement("span");
-            scoreSpan.textContent = `Skor: ${Math.round(item.score)}`;
             scoreSpan.className = "score";
-
-            listItem.appendChild(titleLink);
-            listItem.appendChild(urlSpan);
-            listItem.appendChild(scoreSpan);
-            resultsContainer.appendChild(listItem);
+            scoreSpan.textContent = `Score: ${item.score.toFixed(2)}`;
+            
+            li.appendChild(link);
+            li.appendChild(urlSpan);
+            li.appendChild(scoreSpan);
+            
+            resultsContainer.appendChild(li);
         });
     }
 
