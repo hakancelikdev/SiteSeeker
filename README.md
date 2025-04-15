@@ -1,10 +1,10 @@
-# Fast History Search 🚀
+# SiteSeeker 🚀
 
 Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık bir arayüz ile geçmişinize hızlıca erişin.
 
-![Fast History Search Banner](assets/banner.png)
+![SiteSeeker Banner](assets/banner.png)
 
-## ✨ Neden Fast History Search?
+## ✨ Neden SiteSeeker?
 
 - **⚡️ Anında Arama**: Millisaniyeler içinde sonuçlar
 - **🎯 Akıllı Sıralama**: En çok ziyaret ettiğiniz sayfalar her zaman üstte
@@ -19,13 +19,13 @@ Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık 
 
 ### 💻 Masaüstü Uygulaması Olarak
 
-1. [Releases](https://github.com/hakancelikdev/FastHistorySearch/releases) sayfasından son sürümü indirin
+1. [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) sayfasından son sürümü indirin
 2. DMG dosyasını açın ve uygulamayı yükleyin
 3. ⌘+⇧+Space kısayolu ile her yerden erişin!
 
 ### 🔌 Chrome Uzantısı Olarak
 
-1. Chrome Web Store'dan "Fast History Search" uzantısını yükleyin
+1. Chrome Web Store'dan "SiteSeeker" uzantısını yükleyin
 2. Tarayıcı çubuğundaki ikona tıklayarak kullanmaya başlayın
 
 ## 🌟 Öne Çıkan Özellikler
@@ -67,9 +67,9 @@ Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık 
 
 ## 🤝 Topluluk ve Destek
 
-- [GitHub Issues](https://github.com/hakancelikdev/FastHistorySearch/issues): Hata raporları ve öneriler
+- [GitHub Issues](https://github.com/hakancelikdev/SiteSeeker/issues): Hata raporları ve öneriler
 - [Twitter](https://twitter.com/hakancelikdev): Güncellemeler ve duyurular
-- [GitHub Discussions](https://github.com/hakancelikdev/FastHistorySearch/discussions): Topluluk tartışmaları
+- [GitHub Discussions](https://github.com/hakancelikdev/SiteSeeker/discussions): Topluluk tartışmaları
 
 ## 📝 Lisans
 
@@ -81,4 +81,4 @@ Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 
 ---
 
-⭐️ Eğer Fast History Search'ü beğendiyseniz, yıldız vermeyi unutmayın!
+⭐️ Eğer SiteSeeker'ı beğendiyseniz, yıldız vermeyi unutmayın!

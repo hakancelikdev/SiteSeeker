@@ -4,7 +4,7 @@ let connectionCheckInterval = null;
 
 // Connect to native messaging host
 function connectToNativeHost() {
-    port = chrome.runtime.connectNative('dev.hakancelik.fasthistorysearch');
+    port = chrome.runtime.connectNative('dev.hakancelik.siteseeker');
     
     port.onMessage.addListener((message) => {
         console.log('Received message from native host:', message);

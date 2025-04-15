@@ -1,5 +1,5 @@
 {
-  "name": "fasthistorysearch",
+  "name": "siteseeker",
   "version": "1.0.0",
   "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
   "main": "main.js",
@@ -10,8 +10,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "build": {
-    "appId": "com.fasthistorysearch.app",
-    "productName": "Fast History Search",
+    "appId": "com.siteseeker.app",
+    "productName": "SiteSeeker",
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
@@ -30,7 +30,7 @@
     "publish": {
       "provider": "github",
       "owner": "hakancelikdev",
-      "repo": "FastHistorySearch"
+      "repo": "SiteSeeker"
     }
   },
   "keywords": [

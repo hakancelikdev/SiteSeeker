@@ -712,8 +712,8 @@ function setupNativeMessagingHost() {
 
   // Native messaging host manifest dosyası
   const manifest = {
-    name: 'dev.hakancelik.fasthistorysearch',
-    description: 'Fast History Search Native Messaging Host',
+    name: 'dev.hakancelik.siteseeker',
+    description: 'SiteSeeker Native Messaging Host',
     path: process.execPath,
     type: 'stdio',
     allowed_origins: [
@@ -725,7 +725,7 @@ function setupNativeMessagingHost() {
   const manifestPath = path.join(
     os.homedir(),
     'Library/Application Support/Google/Chrome/NativeMessagingHosts',
-    'dev.hakancelik.fasthistorysearch.json'
+    'dev.hakancelik.siteseeker.json'
   );
 
   // Dizini oluştur
