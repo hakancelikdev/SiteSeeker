@@ -564,19 +564,11 @@ ipcMain.on('open-url', (event, url) => {
   require('electron').shell.openExternal(url);
 });
 
-ipcMain.on('resize-window', (event, heightOrConfig) => {
+ipcMain.on('resize-window', (event, height) => {
   if (mainWindow) {
     const currentPosition = mainWindow.getPosition();
-    if (typeof heightOrConfig === 'number') {
-      // Sadece yükseklik gönderilmişse
-      mainWindow.setSize(800, heightOrConfig); // 800 varsayılan genişlik
-      mainWindow.setPosition(currentPosition[0], currentPosition[1]);
-    } else if (typeof heightOrConfig === 'object' && heightOrConfig !== null) {
-      // Obje olarak gönderilmişse
-      const { width = 800, height } = heightOrConfig;
-      mainWindow.setSize(width, height);
-      mainWindow.setPosition(currentPosition[0], currentPosition[1]);
-    }
+    mainWindow.setSize(800, height); // Sabit genişlik: 800px
+    mainWindow.setPosition(currentPosition[0], currentPosition[1]);
   }
 });
 
