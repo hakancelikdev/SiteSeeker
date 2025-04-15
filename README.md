@@ -1,130 +1,130 @@
 # SiteSeeker 🚀
 
-Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık bir arayüz ile geçmişinize hızlıca erişin.
+Instantly search through your browser history and save time! Access your history quickly with a modern and elegant interface.
 
 ![SiteSeeker Banner](assets/banner.png)
 
-## ✨ Neden SiteSeeker?
+## ✨ Why SiteSeeker?
 
-- **⚡️ Anında Arama**: Millisaniyeler içinde sonuçlar
-- **🎯 Akıllı Sıralama**: En çok ziyaret ettiğiniz sayfalar her zaman üstte
-- **🔍 Çoklu Tarayıcı Desteği**: Chrome, Firefox ve Safari geçmişinizi tek bir yerden arayın
-- **⌨️ Global Kısayol**: ⌘+⇧+Space ile her yerden hızlıca erişin
-- **🎨 Modern Tasarım**: macOS Sonoma tarzında şık ve modern arayüz
-- **🔄 Gerçek Zamanlı**: Geçmiş güncellemelerini anında yakalar
-- **🔒 Gizlilik Odaklı**: Tüm veriler sadece sizin bilgisayarınızda
-- **📱 İki Kullanım Seçeneği**: İster masaüstü uygulaması, ister Chrome uzantısı olarak kullanın
+- **⚡️ Instant Search**: Results in milliseconds
+- **🎯 Smart Ranking**: Most visited pages always at the top
+- **🔍 Multi-Browser Support**: Search Chrome, Firefox, and Safari history in one place
+- **⌨️ Global Shortcut**: Quick access from anywhere with ⌘+⇧+Space
+- **🎨 Modern Design**: Sleek and modern interface in macOS Sonoma style
+- **🔄 Real-Time**: Instantly captures history updates
+- **🔒 Privacy-Focused**: All data stays on your computer
+- **📱 Two Usage Options**: Use as either a desktop app or Chrome extension
 
-## 🛠 Geliştirme
+## 🛠 Development
 
-### 📦 Build Alma
+### 📦 Building
 
-#### Gereksinimler
-- Node.js ve npm yüklü olmalı
-- macOS için Xcode Command Line Tools yüklü olmalı
+#### Requirements
+- Node.js and npm installed
+- Xcode Command Line Tools installed for macOS
 
-#### Hızlı Build (Önerilen Yöntem)
-1. Projeyi klonlayın:
+#### Quick Build (Recommended Method)
+1. Clone the project:
    ```bash
    git clone https://github.com/hakancelikdev/SiteSeeker.git
    cd SiteSeeker
    ```
 
-2. Build script'i kullanarak build alın:
+2. Build using the script:
    ```bash
-   # Tüm platformlar için build almak (macOS app + browser extensions)
+   # Build for all platforms (macOS app + browser extensions)
    ./build.sh all
 
-   # Sadece browser extensions için build almak
+   # Build only browser extensions
    ./build.sh extensions
 
-   # Sadece macOS uygulaması için build almak
+   # Build only macOS application
    ./build.sh macos
    ```
 
-3. Build çıktıları:
+3. Build outputs:
    - Chrome Extension: `dist/siteseeker-chrome.zip`
    - Firefox Extension: `dist/siteseeker-firefox.zip`
-   - macOS Uygulaması: `dist/SiteSeeker-1.0.0-arm64.dmg` (Apple Silicon) ve `dist/SiteSeeker-1.0.0-arm64-mac.zip`
+   - macOS Application: `dist/SiteSeeker-1.0.0-arm64.dmg` (Apple Silicon) and `dist/SiteSeeker-1.0.0-arm64-mac.zip`
 
-#### Eklentiyi Test Etme
+#### Testing the Extension
 
-##### Chrome için:
-1. `chrome://extensions/` adresine gidin
-2. Sağ üstteki "Geliştirici modu"nu açın
-3. Seçenekler:
-   - `dist/siteseeker-chrome.zip` dosyasını sayfaya sürükleyip bırakın
-   - veya "Paketlenmemiş öğe yükle" ile `dist/chrome` dizinini seçin
+##### For Chrome:
+1. Go to `chrome://extensions/`
+2. Enable "Developer mode" in the top right
+3. Options:
+   - Drag and drop `dist/siteseeker-chrome.zip` onto the page
+   - Or select "Load unpacked" and choose the `dist/chrome` directory
 
-##### Firefox için:
-1. `about:debugging` adresine gidin
-2. "Bu Firefox" sekmesine tıklayın
-3. "Geçici Eklenti Yükle" ile `dist/firefox/manifest.json` dosyasını seçin
+##### For Firefox:
+1. Go to `about:debugging`
+2. Click on "This Firefox" tab
+3. Select "Load Temporary Add-on" and choose `dist/firefox/manifest.json`
 
-## 🎬 Hızlı Başlangıç
+## 🎬 Quick Start
 
-### 💻 Masaüstü Uygulaması Olarak
+### 💻 As Desktop Application
 
-1. [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) sayfasından son sürümü indirin
-2. DMG dosyasını açın ve uygulamayı yükleyin
-3. ⌘+⇧+Space kısayolu ile her yerden erişin!
+1. Download the latest version from [Releases](https://github.com/hakancelikdev/SiteSeeker/releases)
+2. Open the DMG file and install the application
+3. Access from anywhere with ⌘+⇧+Space!
 
-### 🔌 Chrome Uzantısı Olarak
+### 🔌 As Chrome Extension
 
-1. Chrome Web Store'dan "SiteSeeker" uzantısını yükleyin
-2. Tarayıcı çubuğundaki ikona tıklayarak kullanmaya başlayın
+1. Install the "SiteSeeker" extension from Chrome Web Store
+2. Start using by clicking the icon in the browser toolbar
 
-## 🌟 Öne Çıkan Özellikler
+## 🌟 Featured Capabilities
 
-### 🎯 Akıllı Arama Algoritması
-- Ziyaret sıklığına göre akıllı sıralama
-- URL ve başlıklarda anında arama
-- Yazım hatalarına karşı toleranslı
+### 🎯 Smart Search Algorithm
+- Intelligent ranking based on visit frequency
+- Instant search in URLs and titles
+- Tolerant to typos
 
-### 🎨 Modern ve Şık Arayüz
-- macOS Sonoma tarzında tasarım
-- Dinamik pencere boyutlandırma
-- Pürüzsüz animasyonlar
-- Koyu mod desteği
+### 🎨 Modern and Elegant Interface
+- macOS Sonoma style design
+- Dynamic window sizing
+- Smooth animations
+- Dark mode support
 
-### ⚡️ Performans Odaklı
-- Millisaniyeler içinde sonuçlar
-- Düşük sistem kaynağı kullanımı
-- Arka planda minimum etki
+### ⚡️ Performance-Focused
+- Results in milliseconds
+- Low system resource usage
+- Minimal background impact
 
-### 🔒 Gizlilik ve Güvenlik
-- Veriler sadece yerel cihazınızda
-- Hiçbir veri paylaşımı yok
-- Açık kaynak kod
+### 🔒 Privacy and Security
+- Data stays only on your local device
+- No data sharing
+- Open source code
 
-## 📊 Kullanıcı Deneyimi
+## 📊 User Experience
 
-- **Hızlı Erişim**: Global kısayol ile her yerden anında erişim
-- **Kolay Kullanım**: Sezgisel arayüz, minimum öğrenme eğrisi
-- **Akıllı Sonuçlar**: En çok kullandığınız sayfalar her zaman üstte
-- **İstatistikler**: İçe aktarılan ve taranan geçmiş sayısını görün
+- **Quick Access**: Instant access from anywhere with global shortcut
+- **Easy to Use**: Intuitive interface, minimal learning curve
+- **Smart Results**: Most used pages always at the top
+- **Statistics**: View imported and scanned history counts
 
-## 🛠 Teknik Özellikler
+## 🛠 Technical Features
 
-- **Electron Tabanlı**: Modern ve hızlı masaüstü uygulaması
-- **Chrome Manifest V3**: En son teknoloji uzantı desteği
-- **SQLite Entegrasyonu**: Hızlı ve güvenilir veri depolama
-- **Otomatik Güncelleme**: Her zaman en son sürüme sahip olun
+- **Electron-Based**: Modern and fast desktop application
+- **Chrome Manifest V3**: Latest technology extension support
+- **SQLite Integration**: Fast and reliable data storage
+- **Auto-Update**: Always have the latest version
 
-## 🤝 Topluluk ve Destek
+## 🤝 Community and Support
 
-- [GitHub Issues](https://github.com/hakancelikdev/SiteSeeker/issues): Hata raporları ve öneriler
-- [Twitter](https://twitter.com/hakancelikdev): Güncellemeler ve duyurular
-- [GitHub Discussions](https://github.com/hakancelikdev/SiteSeeker/discussions): Topluluk tartışmaları
+- [GitHub Issues](https://github.com/hakancelikdev/SiteSeeker/issues): Bug reports and suggestions
+- [Twitter](https://twitter.com/hakancelikdev): Updates and announcements
+- [GitHub Discussions](https://github.com/hakancelikdev/SiteSeeker/discussions): Community discussions
 
-## 📝 Lisans
+## 📝 License
 
-[GNU General Public License v3.0](LICENSE) - Bu yazılım özgür bir yazılımdır. Herkes bu yazılımı kopyalayabilir, dağıtabilir ve/veya değiştirebilir.
+[GNU General Public License v3.0](LICENSE) - This software is free software. Anyone can copy, distribute, and/or modify this software.
 
-## 👨‍💻 Geliştirici
+## 👨‍💻 Developer
 
 Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 
 ---
 
-⭐️ Eğer SiteSeeker'ı beğendiyseniz, yıldız vermeyi unutmayın!
+⭐️ If you like SiteSeeker, don't forget to give it a star!
