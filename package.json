@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A tool for seeking and analyzing websites",
   "main": "index.js",
   "scripts": {
