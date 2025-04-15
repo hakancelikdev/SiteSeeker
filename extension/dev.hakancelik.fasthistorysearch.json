@@ -1,7 +1,7 @@
 {
   "name": "dev.hakancelik.fasthistorysearch",
   "description": "Fast History Search Native Messaging Host",
-  "path": "/Applications/Fast History Search.app/Contents/MacOS/Fast History Search",
+  "path": "/Users/hakancelik/Desktop/workspace/hakancelikdev/FastHistorySearch/node_modules/.bin/electron",
   "type": "stdio",
   "allowed_origins": [
     "chrome-extension://*"
