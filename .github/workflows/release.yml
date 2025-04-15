@@ -28,6 +28,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create Chrome Extension ZIP
+        run: |
+          cd extensions/chrome
+          zip -r ../../dist/siteseeker-chrome-extension.zip ./*
+
+      - name: Create Firefox Extension ZIP
+        run: |
+          cd extensions/firefox
+          zip -r ../../dist/siteseeker-firefox-extension.zip ./*
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -36,6 +46,8 @@ jobs:
             dist/SiteSeeker-*.zip
             dist/*.blockmap
             dist/latest-mac.yml
+            dist/siteseeker-chrome-extension.zip
+            dist/siteseeker-firefox-extension.zip
           draft: false
           prerelease: false
           generate_release_notes: true 
