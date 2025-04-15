@@ -1,9 +1,9 @@
 {
-  "name": "dev.hakancelik.fasthistorysearch",
-  "description": "Fast History Search Native Messaging Host",
-  "path": "/Applications/Fast History Search.app/Contents/MacOS/Fast History Search",
+  "name": "dev.hakancelik.siteseeker",
+  "description": "SiteSeeker native messaging host",
+  "path": "HOST_PATH",
   "type": "stdio",
   "allowed_origins": [
-    "chrome-extension://*"
+    "chrome-extension://EXTENSION_ID/"
   ]
 } 

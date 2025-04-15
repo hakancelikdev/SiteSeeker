@@ -1,13 +1,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const statusIndicator = document.getElementById('status-indicator');
     const statusText = document.getElementById('status-text');
+    const refreshButton = document.getElementById('refresh-connection');
 
     // Function to update the connection status UI
     function updateConnectionStatus(isConnected) {
         if (isConnected) {
             statusIndicator.classList.add('connected');
             statusIndicator.classList.remove('disconnected');
-            statusText.textContent = 'Connected to Fast History Search';
+            statusText.textContent = 'Connected to SiteSeeker';
         } else {
             statusIndicator.classList.add('disconnected');
             statusIndicator.classList.remove('connected');
