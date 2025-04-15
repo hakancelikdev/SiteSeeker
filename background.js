@@ -1,5 +1,6 @@
 const INITIAL_SCORE = 1;
 const MAX_ITEMS = 10000; // Maksimum kayıt sayısı limiti
+const BATCH_SIZE = 1000; // Her seferde işlenecek maksimum kayıt sayısı
 
 // Tarayıcı API'sini belirle
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
@@ -33,13 +34,15 @@ browserAPI.history.onVisited.addListener(async (historyItem) => {
         if (existingItem) {
             // Mevcut kayıt varsa skoru artır
             existingItem.score += 1;
+            existingItem.lastVisitTime = historyItem.lastVisitTime;
             console.log("Score increased for existing item:", historyItem.url);
         } else {
             // Yeni kayıt ekle
             savedHistory.push({
                 url: historyItem.url,
                 title: historyItem.title,
-                score: INITIAL_SCORE
+                score: INITIAL_SCORE,
+                lastVisitTime: historyItem.lastVisitTime
             });
             console.log("New item added:", historyItem.url);
         }
@@ -74,26 +77,68 @@ browserAPI.history.onVisitRemoved.addListener(async (removed) => {
     }
 });
 
-// İlk kurulumda geçmişi indexle
-async function initializeHistory() {
+// Geçmiş verilerini toplu olarak işle
+async function processHistoryBatch(startTime, endTime) {
     try {
-        console.log("Initializing history index...");
-        const results = await browserAPI.history.search({ 
-            text: "", 
-            startTime: 1, 
-            maxResults: MAX_ITEMS 
+        const results = await browserAPI.history.search({
+            text: "",
+            startTime: startTime,
+            endTime: endTime,
+            maxResults: BATCH_SIZE
         });
 
-        const savedHistory = results
+        return results
             .filter(item => item.title)
             .map(item => ({
                 url: item.url,
                 title: item.title,
-                score: INITIAL_SCORE + (item.visitCount + item.typedCount)
+                score: INITIAL_SCORE + item.visitCount + (item.typedCount || 0),
+                lastVisitTime: item.lastVisitTime
             }));
+    } catch (error) {
+        console.error('Error processing history batch:', error);
+        return [];
+    }
+}
 
-        await saveToStorage(savedHistory);
-        console.log(`Initial indexing completed with ${savedHistory.length} items`);
+// İlk kurulumda geçmişi indexle
+async function initializeHistory() {
+    try {
+        console.log("Initializing history index...");
+        
+        // Son 5 yıllık geçmişi al
+        const endTime = Date.now();
+        const startTime = endTime - (5 * 365 * 24 * 60 * 60 * 1000); // 5 yıl öncesi
+        
+        let allHistory = [];
+        let currentStartTime = startTime;
+        const timeIncrement = 30 * 24 * 60 * 60 * 1000; // 30 günlük dilimler
+        
+        while (currentStartTime < endTime) {
+            const batchEndTime = Math.min(currentStartTime + timeIncrement, endTime);
+            console.log(`Processing history from ${new Date(currentStartTime)} to ${new Date(batchEndTime)}`);
+            
+            const batchResults = await processHistoryBatch(currentStartTime, batchEndTime);
+            allHistory = allHistory.concat(batchResults);
+            
+            // URL bazında birleştir ve en son ziyaret zamanını koru
+            const urlMap = new Map();
+            allHistory.forEach(item => {
+                const existing = urlMap.get(item.url);
+                if (!existing || existing.lastVisitTime < item.lastVisitTime) {
+                    urlMap.set(item.url, item);
+                }
+            });
+            
+            allHistory = Array.from(urlMap.values());
+            currentStartTime = batchEndTime;
+        }
+
+        // Skorlarına göre sırala ve kaydet
+        allHistory.sort((a, b) => b.score - a.score);
+        await saveToStorage(allHistory);
+        
+        console.log(`Initial indexing completed with ${allHistory.length} items`);
     } catch (error) {
         console.error('Error in initialization:', error);
     }

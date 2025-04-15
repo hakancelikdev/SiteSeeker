@@ -15,6 +15,52 @@ Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık 
 - **🔒 Gizlilik Odaklı**: Tüm veriler sadece sizin bilgisayarınızda
 - **📱 İki Kullanım Seçeneği**: İster masaüstü uygulaması, ister Chrome uzantısı olarak kullanın
 
+## 🛠 Geliştirme
+
+### 📦 Build Alma
+
+#### Gereksinimler
+- Node.js ve npm yüklü olmalı
+- macOS için Xcode Command Line Tools yüklü olmalı
+
+#### Hızlı Build (Önerilen Yöntem)
+1. Projeyi klonlayın:
+   ```bash
+   git clone https://github.com/hakancelikdev/SiteSeeker.git
+   cd SiteSeeker
+   ```
+
+2. Build script'i kullanarak build alın:
+   ```bash
+   # Tüm platformlar için build almak (macOS app + browser extensions)
+   ./build.sh all
+
+   # Sadece browser extensions için build almak
+   ./build.sh extensions
+
+   # Sadece macOS uygulaması için build almak
+   ./build.sh macos
+   ```
+
+3. Build çıktıları:
+   - Chrome Extension: `dist/siteseeker-chrome.zip`
+   - Firefox Extension: `dist/siteseeker-firefox.zip`
+   - macOS Uygulaması: `dist/SiteSeeker-1.0.0-arm64.dmg` (Apple Silicon) ve `dist/SiteSeeker-1.0.0-arm64-mac.zip`
+
+#### Eklentiyi Test Etme
+
+##### Chrome için:
+1. `chrome://extensions/` adresine gidin
+2. Sağ üstteki "Geliştirici modu"nu açın
+3. Seçenekler:
+   - `dist/siteseeker-chrome.zip` dosyasını sayfaya sürükleyip bırakın
+   - veya "Paketlenmemiş öğe yükle" ile `dist/chrome` dizinini seçin
+
+##### Firefox için:
+1. `about:debugging` adresine gidin
+2. "Bu Firefox" sekmesine tıklayın
+3. "Geçici Eklenti Yükle" ile `dist/firefox/manifest.json` dosyasını seçin
+
 ## 🎬 Hızlı Başlangıç
 
 ### 💻 Masaüstü Uygulaması Olarak
