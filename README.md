@@ -15,6 +15,56 @@ Tarayıcı geçmişinizde anında arama yapın, zaman kazanın! Modern ve şık 
 - **🔒 Gizlilik Odaklı**: Tüm veriler sadece sizin bilgisayarınızda
 - **📱 İki Kullanım Seçeneği**: İster masaüstü uygulaması, ister Chrome uzantısı olarak kullanın
 
+## 🛠 Geliştirme
+
+### 📦 Build Alma
+
+#### Gereksinimler
+- Node.js ve npm yüklü olmalı
+
+#### Chrome ve Firefox için Build
+1. Projeyi klonlayın:
+   ```bash
+   git clone https://github.com/hakancelikdev/SiteSeeker.git
+   cd SiteSeeker
+   ```
+
+2. Build alın:
+   ```bash
+   # dist dizinini temizle ve yeni dizinleri oluştur
+   rm -rf dist && mkdir -p dist/chrome dist/firefox
+
+   # Chrome için dosyaları kopyala
+   cp background.js popup.js popup.html icon.png dist/chrome/
+   cp manifest.chrome.json dist/chrome/manifest.json
+
+   # Firefox için dosyaları kopyala
+   cp background.js popup.js popup.html icon.png dist/firefox/
+   cp manifest.firefox.json dist/firefox/manifest.json
+
+   # ZIP dosyalarını oluştur
+   cd dist/chrome && zip -r ../siteseeker-chrome.zip .
+   cd ../firefox && zip -r ../siteseeker-firefox.zip .
+   ```
+
+3. Build çıktıları:
+   - Chrome: `dist/siteseeker-chrome.zip`
+   - Firefox: `dist/siteseeker-firefox.zip`
+
+#### Eklentiyi Test Etme
+
+##### Chrome için:
+1. `chrome://extensions/` adresine gidin
+2. Sağ üstteki "Geliştirici modu"nu açın
+3. Seçenekler:
+   - `dist/siteseeker-chrome.zip` dosyasını sayfaya sürükleyip bırakın
+   - veya "Paketlenmemiş öğe yükle" ile `dist/chrome` dizinini seçin
+
+##### Firefox için:
+1. `about:debugging` adresine gidin
+2. "Bu Firefox" sekmesine tıklayın
+3. "Geçici Eklenti Yükle" ile `dist/firefox/manifest.json` dosyasını seçin
+
 ## 🎬 Hızlı Başlangıç
 
 ### 💻 Masaüstü Uygulaması Olarak
