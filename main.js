@@ -2,17 +2,18 @@ const { app, BrowserWindow, globalShortcut, ipcMain } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const log = require('electron-log');
 const path = require('path');
+const Store = require('electron-store');
 
 let store;
 
-(async () => {
-  try {
-    const Store = (await import('electron-store')).default;
-    store = new Store();
-  } catch (error) {
-    console.error('Failed to initialize electron-store:', error);
-  }
-})();
+try {
+  store = new Store({
+    name: 'siteseeker-store',
+    clearInvalidConfig: true
+  });
+} catch (error) {
+  log.error('Failed to initialize electron-store:', error);
+}
 
 // Otomatik güncelleme için logging
 autoUpdater.logger = log;
