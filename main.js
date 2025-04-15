@@ -64,10 +64,6 @@ async function saveHistory(history) {
   }
   if (!store) return;
   
-  if (history.length > MAX_ITEMS) {
-    history.sort((a, b) => b.score - a.score);
-    history = history.slice(0, MAX_ITEMS);
-  }
   store.set('savedHistory', history);
   
   // URL sayısını ana pencereye gönder
@@ -194,7 +190,6 @@ async function importBrowserHistories() {
             FROM urls
             WHERE title IS NOT NULL
             ORDER BY last_visit_time DESC
-            LIMIT 1000
           `).all();
           
           allHistory.push(...results.map(item => ({
@@ -233,7 +228,6 @@ async function importBrowserHistories() {
             FROM moz_places
             WHERE title IS NOT NULL
             ORDER BY last_visit_date DESC
-            LIMIT 1000
           `).all();
           
           allHistory.push(...results.map(item => ({
@@ -281,7 +275,6 @@ async function importBrowserHistories() {
           WHERE h.title IS NOT NULL AND h.title != ''
           GROUP BY h.id
           ORDER BY MAX(v.visit_time) DESC
-          LIMIT 1000
         `).all();
         
         if (results.length === 0) {
@@ -292,7 +285,6 @@ async function importBrowserHistories() {
             FROM history_items
             WHERE title IS NOT NULL AND title != ''
             ORDER BY id DESC
-            LIMIT 1000
           `).all();
         }
         
@@ -452,18 +444,198 @@ function createWindow() {
 let isFirstRun = true;
 async function autoImportHistory() {
   try {
-    const result = await importBrowserHistories();
-    if (result.success) {
-      log.info(`Otomatik geçmiş içe aktarma başarılı. Eklenen: ${result.added}, Güncellenen: ${result.updated}`);
+    if (isFirstRun) {
+      // İlk çalıştırmada tüm geçmişi al
+      const result = await importBrowserHistories();
+      if (result.success) {
+        log.info(`İlk geçmiş içe aktarma başarılı. Toplam kayıt: ${result.totalRecords}`);
+      } else {
+        log.error('İlk geçmiş içe aktarma başarısız:', result.error);
+      }
+      isFirstRun = false;
     } else {
-      log.error('Otomatik geçmiş içe aktarma başarısız:', result.error);
+      // Sonraki çalıştırmalarda son 2 dakikalık geçmişi al
+      const twoMinutesAgo = Date.now() - (2 * 60 * 1000); // 2 dakika öncesi
+      
+      // Chrome için son 2 dakikalık geçmiş
+      const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+      if (fs.existsSync(chromeBasePath)) {
+        const profiles = fs.readdirSync(chromeBasePath)
+          .filter(item => {
+            const itemPath = path.join(chromeBasePath, item);
+            return fs.existsSync(itemPath) && 
+                   fs.statSync(itemPath).isDirectory() && 
+                   fs.existsSync(path.join(itemPath, 'History'));
+          });
+
+        for (const profile of profiles) {
+          try {
+            const historyPath = path.join(chromeBasePath, profile, 'History');
+            const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
+            fs.copyFileSync(historyPath, tempPath);
+            
+            const db = new Database(tempPath, { readonly: true });
+            
+            const results = db.prepare(`
+              SELECT url, title, visit_count, typed_count
+              FROM urls
+              WHERE title IS NOT NULL
+              AND last_visit_time/1000000 + (strftime('%s', '1601-01-01')) > ?
+              ORDER BY last_visit_time DESC
+            `).all(Math.floor(twoMinutesAgo / 1000));
+            
+            // Mevcut geçmişi yükle
+            let savedHistory = await loadHistory();
+            
+            // Yeni kayıtları ekle veya güncelle
+            results.forEach(item => {
+              const existingIndex = savedHistory.findIndex(h => h.url === item.url);
+              const newItem = {
+                url: item.url,
+                title: item.title,
+                score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
+                source: `Chrome (${profile})`
+              };
+              
+              if (existingIndex >= 0) {
+                savedHistory[existingIndex] = {
+                  ...savedHistory[existingIndex],
+                  ...newItem,
+                  score: Math.max(savedHistory[existingIndex].score, newItem.score)
+                };
+              } else {
+                savedHistory.push(newItem);
+              }
+            });
+            
+            // Değişiklikleri kaydet
+            await saveHistory(savedHistory);
+            
+            db.close();
+            fs.unlinkSync(tempPath);
+          } catch (error) {
+            console.error(`Chrome ${profile} son geçmişi alınırken hata:`, error);
+          }
+        }
+      }
+      
+      // Firefox için son 2 dakikalık geçmiş
+      const firefoxBasePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+      if (fs.existsSync(firefoxBasePath)) {
+        const profiles = fs.readdirSync(firefoxBasePath)
+          .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
+        
+        for (const profile of profiles) {
+          try {
+            const historyPath = path.join(firefoxBasePath, profile, 'places.sqlite');
+            if (!fs.existsSync(historyPath)) continue;
+            
+            const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
+            fs.copyFileSync(historyPath, tempPath);
+            
+            const db = new Database(tempPath, { readonly: true });
+            
+            const results = db.prepare(`
+              SELECT url, title, visit_count
+              FROM moz_places
+              WHERE title IS NOT NULL
+              AND last_visit_date/1000000 > ?
+              ORDER BY last_visit_date DESC
+            `).all(twoMinutesAgo);
+            
+            // Mevcut geçmişi yükle
+            let savedHistory = await loadHistory();
+            
+            // Yeni kayıtları ekle veya güncelle
+            results.forEach(item => {
+              const existingIndex = savedHistory.findIndex(h => h.url === item.url);
+              const newItem = {
+                url: item.url,
+                title: item.title,
+                score: INITIAL_SCORE + item.visit_count,
+                source: `Firefox (${profile})`
+              };
+              
+              if (existingIndex >= 0) {
+                savedHistory[existingIndex] = {
+                  ...savedHistory[existingIndex],
+                  ...newItem,
+                  score: Math.max(savedHistory[existingIndex].score, newItem.score)
+                };
+              } else {
+                savedHistory.push(newItem);
+              }
+            });
+            
+            // Değişiklikleri kaydet
+            await saveHistory(savedHistory);
+            
+            db.close();
+            fs.unlinkSync(tempPath);
+          } catch (error) {
+            console.error(`Firefox ${profile} son geçmişi alınırken hata:`, error);
+          }
+        }
+      }
+      
+      // Safari için son 2 dakikalık geçmiş
+      const safariHistoryPath = path.join(os.homedir(), 'Library/Safari/History.db');
+      if (fs.existsSync(safariHistoryPath)) {
+        try {
+          const tempPath = path.join(app.getPath('temp'), 'safari_history_temp');
+          fs.copyFileSync(safariHistoryPath, tempPath);
+          
+          const db = new Database(tempPath, { readonly: true });
+          
+          const results = db.prepare(`
+            SELECT h.url, h.title, COUNT(v.id) as visit_count
+            FROM history_items h
+            LEFT JOIN history_visits v ON v.history_item = h.id
+            WHERE h.title IS NOT NULL AND h.title != ''
+            AND v.visit_time > ?
+            GROUP BY h.id
+            ORDER BY MAX(v.visit_time) DESC
+          `).all(twoMinutesAgo);
+          
+          // Mevcut geçmişi yükle
+          let savedHistory = await loadHistory();
+          
+          // Yeni kayıtları ekle veya güncelle
+          results.forEach(item => {
+            const existingIndex = savedHistory.findIndex(h => h.url === item.url);
+            const newItem = {
+              url: item.url,
+              title: item.title,
+              score: INITIAL_SCORE + (item.visit_count || 1),
+              source: 'Safari'
+            };
+            
+            if (existingIndex >= 0) {
+              savedHistory[existingIndex] = {
+                ...savedHistory[existingIndex],
+                ...newItem,
+                score: Math.max(savedHistory[existingIndex].score, newItem.score)
+              };
+            } else {
+              savedHistory.push(newItem);
+            }
+          });
+          
+          // Değişiklikleri kaydet
+          await saveHistory(savedHistory);
+          
+          db.close();
+          fs.unlinkSync(tempPath);
+        } catch (error) {
+          console.error('Safari son geçmişi alınırken hata:', error);
+        }
+      }
     }
   } catch (error) {
     log.error('Otomatik geçmiş içe aktarma hatası:', error);
   }
   
   if (isFirstRun) {
-    isFirstRun = false;
     // İlk çalıştırmadan sonra her dakikada bir çalıştır
     setInterval(autoImportHistory, 60000);
   }

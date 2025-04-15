@@ -1,6 +1,6 @@
 const INITIAL_SCORE = 1;
-const MAX_ITEMS = 10000; // Maksimum kayıt sayısı limiti
-const BATCH_SIZE = 1000; // Her seferde işlenecek maksimum kayıt sayısı
+// Her seferde işlenecek maksimum kayıt sayısı
+const BATCH_SIZE = 1000;
 
 // Tarayıcı API'sini belirle
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
@@ -8,12 +8,6 @@ const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 // Storage'a kaydetme işlemini wrap eden yardımcı fonksiyon
 async function saveToStorage(savedHistory) {
     try {
-        // En yüksek skorlu kayıtları tut
-        if (savedHistory.length > MAX_ITEMS) {
-            savedHistory.sort((a, b) => b.score - a.score);
-            savedHistory = savedHistory.slice(0, MAX_ITEMS);
-        }
-
         await browserAPI.storage.local.set({ savedHistory });
     } catch (error) {
         console.error('Storage error:', error);
