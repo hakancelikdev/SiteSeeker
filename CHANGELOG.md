@@ -32,7 +32,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reset version to 1.0.0 for the new native app approach
 - Added electron-builder update configurations
 
-## [1.0.0] - 2025-04-16
+## [1.0.13] - 2025-04-15
+
+### Added
+- Improved UI layout and design
+- Enhanced URL counter and keyboard shortcuts styling
+- Better visual consistency
+- Toolbar position updated to top right
+
+### Fixed
+- Window resize event handler improvements
+- Score display issues
+
+## [1.0.12] - 2025-04-15
+
+### Changed
+- Updated UI layout and design
+- Enhanced visual consistency
+
+## [1.0.11] - 2025-04-15
+
+### Fixed
+- Window resize event handler to use object parameter
+
+## [1.0.10] - 2025-04-15
+
+### Added
+- Additional macOS permissions for Safari history access
+- Improved error handling
+
+## [1.0.9] - 2025-04-15
+
+### Added
+- Permission checks and requests
+- Improved build configuration
+
+## [1.0.8] - 2025-04-15
+
+### Fixed
+- Auto-updater configuration
+- Error handling improvements
+
+## [1.0.7] - 2025-04-15
+
+### Added
+- Electron-builder update configurations
+- macOS build configuration updates
+
+## [1.0.6] - 2025-04-15
+
+### Added
+- Updated entitlements for macOS
+- Better-sqlite3 integration
+
+### Changed
+- Migrated from sqlite3 to better-sqlite3 for improved performance
+
+## [1.0.5] - 2025-04-15
+
+### Added
+- macOS entitlements
+- Disabled code signing for development
+
+## [1.0.4] - 2025-04-15
+
+### Changed
+- Reverted Next.js changes
+- Returned to Electron-based architecture
+
+## [1.0.3] - 2025-04-15
+
+### Added
+- Next.js app structure with Tailwind CSS (later reverted)
+- Updated release workflow
+
+## [1.0.2] - 2025-04-15
+
+### Added
+- CI/CD workflow improvements
+- Package.json updates
+
+## [1.0.1] - 2025-04-15
+
+### Added
+- Background script functionality
+- Main script updates
+
+## [1.0.0] - 2025-04-15
 
 ### Added
 - Initial release of SiteSeeker as a native macOS application
@@ -51,4 +137,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 - macOS entitlements for secure access to browser data
-- Improved error handling and validation 
+- Improved error handling and validation
+
+## [Pre-1.0.0] - 2025-02-12 to 2025-04-14
+
+### Added
+- Browser extension support for Chrome and Firefox
+- Modern UI improvements
+- Search functionality updates
+- History indexing mechanism
+- Storage limit management
+- Centralized storage management
+- Extension icons in various sizes
+- Score display
+- Total result count
+- Safari permission handling
+- Import results modal
+- Native messaging support
+
+### Changed
+- Moved from periodic to event-based updates
+- Improved code structure
+- Enhanced error handling and logging
+- Updated manifest files for browser compatibility
+- Renamed project to SiteSeeker
+
+### Fixed
+- Score accumulation issues
+- Search results display
+- Window sizing logic
+- Native messaging host path for development
+
+### Documentation
+- Added Firefox compatibility notes
+- Updated installation instructions
+- Added technical details section
+- Improved development instructions
+- Updated license to GPLv3 
