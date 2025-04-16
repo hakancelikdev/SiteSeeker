@@ -50,7 +50,7 @@
       "owner": "hakancelikdev",
       "repo": "SiteSeeker"
     },
-    "afterSign": "scripts/notarize.js"
+    "afterSign": null
   },
   "keywords": [
     "electron",
