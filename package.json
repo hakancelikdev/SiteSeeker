@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
   "main": "main.js",
   "type": "commonjs",
@@ -15,8 +15,18 @@
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
       ],
       "darkModeSupport": true,
       "hardenedRuntime": true,
@@ -39,7 +49,8 @@
       "provider": "github",
       "owner": "hakancelikdev",
       "repo": "SiteSeeker"
-    }
+    },
+    "afterSign": "scripts/notarize.js"
   },
   "keywords": [
     "electron",
@@ -50,13 +61,14 @@
   "author": "Hakan Çelik",
   "license": "ISC",
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "electron": "^27.1.0",
     "electron-builder": "^24.13.3"
   },
   "dependencies": {
+    "better-sqlite3": "^9.4.3",
     "electron-log": "^5.3.3",
     "electron-store": "^7.0.3",
-    "electron-updater": "^6.6.2",
-    "better-sqlite3": "^9.4.3"
+    "electron-updater": "^6.6.2"
   }
 }
