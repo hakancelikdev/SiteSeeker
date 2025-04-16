@@ -8,7 +8,7 @@ Instantly search through your browser history and save time! Access your history
 
 - **⚡️ Instant Search**: Results in milliseconds
 - **🎯 Smart Ranking**: Most visited pages always at the top
-- **🔍 Multi-Browser Support**: Search Chrome, Firefox, and Safari history in one place
+- **🔍 Multi-Browser Support**: Search Chrome and Firefox history in one place
 - **⌨️ Global Shortcut**: Quick access from anywhere with ⌘+⇧+Space
 - **🎨 Modern Design**: Sleek and modern interface in macOS Sonoma style
 - **🔄 Real-Time**: Instantly captures history updates

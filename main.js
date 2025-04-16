@@ -220,7 +220,6 @@ async function importBrowserHistories() {
     const fs = require('fs');
     
     let allHistory = [];
-    let safariPermissionError = false;
     
     // Chrome geçmişi
     const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
@@ -248,30 +247,33 @@ async function importBrowserHistories() {
             ORDER BY last_visit_time DESC
           `).all();
           
-          allHistory.push(...results.map(item => ({
-            url: item.url,
-            title: item.title,
-            score: INITIAL_SCORE + item.visit_count + (item.typed_count || 0),
-            source: `Chrome (${profile})`
-          })));
-          
           db.close();
           fs.unlinkSync(tempPath);
+          
+          const chromeHistory = results.map(item => ({
+            url: item.url,
+            title: item.title,
+            score: INITIAL_SCORE + (item.visit_count || 0) + (item.typed_count || 0) * 2,
+            source: 'Chrome'
+          }));
+          
+          allHistory = allHistory.concat(chromeHistory);
+          console.log(`Chrome ${profile} profilinden alınan kayıt sayısı:`, chromeHistory.length);
         } catch (error) {
           console.error(`Chrome ${profile} geçmişi alınırken hata:`, error);
         }
       }
     }
-    
+
     // Firefox geçmişi
-    const firefoxBasePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
-    if (fs.existsSync(firefoxBasePath)) {
-      const profiles = fs.readdirSync(firefoxBasePath)
+    const firefoxPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+    if (fs.existsSync(firefoxPath)) {
+      const profiles = fs.readdirSync(firefoxPath)
         .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
       
       for (const profile of profiles) {
         try {
-          const historyPath = path.join(firefoxBasePath, profile, 'places.sqlite');
+          const historyPath = path.join(firefoxPath, profile, 'places.sqlite');
           if (!fs.existsSync(historyPath)) continue;
           
           const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
@@ -280,177 +282,62 @@ async function importBrowserHistories() {
           const db = new Database(tempPath, { readonly: true });
           
           const results = db.prepare(`
-            SELECT url, title, visit_count
+            SELECT url, title, visit_count, typed
             FROM moz_places
             WHERE title IS NOT NULL
             ORDER BY last_visit_date DESC
           `).all();
           
-          allHistory.push(...results.map(item => ({
-            url: item.url,
-            title: item.title,
-            score: INITIAL_SCORE + item.visit_count,
-            source: `Firefox (${profile})`
-          })));
-          
           db.close();
           fs.unlinkSync(tempPath);
+          
+          const firefoxHistory = results.map(item => ({
+            url: item.url,
+            title: item.title,
+            score: INITIAL_SCORE + (item.visit_count || 0) + (item.typed || 0) * 2,
+            source: 'Firefox'
+          }));
+          
+          allHistory = allHistory.concat(firefoxHistory);
+          console.log('Firefox geçmişinden alınan kayıt sayısı:', firefoxHistory.length);
         } catch (error) {
-          console.error(`Firefox ${profile} geçmişi alınırken hata:`, error);
+          console.error('Firefox geçmişi alınırken hata:', error);
         }
       }
     }
-    
-    // Safari geçmişi
-    const safariHistoryPath = path.join(os.homedir(), 'Library/Safari/History.db');
-    if (fs.existsSync(safariHistoryPath)) {
-      try {
-        const tempPath = path.join(app.getPath('temp'), 'safari_history_temp');
-        fs.copyFileSync(safariHistoryPath, tempPath);
-        
-        const db = new Database(tempPath, { readonly: true });
 
-        // Safari'nin History.db şemasını kontrol et
-        const tables = db.prepare(`
-          SELECT name FROM sqlite_master 
-          WHERE type='table' AND name NOT LIKE 'sqlite_%'
-        `).all();
-        console.log('Safari veritabanı tabloları:', tables);
-
-        // Önce tabloların yapısını kontrol et
-        for (const table of tables) {
-          const columns = db.prepare(`PRAGMA table_info(${table.name})`).all();
-          console.log(`${table.name} tablosunun yapısı:`, columns);
-        }
-        
-        // Farklı bir sorgu deneyelim
-        let results = db.prepare(`
-          SELECT h.url, h.title, COUNT(v.id) as visit_count
-          FROM history_items h
-          LEFT JOIN history_visits v ON v.history_item = h.id
-          WHERE h.title IS NOT NULL AND h.title != ''
-          GROUP BY h.id
-          ORDER BY MAX(v.visit_time) DESC
-        `).all();
-        
-        if (results.length === 0) {
-          console.log('Safari geçmişinde kayıt bulunamadı, alternatif sorgu deneniyor...');
-          // Alternatif sorgu dene
-          results = db.prepare(`
-            SELECT url, title, 1 as visit_count
-            FROM history_items
-            WHERE title IS NOT NULL AND title != ''
-            ORDER BY id DESC
-          `).all();
-        }
-        
-        console.log('Safari geçmişinden alınan kayıt sayısı:', results.length);
-        
-        allHistory.push(...results.map(item => ({
-          url: item.url,
-          title: item.title,
-          score: INITIAL_SCORE + (item.visit_count || 1),
-          source: 'Safari'
-        })));
-        
-        db.close();
-        fs.unlinkSync(tempPath);
-      } catch (error) {
-        console.error('Safari geçmişi alınırken hata:', error);
-        if (error.code === 'EPERM') {
-          safariPermissionError = true;
-        }
+    // Tekrar eden kayıtları temizle
+    const uniqueUrls = new Set();
+    allHistory = allHistory.filter(item => {
+      if (uniqueUrls.has(item.url)) {
+        return false;
       }
+      uniqueUrls.add(item.url);
+      return true;
+    });
+
+    // Maksimum kayıt sayısını kontrol et
+    if (allHistory.length > MAX_ITEMS) {
+      allHistory = allHistory
+        .sort((a, b) => b.score - a.score)
+        .slice(0, MAX_ITEMS);
     }
-    
-    // Mevcut geçmişi yükle ve yeni kayıtları ekle
-    let savedHistory = await loadHistory();
-    console.log(`Mevcut kayıt sayısı: ${savedHistory.length}`);
-    
-    // URL'ye göre benzersiz kayıtları birleştir
-    const urlMap = new Map();
-    
-    // Önce yeni kayıtları ekle (score değeri geçerli olanları)
-    allHistory.forEach(item => {
-      // Score değeri kontrolü
-      if (!item.score || item.score <= 0) {
-        return; // Score değeri geçersiz olan kayıtları atla
-      }
 
-      urlMap.set(item.url, {
-        ...item,
-        sources: [item.source]
-      });
-    });
+    // Geçmişi kaydet
+    await saveHistory(allHistory);
     
-    // Mevcut kayıtları kontrol et ve sadece geçerli score değeri olanları ekle
-    let addedCount = 0;
-    let updatedCount = 0;
-    
-    savedHistory.forEach(item => {
-      // Mevcut kayıtlarda da score kontrolü yap
-      if (!item.score || item.score <= 0) {
-        return; // Score değeri geçersiz olan kayıtları atla
-      }
-
-      if (!urlMap.has(item.url)) {
-        // Eğer URL yeni kayıtlarda yoksa, mevcut kaydı koru
-        urlMap.set(item.url, item);
-      } else {
-        // Eğer URL yeni kayıtlarda varsa, source bilgisini güncelle
-        const newItem = urlMap.get(item.url);
-        if (item.sources) {
-          item.sources.forEach(source => {
-            if (!newItem.sources.includes(source)) {
-              newItem.sources.push(source);
-            }
-          });
-        }
-        updatedCount++;
-      }
-    });
-    
-    // Map'ten final listeyi oluştur
-    savedHistory = Array.from(urlMap.values());
-    addedCount = savedHistory.length - updatedCount;
-    
-    console.log(`Eklenen yeni kayıt: ${addedCount}, Güncellenen kayıt: ${updatedCount}, Toplam kayıt: ${savedHistory.length}`);
-    
-    // Kaydet
-    await saveHistory(savedHistory);
-    
-    // Kaynak bazında istatistikleri hesapla
-    const sourceStats = new Map();
-    savedHistory.forEach(item => {
-      if (item.source) {
-        const count = sourceStats.get(item.source) || 0;
-        sourceStats.set(item.source, count + 1);
-      }
-      if (item.sources) {
-        item.sources.forEach(source => {
-          const count = sourceStats.get(source) || 0;
-          sourceStats.set(source, count + 1);
-        });
-      }
-    });
-
-    const sources = Array.from(sourceStats.entries()).map(([name, count]) => ({
-      name,
-      count
-    }));
-    
-    console.log('Tüm tarayıcı geçmişleri başarıyla import edildi');
-    return { 
-      success: true, 
-      safariPermissionError,
-      totalRecords: savedHistory.length,
-      addedCount,
-      updatedCount,
-      sources
+    return {
+      success: true,
+      totalItems: allHistory.length,
+      error: null
     };
   } catch (error) {
-    console.error('Tarayıcı geçmişleri içe aktarılırken hata:', error);
-    return { success: false, error: error.message };
+    console.error('Geçmiş verileri alınırken hata:', error);
+    return {
+      success: false,
+      totalItems: 0,
+      error: error.message
+    };
   }
 }
 
@@ -496,38 +383,60 @@ function createWindow() {
   });
 }
 
-// İzinleri kontrol et ve iste
-async function checkAndRequestPermissions() {
-  return new Promise((resolve) => {
-    // Safari geçmişi için izin kontrolü
-    const safariHistoryPath = path.join(os.homedir(), 'Library/Safari/History.db');
-    
-    try {
-      // Safari geçmişine erişim denemesi
-      fs.accessSync(safariHistoryPath, fs.constants.R_OK);
-      log.info('Safari geçmişine erişim izni mevcut');
-      resolve(true);
-    } catch (error) {
-      log.warn('Safari geçmişine erişim izni yok, izin isteniyor...');
-      
-      // Kullanıcıya izin bildirimi göster
-      const { dialog } = require('electron');
-      dialog.showMessageBox(null, {
-        type: 'info',
-        title: 'İzin Gerekli',
-        message: 'SiteSeeker\'ın çalışması için bazı izinler gerekiyor',
-        detail: 'Lütfen Sistem Ayarları > Gizlilik ve Güvenlik > Tam Disk Erişimi\'nden SiteSeeker uygulamasına izin verin.\n\nAyrıca Safari geçmişine erişim için Safari > Ayarlar > Gelişmiş > "Uzantıların geçmişe erişmesine izin ver" seçeneğini etkinleştirin.',
-        buttons: ['Tamam', 'Sistem Ayarlarını Aç'],
-        defaultId: 1,
-        noLink: true
-      }).then((result) => {
-        if (result.response === 1) {
-          // Sistem ayarlarını aç
-          require('child_process').exec('open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"');
-        }
-        resolve(false);
-      });
+// İzinleri kontrol et
+function checkPermissions() {
+  try {
+    // Chrome geçmişi için izin kontrolü
+    const chromeHistoryPath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome/Default/History');
+    if (fs.existsSync(chromeHistoryPath)) {
+      try {
+        fs.accessSync(chromeHistoryPath, fs.constants.R_OK);
+        log.info('Chrome geçmişine erişim izni mevcut');
+      } catch (error) {
+        log.warn('Chrome geçmişine erişim izni yok, izin isteniyor...');
+        showPermissionDialog();
+        return false;
+      }
     }
+
+    // Firefox geçmişi için izin kontrolü
+    const firefoxProfilesPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+    if (fs.existsSync(firefoxProfilesPath)) {
+      const profiles = fs.readdirSync(firefoxProfilesPath)
+        .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
+      
+      for (const profile of profiles) {
+        const historyPath = path.join(firefoxProfilesPath, profile, 'places.sqlite');
+        if (fs.existsSync(historyPath)) {
+          try {
+            fs.accessSync(historyPath, fs.constants.R_OK);
+            log.info('Firefox geçmişine erişim izni mevcut');
+          } catch (error) {
+            log.warn('Firefox geçmişine erişim izni yok, izin isteniyor...');
+            showPermissionDialog();
+            return false;
+          }
+        }
+      }
+    }
+
+    return true;
+  } catch (error) {
+    log.error('İzin kontrolü sırasında hata:', error);
+    return false;
+  }
+}
+
+// İzin isteği dialogu
+function showPermissionDialog() {
+  const { dialog } = require('electron');
+  dialog.showMessageBox(mainWindow, {
+    type: 'info',
+    title: 'Tam Disk Erişimi Gerekli',
+    message: 'SiteSeeker tarayıcı geçmişine erişebilmek için tam disk erişimine ihtiyaç duyuyor.',
+    detail: 'Lütfen Sistem Ayarları > Gizlilik ve Güvenlik > Tam Disk Erişimi\'nden SiteSeeker uygulamasına izin verin.',
+    buttons: ['Tamam'],
+    defaultId: 0
   });
 }
 
@@ -539,7 +448,7 @@ async function autoImportHistory() {
       // İlk çalıştırmada tüm geçmişi al
       const result = await importBrowserHistories();
       if (result.success) {
-        log.info(`İlk geçmiş içe aktarma başarılı. Toplam kayıt: ${result.totalRecords}`);
+        log.info(`İlk geçmiş içe aktarma başarılı. Toplam kayıt: ${result.totalItems}`);
       } else {
         log.error('İlk geçmiş içe aktarma başarısız:', result.error);
       }
@@ -734,7 +643,7 @@ async function autoImportHistory() {
 
 app.on('ready', async () => {
   // İzinleri kontrol et
-  await checkAndRequestPermissions();
+  await checkPermissions();
   
   createWindow();
   autoImportHistory();
@@ -836,4 +745,119 @@ ipcMain.on('reset-history', async (event) => {
     console.error('Sıfırlama hatası:', error);
     event.reply('reset-complete', { success: false, error: error.message });
   }
-}); 
+});
+
+// Son geçmişi kontrol et
+async function checkRecentHistory() {
+  try {
+    let recentHistory = [];
+    const twoMinutesAgo = Date.now() - (2 * 60 * 1000); // 2 dakika öncesi
+
+    // Chrome için son 2 dakikalık geçmiş
+    const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+    if (fs.existsSync(chromeBasePath)) {
+      const profiles = fs.readdirSync(chromeBasePath)
+        .filter(item => {
+          const itemPath = path.join(chromeBasePath, item);
+          return fs.existsSync(itemPath) && 
+                 fs.statSync(itemPath).isDirectory() && 
+                 fs.existsSync(path.join(itemPath, 'History'));
+        });
+
+      for (const profile of profiles) {
+        try {
+          const historyPath = path.join(chromeBasePath, profile, 'History');
+          const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
+          fs.copyFileSync(historyPath, tempPath);
+          
+          const db = new Database(tempPath, { readonly: true });
+          
+          const results = db.prepare(`
+            SELECT url, title, last_visit_time
+            FROM urls
+            WHERE title IS NOT NULL
+            AND last_visit_time/1000000 + (strftime('%s', '1601-01-01')) * 1000 > ?
+            ORDER BY last_visit_time DESC
+          `).all(twoMinutesAgo);
+          
+          db.close();
+          fs.unlinkSync(tempPath);
+          
+          const chromeHistory = results.map(item => ({
+            url: item.url,
+            title: item.title,
+            score: INITIAL_SCORE,
+            source: 'Chrome'
+          }));
+          
+          recentHistory = recentHistory.concat(chromeHistory);
+        } catch (error) {
+          console.error('Chrome son geçmişi alınırken hata:', error);
+        }
+      }
+    }
+
+    // Firefox için son 2 dakikalık geçmiş
+    const firefoxPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+    if (fs.existsSync(firefoxPath)) {
+      const profiles = fs.readdirSync(firefoxPath)
+        .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
+      
+      for (const profile of profiles) {
+        try {
+          const historyPath = path.join(firefoxPath, profile, 'places.sqlite');
+          if (!fs.existsSync(historyPath)) continue;
+          
+          const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
+          fs.copyFileSync(historyPath, tempPath);
+          
+          const db = new Database(tempPath, { readonly: true });
+          
+          const results = db.prepare(`
+            SELECT url, title, last_visit_date/1000 as last_visit_time
+            FROM moz_places
+            WHERE title IS NOT NULL
+            AND last_visit_date/1000 > ?
+            ORDER BY last_visit_date DESC
+          `).all(twoMinutesAgo);
+          
+          db.close();
+          fs.unlinkSync(tempPath);
+          
+          const firefoxHistory = results.map(item => ({
+            url: item.url,
+            title: item.title,
+            score: INITIAL_SCORE,
+            source: 'Firefox'
+          }));
+          
+          recentHistory = recentHistory.concat(firefoxHistory);
+        } catch (error) {
+          console.error('Firefox son geçmişi alınırken hata:', error);
+        }
+      }
+    }
+
+    // Yeni geçmiş kayıtlarını mevcut geçmişe ekle
+    if (recentHistory.length > 0) {
+      const currentHistory = await loadHistory();
+      const uniqueUrls = new Set(currentHistory.map(item => item.url));
+      
+      const newHistory = recentHistory.filter(item => !uniqueUrls.has(item.url));
+      
+      if (newHistory.length > 0) {
+        const updatedHistory = [...newHistory, ...currentHistory];
+        
+        // Maksimum kayıt sayısını kontrol et
+        if (updatedHistory.length > MAX_ITEMS) {
+          updatedHistory.splice(MAX_ITEMS);
+        }
+        
+        await saveHistory(updatedHistory);
+        console.log(`${newHistory.length} yeni kayıt eklendi`);
+      }
+    }
+  } catch (error) {
+    console.error('Son geçmiş kontrolü sırasında hata:', error);
+  }
+} 

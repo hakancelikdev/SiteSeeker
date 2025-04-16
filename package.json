@@ -1,7 +1,7 @@
 {
   "name": "siteseeker",
   "version": "1.0.10",
-  "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
+  "description": "Mac uyumlu hızlı Chrome ve Firefox tarayıcı geçmişi arama uygulaması",
   "main": "main.js",
   "type": "commonjs",
   "scripts": {
@@ -36,7 +36,6 @@
       "entitlementsInherit": "build/entitlements.mac.plist",
       "identity": null,
       "extendInfo": {
-        "NSAppleEventsUsageDescription": "SiteSeeker needs access to Safari history for search functionality.",
         "NSDesktopFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
         "NSDocumentsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
         "NSDownloadsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
