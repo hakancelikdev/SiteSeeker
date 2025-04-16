@@ -13,7 +13,6 @@
     "appId": "com.siteseeker.app",
     "productName": "SiteSeeker",
     "generateUpdatesFilesForAllChannels": true,
-    "updaterCachePath": "build/update-cache",
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
