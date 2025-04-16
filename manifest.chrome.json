@@ -2,10 +2,11 @@
   "manifest_version": 3,
   "name": "SiteSeeker",
   "version": "1.0",
-  "description": "Tarayıcı geçmişini kullanarak hızlı arama yapmanı sağlar.",
+  "description": "Tarayıcı geçmişinizi akıllıca indeksleyen ve hızlı erişim sağlayan bir eklenti",
   "permissions": [
     "history",
-    "storage"
+    "storage",
+    "bookmarks"
   ],
   "action": {
     "default_popup": "popup.html",

@@ -1,19 +1,20 @@
 # SiteSeeker 🚀
 
-Instantly search through your browser history and save time! Access your history quickly with a modern and elegant interface.
+Instantly search through your browser history and bookmarks, and save time! Access your history and bookmarks quickly with a modern and elegant interface.
 
 ![SiteSeeker Banner](assets/banner.png)
 
 ## ✨ Why SiteSeeker?
 
 - **⚡️ Instant Search**: Results in milliseconds
-- **🎯 Smart Ranking**: Most visited pages always at the top
+- **🎯 Smart Ranking**: Bookmarks and most visited pages always at the top
+- **🔖 Bookmark Integration**: Search through your Chrome and Firefox bookmarks
 - **🔍 Multi-Browser Support**: Search Chrome and Firefox history in one place
 - **⌨️ Global Shortcut**: Quick access from anywhere with ⌘+⇧+Space
 - **🎨 Modern Design**: Sleek and modern interface in macOS Sonoma style
-- **🔄 Real-Time**: Instantly captures history updates
+- **🔄 Real-Time**: Instantly captures history and bookmark updates
 - **🔒 Privacy-Focused**: All data stays on your computer
-- **📱 Two Usage Options**: Use as either a desktop app or Chrome extension
+- **📱 Two Usage Options**: Use as either a desktop app or browser extension
 
 ## 🛠 Development
 
@@ -87,46 +88,55 @@ While SiteSeeker checks for updates automatically when launched, you can also ma
    - Move the extracted SiteSeeker app to your Applications folder
    - Replace the existing application if prompted
 
-### 🔌 As Chrome Extension
+### 🔌 As Browser Extension
 
-1. Install the "SiteSeeker" extension from Chrome Web Store
+1. Install the "SiteSeeker" extension from Chrome Web Store or Firefox Add-ons
 2. Start using by clicking the icon in the browser toolbar
 
 ## 🌟 Featured Capabilities
 
 ### 🎯 Smart Search Algorithm
-- Intelligent ranking based on visit frequency
+- Intelligent ranking based on bookmarks and visit frequency
 - Instant search in URLs and titles
 - Tolerant to typos
+- Bookmarks prioritized in search results
 
 ### 🎨 Modern and Elegant Interface
 - macOS Sonoma style design
 - Dynamic window sizing
 - Smooth animations
 - Dark mode support
+- Visual bookmark indicators
 
 ### ⚡️ Performance-Focused
 - Results in milliseconds
 - Low system resource usage
 - Minimal background impact
+- Efficient bookmark management
 
 ### 🔒 Privacy and Security
 - Data stays only on your local device
 - No data sharing
 - Open source code
+- Secure bookmark handling
 
 ## 📊 User Experience
 
 - **Quick Access**: Instant access from anywhere with global shortcut
 - **Easy to Use**: Intuitive interface, minimal learning curve
-- **Smart Results**: Most used pages always at the top
-- **Statistics**: View imported and scanned history counts
+- **Smart Results**: Bookmarks and most used pages always at the top
+- **Visual Indicators**: Bookmarked pages marked with a star icon
+- **Statistics**: View imported history and bookmark counts
 
 ## 🛠 Technical Features
 
 - **Electron-Based**: Modern and fast desktop application
 - **Chrome Manifest V3**: Latest technology extension support
 - **SQLite Integration**: Fast and reliable data storage
+- **Bookmark Integration**:
+  - Automatic bookmark synchronization
+  - Real-time bookmark updates
+  - Cross-browser bookmark support
 - **Auto-Update System**: 
   - Automatic update checks on application launch
   - Silent download and installation of updates

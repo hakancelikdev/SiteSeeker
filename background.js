@@ -1,4 +1,5 @@
 const INITIAL_SCORE = 1;
+const BOOKMARK_SCORE_BONUS = 5; // Bookmark'lar için ekstra skor
 // Her seferde işlenecek maksimum kayıt sayısı
 const BATCH_SIZE = 1000;
 
@@ -11,6 +12,56 @@ async function saveToStorage(savedHistory) {
         await browserAPI.storage.local.set({ savedHistory });
     } catch (error) {
         console.error('Storage error:', error);
+    }
+}
+
+// Bookmark'ları işle ve kaydet
+async function processBookmarks(bookmarkNode) {
+    let bookmarks = [];
+    
+    function traverseBookmarks(node) {
+        if (node.url) {
+            bookmarks.push({
+                url: node.url,
+                title: node.title,
+                score: INITIAL_SCORE + BOOKMARK_SCORE_BONUS,
+                lastVisitTime: Date.now(),
+                isBookmark: true
+            });
+        }
+        if (node.children) {
+            for (const child of node.children) {
+                traverseBookmarks(child);
+            }
+        }
+    }
+    
+    traverseBookmarks(bookmarkNode);
+    return bookmarks;
+}
+
+// Bookmark'ları güncelle
+async function updateBookmarks() {
+    try {
+        const bookmarkTree = await browserAPI.bookmarks.getTree();
+        const bookmarks = await processBookmarks(bookmarkTree[0]);
+        
+        const data = await browserAPI.storage.local.get({ savedHistory: [] });
+        let savedHistory = data.savedHistory || [];
+        
+        // Mevcut bookmark'ları kaldır
+        savedHistory = savedHistory.filter(item => !item.isBookmark);
+        
+        // Yeni bookmark'ları ekle
+        savedHistory = savedHistory.concat(bookmarks);
+        
+        // Skorlarına göre sırala ve kaydet
+        savedHistory.sort((a, b) => b.score - a.score);
+        await saveToStorage(savedHistory);
+        
+        console.log(`Bookmarks updated: ${bookmarks.length} items`);
+    } catch (error) {
+        console.error('Error updating bookmarks:', error);
     }
 }
 
@@ -27,8 +78,10 @@ browserAPI.history.onVisited.addListener(async (historyItem) => {
 
         if (existingItem) {
             // Mevcut kayıt varsa skoru artır
-            existingItem.score += 1;
-            existingItem.lastVisitTime = historyItem.lastVisitTime;
+            if (!existingItem.isBookmark) { // Bookmark değilse skoru güncelle
+                existingItem.score += 1;
+                existingItem.lastVisitTime = historyItem.lastVisitTime;
+            }
             console.log("Score increased for existing item:", historyItem.url);
         } else {
             // Yeni kayıt ekle
@@ -36,7 +89,8 @@ browserAPI.history.onVisited.addListener(async (historyItem) => {
                 url: historyItem.url,
                 title: historyItem.title,
                 score: INITIAL_SCORE,
-                lastVisitTime: historyItem.lastVisitTime
+                lastVisitTime: historyItem.lastVisitTime,
+                isBookmark: false
             });
             console.log("New item added:", historyItem.url);
         }
@@ -51,9 +105,12 @@ browserAPI.history.onVisited.addListener(async (historyItem) => {
 browserAPI.history.onVisitRemoved.addListener(async (removed) => {
     try {
         if (removed.allHistory) {
-            // Tüm geçmiş silindiyse, indexi de temizle
-            await browserAPI.storage.local.set({ savedHistory: [] });
-            console.log("All history cleared");
+            // Tüm geçmiş silindiyse, sadece bookmark'ları koru
+            const data = await browserAPI.storage.local.get({ savedHistory: [] });
+            let savedHistory = data.savedHistory || [];
+            savedHistory = savedHistory.filter(item => item.isBookmark);
+            await saveToStorage(savedHistory);
+            console.log("All history cleared, bookmarks preserved");
             return;
         }
 
@@ -61,7 +118,7 @@ browserAPI.history.onVisitRemoved.addListener(async (removed) => {
         const data = await browserAPI.storage.local.get({ savedHistory: [] });
         let savedHistory = data.savedHistory || [];
         let updatedHistory = savedHistory.filter(item => 
-            !removed.urls.includes(item.url)
+            item.isBookmark || !removed.urls.includes(item.url)
         );
         
         await saveToStorage(updatedHistory);
@@ -70,6 +127,12 @@ browserAPI.history.onVisitRemoved.addListener(async (removed) => {
         console.error('Error in onVisitRemoved handler:', error);
     }
 });
+
+// Bookmark değişikliklerini dinle
+browserAPI.bookmarks.onCreated.addListener(() => updateBookmarks());
+browserAPI.bookmarks.onRemoved.addListener(() => updateBookmarks());
+browserAPI.bookmarks.onChanged.addListener(() => updateBookmarks());
+browserAPI.bookmarks.onMoved.addListener(() => updateBookmarks());
 
 // Geçmiş verilerini toplu olarak işle
 async function processHistoryBatch(startTime, endTime) {
@@ -87,7 +150,8 @@ async function processHistoryBatch(startTime, endTime) {
                 url: item.url,
                 title: item.title,
                 score: INITIAL_SCORE + item.visitCount + (item.typedCount || 0),
-                lastVisitTime: item.lastVisitTime
+                lastVisitTime: item.lastVisitTime,
+                isBookmark: false
             }));
     } catch (error) {
         console.error('Error processing history batch:', error);
@@ -127,6 +191,11 @@ async function initializeHistory() {
             allHistory = Array.from(urlMap.values());
             currentStartTime = batchEndTime;
         }
+
+        // Bookmark'ları ekle
+        const bookmarkTree = await browserAPI.bookmarks.getTree();
+        const bookmarks = await processBookmarks(bookmarkTree[0]);
+        allHistory = allHistory.concat(bookmarks);
 
         // Skorlarına göre sırala ve kaydet
         allHistory.sort((a, b) => b.score - a.score);

@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         history.forEach(item => {
             const li = document.createElement("li");
+            li.className = "result-item";
             
             const link = document.createElement("a");
             link.href = item.url;
@@ -27,14 +28,32 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const urlSpan = document.createElement("span");
             urlSpan.textContent = item.url;
+            urlSpan.className = "url";
             
             const scoreSpan = document.createElement("span");
             scoreSpan.className = "score";
             scoreSpan.textContent = `Score: ${item.score.toFixed(2)}`;
+
+            const leftSection = document.createElement("div");
+            leftSection.className = "left-section";
+            leftSection.appendChild(link);
+            leftSection.appendChild(urlSpan);
+
+            const rightSection = document.createElement("div");
+            rightSection.className = "right-section";
             
-            li.appendChild(link);
-            li.appendChild(urlSpan);
-            li.appendChild(scoreSpan);
+            if (item.isBookmark) {
+                const starIcon = document.createElement("span");
+                starIcon.className = "star-icon";
+                starIcon.innerHTML = "⭐"; // Unicode yıldız karakteri
+                starIcon.title = "Bookmarked";
+                rightSection.appendChild(starIcon);
+            }
+            
+            rightSection.appendChild(scoreSpan);
+            
+            li.appendChild(leftSection);
+            li.appendChild(rightSection);
             
             resultsContainer.appendChild(li);
         });
@@ -49,7 +68,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         browserAPI.storage.local.get({ savedHistory: [] }, (data) => {
             let savedHistory = data.savedHistory;
-            savedHistory.sort((a, b) => b.score - a.score);
+            
+            // Bookmark'ları ve skorları dikkate alarak sırala
+            savedHistory.sort((a, b) => {
+                if (a.isBookmark && !b.isBookmark) return -1;
+                if (!a.isBookmark && b.isBookmark) return 1;
+                return b.score - a.score;
+            });
 
             const filteredHistory = savedHistory.filter(item =>
                 item.title.toLowerCase().includes(query.toLowerCase()) ||
