@@ -80,7 +80,6 @@ autoUpdater.on('update-downloaded', (info) => {
 
 // Geçmiş verilerini saklamak için
 const INITIAL_SCORE = 1;
-const MAX_ITEMS = 10000;
 
 let mainWindow = null;
 let isVisible = false;
@@ -102,15 +101,28 @@ async function loadHistory() {
     console.error('Store hala yüklenemedi!');
     return [];
   }
-  const history = store.get('savedHistory', []);
-  console.log(`Yüklenen geçmiş kayıt sayısı: ${history.length}`);
+  return store.get('savedHistory', []);
+}
+
+// Sadece kayıt sayısını al
+async function getHistoryCount() {
+  if (!store) {
+    console.log('Store henüz yüklenmedi, bekleniyor...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  if (!store) {
+    console.error('Store hala yüklenemedi!');
+    return 0;
+  }
+  const count = store.get('historyCount', 0);
+  console.log(`Toplam kayıt sayısı: ${count}`);
   
   // URL sayısını ana pencereye gönder
   if (mainWindow) {
-    mainWindow.webContents.send('update-url-count', history.length);
+    mainWindow.webContents.send('update-url-count', count);
   }
   
-  return history;
+  return count;
 }
 
 // Geçmiş verilerini kaydet
@@ -121,6 +133,7 @@ async function saveHistory(history) {
   if (!store) return;
   
   store.set('savedHistory', history);
+  store.set('historyCount', history.length);
   
   // URL sayısını ana pencereye gönder
   if (mainWindow) {
@@ -148,10 +161,6 @@ async function searchHistory(searchTerm) {
     .slice(0, 50);
 
   console.log(`Bulunan sonuç sayısı: ${results.length}`);
-  if (results.length > 0) {
-    console.log('İlk birkaç sonuç:', results.slice(0, 3));
-  }
-  
   return results;
 }
 
@@ -241,7 +250,7 @@ async function importBrowserHistories() {
           const db = new Database(tempPath, { readonly: true });
           
           const results = db.prepare(`
-            SELECT url, title, visit_count, typed_count
+            SELECT url, title, visit_count, typed_count, last_visit_time
             FROM urls
             WHERE title IS NOT NULL
             ORDER BY last_visit_time DESC
@@ -254,6 +263,7 @@ async function importBrowserHistories() {
             url: item.url,
             title: item.title,
             score: INITIAL_SCORE + (item.visit_count || 0) + (item.typed_count || 0) * 2,
+            lastVisitTime: item.last_visit_time,
             source: 'Chrome'
           }));
           
@@ -282,7 +292,7 @@ async function importBrowserHistories() {
           const db = new Database(tempPath, { readonly: true });
           
           const results = db.prepare(`
-            SELECT url, title, visit_count, typed
+            SELECT url, title, visit_count, typed, last_visit_date
             FROM moz_places
             WHERE title IS NOT NULL
             ORDER BY last_visit_date DESC
@@ -295,6 +305,7 @@ async function importBrowserHistories() {
             url: item.url,
             title: item.title,
             score: INITIAL_SCORE + (item.visit_count || 0) + (item.typed || 0) * 2,
+            lastVisitTime: item.last_visit_date,
             source: 'Firefox'
           }));
           
@@ -315,13 +326,6 @@ async function importBrowserHistories() {
       uniqueUrls.add(item.url);
       return true;
     });
-
-    // Maksimum kayıt sayısını kontrol et
-    if (allHistory.length > MAX_ITEMS) {
-      allHistory = allHistory
-        .sort((a, b) => b.score - a.score)
-        .slice(0, MAX_ITEMS);
-    }
 
     // Geçmişi kaydet
     await saveHistory(allHistory);
@@ -648,8 +652,8 @@ app.on('ready', async () => {
   createWindow();
   autoImportHistory();
   
-  // İlk yüklemede URL sayısını güncelle
-  loadHistory();
+  // İlk yüklemede sadece URL sayısını güncelle
+  getHistoryCount();
 
   // Global kısayol tuşu kaydet
   globalShortcut.register('CommandOrControl+Shift+Space', () => {
@@ -660,8 +664,8 @@ app.on('ready', async () => {
       mainWindow.show();
       isVisible = true;
       mainWindow.webContents.send('show-window');
-      // Pencere gösterildiğinde URL sayısını güncelle
-      loadHistory();
+      // Pencere gösterildiğinde sadece URL sayısını güncelle
+      getHistoryCount();
     }
   });
 
@@ -847,11 +851,6 @@ async function checkRecentHistory() {
       
       if (newHistory.length > 0) {
         const updatedHistory = [...newHistory, ...currentHistory];
-        
-        // Maksimum kayıt sayısını kontrol et
-        if (updatedHistory.length > MAX_ITEMS) {
-          updatedHistory.splice(MAX_ITEMS);
-        }
         
         await saveHistory(updatedHistory);
         console.log(`${newHistory.length} yeni kayıt eklendi`);

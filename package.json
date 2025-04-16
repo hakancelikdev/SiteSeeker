@@ -1,78 +1,43 @@
 {
   "name": "siteseeker",
   "version": "1.0.0",
-  "description": "Mac uyumlu hızlı Chrome ve Firefox tarayıcı geçmişi arama uygulaması",
+  "description": "A native macOS application for searching through browser history and bookmarks",
   "main": "main.js",
-  "type": "commonjs",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "DEBUG=true electron .",
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "build": "electron-builder build --mac --universal",
+    "build:arm64": "electron-builder build --mac --arm64",
+    "build:x64": "electron-builder build --mac --x64",
+    "test": "jest"
   },
   "build": {
-    "appId": "com.siteseeker.app",
+    "appId": "com.hakancelik.siteseeker",
     "productName": "SiteSeeker",
-    "generateUpdatesFilesForAllChannels": true,
     "mac": {
       "category": "public.app-category.utilities",
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "arm64"
-          ]
-        }
-      ],
+      "target": "zip",
       "darkModeSupport": true,
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
-      "entitlements": "build/entitlements.mac.plist",
-      "entitlementsInherit": "build/entitlements.mac.plist",
-      "identity": null,
-      "extendInfo": {
-        "NSDesktopFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSDocumentsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSDownloadsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSRemovableVolumesUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSSystemAdministrationUsageDescription": "SiteSeeker needs full disk access to read browser history files.",
-        "NSHomeDirectoryUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSFileProviderDomainUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSFileProviderPresenceUsageDescription": "SiteSeeker needs access to read browser history files."
-      }
+      "entitlements": "entitlements.mac.plist",
+      "entitlementsInherit": "entitlements.mac.plist"
     },
-    "dmg": {
-      "sign": false
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "hakancelikdev",
-      "repo": "SiteSeeker"
-    },
-    "afterSign": null
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    }
   },
-  "keywords": [
-    "electron",
-    "history",
-    "search",
-    "macos"
-  ],
   "author": "Hakan Çelik",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
-    "@electron/notarize": "^2.5.0",
-    "electron": "^27.1.0",
-    "electron-builder": "^24.13.3"
+    "electron": "^28.0.0",
+    "electron-builder": "^24.13.3",
+    "jest": "^29.7.0"
   },
   "dependencies": {
-    "better-sqlite3": "^9.4.3",
-    "electron-log": "^5.3.3",
-    "electron-store": "^7.0.3",
-    "electron-updater": "^6.6.2"
+    "better-sqlite3": "^9.6.0"
   }
 }

@@ -1,23 +1,39 @@
 // Tarayıcı API'sini belirle
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
+// Pagination sabitleri
+const ITEMS_PER_PAGE = 50;
+let currentPage = 1;
+let isLoading = false;
+let allResults = [];
+
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("search");
     const resultsContainer = document.getElementById("results");
     const urlCountElement = document.getElementById("url-count");
+    const loadingIndicator = document.createElement("div");
+    loadingIndicator.id = "loading";
+    loadingIndicator.style.display = "none";
+    loadingIndicator.textContent = "Yükleniyor...";
+    document.body.appendChild(loadingIndicator);
 
-    function displayHistory(history) {
-        resultsContainer.innerHTML = "";
+    function displayHistory(results, append = false) {
+        if (!append) {
+            resultsContainer.innerHTML = "";
+        }
 
-        if (!history || history.length === 0) {
-            urlCountElement.textContent = "Sonuç bulunamadı";
+        if (!results || results.length === 0) {
+            if (!append) {
+                urlCountElement.textContent = "Sonuç bulunamadı";
+            }
             return;
         }
 
-        const urlCount = history.length;
-        urlCountElement.textContent = `${urlCount} URL${urlCount !== 1 ? 's' : ''} found`;
+        if (!append) {
+            urlCountElement.textContent = `${allResults.length} URL${allResults.length !== 1 ? 's' : ''} found`;
+        }
 
-        history.forEach(item => {
+        results.forEach(item => {
             const li = document.createElement("li");
             li.className = "result-item";
             
@@ -45,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (item.isBookmark) {
                 const starIcon = document.createElement("span");
                 starIcon.className = "star-icon";
-                starIcon.innerHTML = "⭐"; // Unicode yıldız karakteri
+                starIcon.innerHTML = "⭐";
                 starIcon.title = "Bookmarked";
                 rightSection.appendChild(starIcon);
             }
@@ -59,6 +75,33 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function loadMoreResults() {
+        if (isLoading) return;
+        
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        const endIndex = startIndex + ITEMS_PER_PAGE;
+        const nextPageResults = allResults.slice(startIndex, endIndex);
+        
+        if (nextPageResults.length > 0) {
+            displayHistory(nextPageResults, true);
+            currentPage++;
+        }
+    }
+
+    // Infinite scroll için scroll event listener
+    resultsContainer.addEventListener("scroll", () => {
+        if (isLoading) return;
+
+        const scrollHeight = resultsContainer.scrollHeight;
+        const scrollTop = resultsContainer.scrollTop;
+        const clientHeight = resultsContainer.clientHeight;
+
+        // Sayfa sonuna yaklaşıldığında yeni içerik yükle
+        if (scrollHeight - scrollTop - clientHeight < 100) {
+            loadMoreResults();
+        }
+    });
+
     function searchHistory(query) {
         if (query.length < 2) {
             resultsContainer.innerHTML = "";
@@ -66,21 +109,58 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        isLoading = true;
+        loadingIndicator.style.display = "block";
+        currentPage = 1;
+
         browserAPI.storage.local.get({ savedHistory: [] }, (data) => {
             let savedHistory = data.savedHistory;
+            const searchTerm = query.toLowerCase();
             
-            // Bookmark'ları ve skorları dikkate alarak sırala
-            savedHistory.sort((a, b) => {
+            // Sonuçları filtrele ve eşleşme skorlarını hesapla
+            allResults = savedHistory.filter(item => {
+                const titleMatch = item.title.toLowerCase().includes(searchTerm);
+                const urlMatch = item.url.toLowerCase().includes(searchTerm);
+                return titleMatch || urlMatch;
+            }).map(item => {
+                const titleMatchIndex = item.title.toLowerCase().indexOf(searchTerm);
+                const urlMatchIndex = item.url.toLowerCase().indexOf(searchTerm);
+                
+                const matchQuality = Math.min(
+                    titleMatchIndex === -1 ? Infinity : titleMatchIndex,
+                    urlMatchIndex === -1 ? Infinity : urlMatchIndex
+                );
+                
+                return {
+                    ...item,
+                    matchQuality
+                };
+            });
+            
+            // Sıralama
+            allResults.sort((a, b) => {
                 if (a.isBookmark && !b.isBookmark) return -1;
                 if (!a.isBookmark && b.isBookmark) return 1;
+                
+                if (a.isBookmark && b.isBookmark) {
+                    if (a.matchQuality !== b.matchQuality) {
+                        return a.matchQuality - b.matchQuality;
+                    }
+                    return b.score - a.score;
+                }
+                
+                if (a.matchQuality !== b.matchQuality) {
+                    return a.matchQuality - b.matchQuality;
+                }
                 return b.score - a.score;
             });
-
-            const filteredHistory = savedHistory.filter(item =>
-                item.title.toLowerCase().includes(query.toLowerCase()) ||
-                item.url.toLowerCase().includes(query.toLowerCase())
-            );
-            displayHistory(filteredHistory);
+            
+            // İlk sayfayı göster
+            const initialResults = allResults.slice(0, ITEMS_PER_PAGE);
+            displayHistory(initialResults);
+            
+            isLoading = false;
+            loadingIndicator.style.display = "none";
         });
     }
 

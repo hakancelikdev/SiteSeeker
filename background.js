@@ -1,42 +1,74 @@
+// Debug modu
+const DEBUG = true;
+
 const INITIAL_SCORE = 1;
-const BOOKMARK_SCORE_BONUS = 5; // Bookmark'lar için ekstra skor
-// Her seferde işlenecek maksimum kayıt sayısı
-const BATCH_SIZE = 1000;
+// Her seferde işlenecek maksimum kayıt sayısı - Limitsiz için 0 veya çok yüksek bir değer
+const BATCH_SIZE = 100000; // Çok daha yüksek bir limit
 
 // Tarayıcı API'sini belirle
 const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
 
+// Debug log yardımcı fonksiyonu
+function debugLog(message, data = null) {
+    if (DEBUG) {
+        const timestamp = new Date().toISOString();
+        console.log(`[${timestamp}] ${message}`);
+        if (data) {
+            console.log('Data:', data);
+        }
+    }
+}
+
 // Storage'a kaydetme işlemini wrap eden yardımcı fonksiyon
 async function saveToStorage(savedHistory) {
     try {
+        debugLog(`Saving ${savedHistory.length} items to storage`);
+        const startTime = performance.now();
         await browserAPI.storage.local.set({ savedHistory });
+        const duration = (performance.now() - startTime).toFixed(2);
+        debugLog(`Storage save completed in ${duration}ms`);
     } catch (error) {
         console.error('Storage error:', error);
+        debugLog('Failed items:', savedHistory.slice(0, 5)); // İlk 5 item'ı göster
     }
 }
 
 // Bookmark'ları işle ve kaydet
 async function processBookmarks(bookmarkNode) {
     let bookmarks = [];
+    let totalBookmarks = 0;
+    let errorCount = 0;
     
     function traverseBookmarks(node) {
-        if (node.url) {
-            bookmarks.push({
-                url: node.url,
-                title: node.title,
-                score: INITIAL_SCORE + BOOKMARK_SCORE_BONUS,
-                lastVisitTime: Date.now(),
-                isBookmark: true
-            });
-        }
-        if (node.children) {
-            for (const child of node.children) {
-                traverseBookmarks(child);
+        try {
+            if (node.url) {
+                totalBookmarks++;
+                bookmarks.push({
+                    url: node.url,
+                    title: node.title || 'Untitled Bookmark',
+                    score: INITIAL_SCORE,
+                    lastVisitTime: Date.now(),
+                    isBookmark: true
+                });
             }
+            if (node.children) {
+                for (const child of node.children) {
+                    traverseBookmarks(child);
+                }
+            }
+        } catch (error) {
+            errorCount++;
+            debugLog(`Error processing bookmark: ${error.message}`, node);
         }
     }
     
+    debugLog('Starting bookmark processing...');
     traverseBookmarks(bookmarkNode);
+    debugLog(`Bookmark processing completed:
+    - Total found: ${totalBookmarks}
+    - Successfully processed: ${bookmarks.length}
+    - Errors: ${errorCount}`);
+    
     return bookmarks;
 }
 
@@ -50,6 +82,7 @@ async function updateBookmarks() {
         let savedHistory = data.savedHistory || [];
         
         // Mevcut bookmark'ları kaldır
+        const oldBookmarkCount = savedHistory.filter(item => item.isBookmark).length;
         savedHistory = savedHistory.filter(item => !item.isBookmark);
         
         // Yeni bookmark'ları ekle
@@ -59,7 +92,7 @@ async function updateBookmarks() {
         savedHistory.sort((a, b) => b.score - a.score);
         await saveToStorage(savedHistory);
         
-        console.log(`Bookmarks updated: ${bookmarks.length} items`);
+        console.log(`Bookmarks updated: ${bookmarks.length} items (removed ${oldBookmarkCount} old bookmarks)`);
     } catch (error) {
         console.error('Error updating bookmarks:', error);
     }
@@ -134,17 +167,53 @@ browserAPI.bookmarks.onRemoved.addListener(() => updateBookmarks());
 browserAPI.bookmarks.onChanged.addListener(() => updateBookmarks());
 browserAPI.bookmarks.onMoved.addListener(() => updateBookmarks());
 
-// Geçmiş verilerini toplu olarak işle
+// Geçmiş verilerini işle
 async function processHistoryBatch(startTime, endTime) {
     try {
-        const results = await browserAPI.history.search({
-            text: "",
-            startTime: startTime,
-            endTime: endTime,
-            maxResults: BATCH_SIZE
-        });
+        debugLog(`Processing history from ${new Date(startTime)} to ${new Date(endTime)}`);
+        
+        const timeChunkSize = 30 * 24 * 60 * 60 * 1000; // 30 günlük dilimler
+        let currentStartTime = startTime;
+        let allResults = [];
+        let processedChunks = 0;
+        let errorChunks = 0;
 
-        return results
+        while (currentStartTime < endTime) {
+            const chunkEndTime = Math.min(currentStartTime + timeChunkSize, endTime);
+            processedChunks++;
+            
+            try {
+                debugLog(`Requesting chunk ${processedChunks}: ${new Date(currentStartTime)} to ${new Date(chunkEndTime)}`);
+                const chunkStartTime = performance.now();
+                
+                const results = await browserAPI.history.search({
+                    text: "",
+                    startTime: currentStartTime,
+                    endTime: chunkEndTime,
+                    maxResults: BATCH_SIZE
+                });
+
+                const chunkDuration = (performance.now() - chunkStartTime).toFixed(2);
+                debugLog(`Chunk ${processedChunks} completed in ${chunkDuration}ms:
+                - Items received: ${results.length}
+                - Items with title: ${results.filter(item => item.title).length}
+                - Unique URLs: ${new Set(results.map(item => item.url)).size}`);
+                
+                allResults = allResults.concat(results);
+            } catch (error) {
+                errorChunks++;
+                console.error(`Error processing chunk ${processedChunks}:`, error);
+            }
+            
+            currentStartTime = chunkEndTime;
+        }
+
+        debugLog(`History processing summary:
+        - Total chunks processed: ${processedChunks}
+        - Failed chunks: ${errorChunks}
+        - Total items: ${allResults.length}`);
+
+        const processedResults = allResults
             .filter(item => item.title)
             .map(item => ({
                 url: item.url,
@@ -153,8 +222,11 @@ async function processHistoryBatch(startTime, endTime) {
                 lastVisitTime: item.lastVisitTime,
                 isBookmark: false
             }));
+
+        debugLog(`Final processed results: ${processedResults.length} items`);
+        return processedResults;
     } catch (error) {
-        console.error('Error processing history batch:', error);
+        console.error('Error in history batch processing:', error);
         return [];
     }
 }
@@ -162,48 +234,33 @@ async function processHistoryBatch(startTime, endTime) {
 // İlk kurulumda geçmişi indexle
 async function initializeHistory() {
     try {
-        console.log("Initializing history index...");
+        debugLog('Starting initial history indexing...');
+        const startTime = performance.now();
         
-        // Son 5 yıllık geçmişi al
         const endTime = Date.now();
-        const startTime = endTime - (5 * 365 * 24 * 60 * 60 * 1000); // 5 yıl öncesi
+        const historyStartTime = endTime - (5 * 365 * 24 * 60 * 60 * 1000);
         
-        let allHistory = [];
-        let currentStartTime = startTime;
-        const timeIncrement = 30 * 24 * 60 * 60 * 1000; // 30 günlük dilimler
+        debugLog('Processing history...');
+        const allHistory = await processHistoryBatch(historyStartTime, endTime);
         
-        while (currentStartTime < endTime) {
-            const batchEndTime = Math.min(currentStartTime + timeIncrement, endTime);
-            console.log(`Processing history from ${new Date(currentStartTime)} to ${new Date(batchEndTime)}`);
-            
-            const batchResults = await processHistoryBatch(currentStartTime, batchEndTime);
-            allHistory = allHistory.concat(batchResults);
-            
-            // URL bazında birleştir ve en son ziyaret zamanını koru
-            const urlMap = new Map();
-            allHistory.forEach(item => {
-                const existing = urlMap.get(item.url);
-                if (!existing || existing.lastVisitTime < item.lastVisitTime) {
-                    urlMap.set(item.url, item);
-                }
-            });
-            
-            allHistory = Array.from(urlMap.values());
-            currentStartTime = batchEndTime;
-        }
-
-        // Bookmark'ları ekle
+        debugLog('Processing bookmarks...');
         const bookmarkTree = await browserAPI.bookmarks.getTree();
         const bookmarks = await processBookmarks(bookmarkTree[0]);
-        allHistory = allHistory.concat(bookmarks);
-
-        // Skorlarına göre sırala ve kaydet
-        allHistory.sort((a, b) => b.score - a.score);
-        await saveToStorage(allHistory);
         
-        console.log(`Initial indexing completed with ${allHistory.length} items`);
+        const combinedHistory = allHistory.concat(bookmarks);
+        debugLog(`Sorting ${combinedHistory.length} total items...`);
+        
+        combinedHistory.sort((a, b) => b.score - a.score);
+        await saveToStorage(combinedHistory);
+        
+        const duration = (performance.now() - startTime).toFixed(2);
+        debugLog(`Initialization completed in ${duration}ms:
+        - History items: ${allHistory.length}
+        - Bookmarks: ${bookmarks.length}
+        - Total items: ${combinedHistory.length}`);
     } catch (error) {
         console.error('Error in initialization:', error);
+        debugLog('Initialization failed', error);
     }
 }
 

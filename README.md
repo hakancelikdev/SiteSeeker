@@ -1,97 +1,83 @@
 # SiteSeeker 🚀
 
-Instantly search through your browser history and bookmarks, and save time! Access your history and bookmarks quickly with a modern and elegant interface.
-
-![SiteSeeker Banner](assets/banner.png)
+Instantly search through your browser history and bookmarks on macOS! Access your history and bookmarks quickly with a modern and elegant native interface.
 
 ## ✨ Why SiteSeeker?
 
 - **⚡️ Instant Search**: Results in milliseconds
 - **🎯 Smart Ranking**: Bookmarks and most visited pages always at the top
-- **🔖 Bookmark Integration**: Search through your Chrome and Firefox bookmarks
+- **🔖 Bookmark Integration**: Search through your browser bookmarks
 - **🔍 Multi-Browser Support**: Search Chrome and Firefox history in one place
 - **⌨️ Global Shortcut**: Quick access from anywhere with ⌘+⇧+Space
-- **🎨 Modern Design**: Sleek and modern interface in macOS Sonoma style
+- **🎨 Native Design**: Sleek and modern interface in macOS Sonoma style
 - **🔄 Real-Time**: Instantly captures history and bookmark updates
 - **🔒 Privacy-Focused**: All data stays on your computer
-- **📱 Two Usage Options**: Use as either a desktop app or browser extension
+- **💻 Native App**: Pure macOS application with full system integration
 
 ## 🛠 Development
 
 ### 📦 Building
 
 #### Requirements
-- Node.js and npm installed
-- Xcode Command Line Tools installed for macOS
+- Node.js (LTS version recommended)
+- npm (comes with Node.js)
+- Xcode Command Line Tools
+- macOS 10.15 (Catalina) or later
 
-#### Quick Build (Recommended Method)
-1. Clone the project:
-   ```bash
-   git clone https://github.com/hakancelikdev/SiteSeeker.git
-   cd SiteSeeker
-   ```
+#### Development Mode
+```bash
+# Start in development mode
+npm run dev
 
-2. Build using the script:
-   ```bash
-   # Build for all platforms (macOS app + browser extensions)
-   ./build.sh all
+# Start in production mode
+npm start
+```
 
-   # Build only browser extensions
-   ./build.sh extensions
+#### Build Commands
+```bash
+# Clean build directory
+npm run clean
 
-   # Build only macOS application
-   ./build.sh macos
-   ```
+# Build universal binary (Intel + Apple Silicon)
+npm run build
 
-3. Build outputs:
-   - Chrome Extension: `dist/siteseeker-chrome.zip`
-   - Firefox Extension: `dist/siteseeker-firefox.zip`
-   - macOS Application: `dist/SiteSeeker-1.0.0-arm64.dmg` (Apple Silicon) and `dist/SiteSeeker-1.0.0-arm64-mac.zip`
+# Build for specific architecture
+npm run build:arm64  # Apple Silicon (M1/M2)
+npm run build:x64    # Intel Macs
 
-#### Testing the Extension
+# Create unpacked build (for testing)
+npm run build:dir
 
-##### For Chrome:
-1. Go to `chrome://extensions/`
-2. Enable "Developer mode" in the top right
-3. Options:
-   - Drag and drop `dist/siteseeker-chrome.zip` onto the page
-   - Or select "Load unpacked" and choose the `dist/chrome` directory
+# Create DMG installer
+npm run build:universal
+```
 
-##### For Firefox:
-1. Go to `about:debugging`
-2. Click on "This Firefox" tab
-3. Select "Load Temporary Add-on" and choose `dist/firefox/manifest.json`
+#### Build Outputs
+After running `npm run build`, you'll find:
+- `dist/SiteSeeker-1.0.0.dmg`: Universal installer (Intel + Apple Silicon)
+- `dist/SiteSeeker-1.0.0-mac.zip`: Compressed application
+- `dist/mac-arm64`: Apple Silicon specific build
+- `dist/mac-x64`: Intel specific build
+- `dist/mac-universal`: Universal build
 
 ## 🎬 Quick Start
 
-### 💻 As Desktop Application
-
 1. Download the latest version from [Releases](https://github.com/hakancelikdev/SiteSeeker/releases)
-2. Open the DMG file and install the application
-3. Access from anywhere with ⌘+⇧+Space!
+2. Open the DMG file and drag SiteSeeker to your Applications folder
+3. Launch SiteSeeker from your Applications folder
+4. Grant necessary permissions when prompted:
+   - Full Disk Access (required for browser history)
+   - Chrome history file access
+   - Firefox profile access
+5. Access from anywhere with ⌘+⇧+Space!
 
-### 🔄 Manual Updates
+### 🔄 Updates
 
-While SiteSeeker checks for updates automatically when launched, you can also manually check and install updates:
+SiteSeeker checks for updates automatically when launched, but you can also manually update:
 
 1. Visit the [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) page
-2. Find the latest version (marked with a "Latest" tag)
-3. Download the appropriate file:
-   - For a fresh installation: Download `SiteSeeker-{version}.dmg`
-   - For updating: You can use either the `.dmg` or `.zip` file
-4. If using the DMG:
-   - Open the downloaded DMG file
-   - Drag SiteSeeker to the Applications folder
-   - Replace the existing application if prompted
-5. If using ZIP:
-   - Extract the ZIP file
-   - Move the extracted SiteSeeker app to your Applications folder
-   - Replace the existing application if prompted
-
-### 🔌 As Browser Extension
-
-1. Install the "SiteSeeker" extension from Chrome Web Store or Firefox Add-ons
-2. Start using by clicking the icon in the browser toolbar
+2. Download the latest version
+3. Replace the existing application in your Applications folder
 
 ## 🌟 Featured Capabilities
 
@@ -101,46 +87,50 @@ While SiteSeeker checks for updates automatically when launched, you can also ma
 - Tolerant to typos
 - Bookmarks prioritized in search results
 
-### 🎨 Modern and Elegant Interface
-- macOS Sonoma style design
+### 🎨 Native macOS Integration
+- Native macOS Sonoma style design
 - Dynamic window sizing
 - Smooth animations
-- Dark mode support
+- System-wide dark mode support
 - Visual bookmark indicators
+- Full Disk Access integration
+- Native notifications
 
 ### ⚡️ Performance-Focused
 - Results in milliseconds
 - Low system resource usage
 - Minimal background impact
-- Efficient bookmark management
+- Efficient data management
+- Native SQLite integration
 
 ### 🔒 Privacy and Security
 - Data stays only on your local device
-- No data sharing
+- No data sharing or cloud sync
 - Open source code
-- Secure bookmark handling
+- Secure data handling
+- macOS sandbox compliance
 
 ## 📊 User Experience
 
 - **Quick Access**: Instant access from anywhere with global shortcut
-- **Easy to Use**: Intuitive interface, minimal learning curve
+- **Native Feel**: Looks and behaves like a native macOS app
 - **Smart Results**: Bookmarks and most used pages always at the top
 - **Visual Indicators**: Bookmarked pages marked with a star icon
 - **Statistics**: View imported history and bookmark counts
 
 ## 🛠 Technical Features
 
-- **Electron-Based**: Modern and fast desktop application
-- **Chrome Manifest V3**: Latest technology extension support
+- **Native Architecture**: Built specifically for macOS
+- **Electron Core**: Modern and fast desktop application
 - **SQLite Integration**: Fast and reliable data storage
-- **Bookmark Integration**:
-  - Automatic bookmark synchronization
-  - Real-time bookmark updates
-  - Cross-browser bookmark support
+- **Browser Integration**:
+  - Automatic history and bookmark synchronization
+  - Real-time updates
+  - Support for Chrome and Firefox
 - **Auto-Update System**: 
-  - Automatic update checks on application launch
-  - Silent download and installation of updates
-  - Manual update option via GitHub Releases
+  - Automatic update checks
+  - Silent download and installation
+  - Manual update option
   - Seamless version transitions
 
 ## 🤝 Community and Support
