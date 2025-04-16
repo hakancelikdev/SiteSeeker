@@ -23,7 +23,14 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "identity": null
+      "identity": null,
+      "extendInfo": {
+        "NSAppleEventsUsageDescription": "SiteSeeker needs access to Safari history for search functionality.",
+        "NSDesktopFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
+        "NSDocumentsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
+        "NSDownloadsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
+        "NSRemovableVolumesUsageDescription": "SiteSeeker needs access to read browser history files."
+      }
     },
     "dmg": {
       "sign": false
