@@ -22,6 +22,62 @@ try {
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
+// Güncelleme dizinlerini oluştur
+const updaterCachePath = path.join(app.getPath('userData'), 'update-cache');
+const pendingUpdatePath = path.join(updaterCachePath, 'pending');
+
+try {
+  if (!fs.existsSync(updaterCachePath)) {
+    fs.mkdirSync(updaterCachePath, { recursive: true });
+  }
+  if (!fs.existsSync(pendingUpdatePath)) {
+    fs.mkdirSync(pendingUpdatePath, { recursive: true });
+  }
+} catch (error) {
+  log.error('Güncelleme dizinleri oluşturulurken hata:', error);
+}
+
+// Güncelleme yapılandırması
+autoUpdater.autoDownload = true;
+autoUpdater.autoInstallOnAppQuit = true;
+
+autoUpdater.on('error', (error) => {
+  log.error('Güncelleme hatası:', error);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-error', error.message);
+  }
+});
+
+autoUpdater.on('checking-for-update', () => {
+  log.info('Güncellemeler kontrol ediliyor...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  log.info('Güncelleme mevcut:', info);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-available', info);
+  }
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  log.info('Güncelleme mevcut değil:', info);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let message = `İndirme hızı: ${progressObj.bytesPerSecond} - İndirilen: ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`;
+  log.info(message);
+  if (mainWindow) {
+    mainWindow.webContents.send('download-progress', progressObj);
+  }
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  log.info('Güncelleme indirildi:', info);
+  if (mainWindow) {
+    mainWindow.webContents.send('update-downloaded', info);
+  }
+});
+
 // Geçmiş verilerini saklamak için
 const INITIAL_SCORE = 1;
 const MAX_ITEMS = 10000;
@@ -640,38 +696,6 @@ async function autoImportHistory() {
     setInterval(autoImportHistory, 60000);
   }
 }
-
-// Otomatik güncelleme ayarları
-autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = 'info';
-
-autoUpdater.on('checking-for-update', () => {
-  log.info('Güncellemeler kontrol ediliyor...');
-});
-
-autoUpdater.on('update-available', (info) => {
-  log.info('Güncelleme mevcut:', info);
-});
-
-autoUpdater.on('update-not-available', (info) => {
-  log.info('Güncelleme mevcut değil:', info);
-});
-
-autoUpdater.on('error', (err) => {
-  log.error('Güncelleme hatası:', err);
-});
-
-autoUpdater.on('download-progress', (progressObj) => {
-  let logMessage = `İndirme hızı: ${progressObj.bytesPerSecond}`;
-  logMessage += ` - İndirilen: ${progressObj.percent}%`;
-  logMessage += ` (${progressObj.transferred}/${progressObj.total})`;
-  log.info(logMessage);
-});
-
-autoUpdater.on('update-downloaded', (info) => {
-  log.info('Güncelleme indirildi:', info);
-  autoUpdater.quitAndInstall();
-});
 
 app.on('ready', () => {
   createWindow();
