@@ -74,7 +74,7 @@ build_app() {
     case "$build_type" in
         "universal")
             print_info "Building universal macOS app..."
-            npm run build:universal
+            npm run build
             ;;
         "arm64")
             print_info "Building Apple Silicon (M1/M2) version..."
