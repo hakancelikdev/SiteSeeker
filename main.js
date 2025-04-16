@@ -496,6 +496,41 @@ function createWindow() {
   });
 }
 
+// İzinleri kontrol et ve iste
+async function checkAndRequestPermissions() {
+  return new Promise((resolve) => {
+    // Safari geçmişi için izin kontrolü
+    const safariHistoryPath = path.join(os.homedir(), 'Library/Safari/History.db');
+    
+    try {
+      // Safari geçmişine erişim denemesi
+      fs.accessSync(safariHistoryPath, fs.constants.R_OK);
+      log.info('Safari geçmişine erişim izni mevcut');
+      resolve(true);
+    } catch (error) {
+      log.warn('Safari geçmişine erişim izni yok, izin isteniyor...');
+      
+      // Kullanıcıya izin bildirimi göster
+      const { dialog } = require('electron');
+      dialog.showMessageBox(null, {
+        type: 'info',
+        title: 'İzin Gerekli',
+        message: 'SiteSeeker\'ın çalışması için bazı izinler gerekiyor',
+        detail: 'Lütfen Sistem Ayarları > Gizlilik ve Güvenlik > Tam Disk Erişimi\'nden SiteSeeker uygulamasına izin verin.\n\nAyrıca Safari geçmişine erişim için Safari > Ayarlar > Gelişmiş > "Uzantıların geçmişe erişmesine izin ver" seçeneğini etkinleştirin.',
+        buttons: ['Tamam', 'Sistem Ayarlarını Aç'],
+        defaultId: 1,
+        noLink: true
+      }).then((result) => {
+        if (result.response === 1) {
+          // Sistem ayarlarını aç
+          require('child_process').exec('open "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"');
+        }
+        resolve(false);
+      });
+    }
+  });
+}
+
 // İlk çalıştırmada ve her dakikada bir geçmişi içe aktar
 let isFirstRun = true;
 async function autoImportHistory() {
@@ -697,7 +732,10 @@ async function autoImportHistory() {
   }
 }
 
-app.on('ready', () => {
+app.on('ready', async () => {
+  // İzinleri kontrol et
+  await checkAndRequestPermissions();
+  
   createWindow();
   autoImportHistory();
   

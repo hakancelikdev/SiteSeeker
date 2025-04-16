@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Mac uyumlu hızlı tarayıcı geçmişi arama uygulaması",
   "main": "main.js",
   "type": "commonjs",
@@ -41,7 +41,11 @@
         "NSDesktopFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
         "NSDocumentsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
         "NSDownloadsFolderUsageDescription": "SiteSeeker needs access to read browser history files.",
-        "NSRemovableVolumesUsageDescription": "SiteSeeker needs access to read browser history files."
+        "NSRemovableVolumesUsageDescription": "SiteSeeker needs access to read browser history files.",
+        "NSSystemAdministrationUsageDescription": "SiteSeeker needs full disk access to read browser history files.",
+        "NSHomeDirectoryUsageDescription": "SiteSeeker needs access to read browser history files.",
+        "NSFileProviderDomainUsageDescription": "SiteSeeker needs access to read browser history files.",
+        "NSFileProviderPresenceUsageDescription": "SiteSeeker needs access to read browser history files."
       }
     },
     "dmg": {
