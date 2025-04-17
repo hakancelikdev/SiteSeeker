@@ -5,132 +5,35 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
-  build:
+  release:
     runs-on: macos-latest
-    strategy:
-      matrix:
-        arch: [arm64, x64]
+
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Extract version
-        id: version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Build app for ${{ matrix.arch }}
-        run: npm run build:${{ matrix.arch }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-          APP_VERSION: ${{ steps.version.outputs.version }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: siteseeker-${{ matrix.arch }}
-          path: |
-            dist/SiteSeeker-*-${{ matrix.arch }}.dmg
-            dist/*.blockmap
-            dist/latest-mac.yml
-          if-no-files-found: error
-
-  universal-build:
-    needs: build
-    runs-on: macos-latest
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Extract version
-        id: version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Build Universal Binary
-        run: npm run build:universal
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-          APP_VERSION: ${{ steps.version.outputs.version }}
-
-      - name: Upload universal artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: siteseeker-universal
-          path: dist/SiteSeeker-*-universal.dmg
-          if-no-files-found: error
-
-  create-release:
-    needs: [build, universal-build]
-    runs-on: macos-latest
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-          merge-multiple: true
-
-      - name: Extract version
-        id: version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Display structure
-        run: ls -R dist/
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            dist/SiteSeeker-*-universal.dmg
-            dist/SiteSeeker-*-arm64.dmg
-            dist/SiteSeeker-*-x64.dmg
-            dist/*.blockmap
-            dist/latest-mac.yml
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          body: |
-            ## SiteSeeker v${{ steps.version.outputs.version }}
-            
-            ### Downloads
-            - 🖥️ Universal (Intel + Apple Silicon): `SiteSeeker-${{ steps.version.outputs.version }}-universal.dmg`
-            - 🍎 Apple Silicon: `SiteSeeker-${{ steps.version.outputs.version }}-arm64.dmg`
-            - 💻 Intel: `SiteSeeker-${{ steps.version.outputs.version }}-x64.dmg`
-            
-            ### Installation
-            1. Download the appropriate version for your Mac
-            2. Open the DMG file
-            3. Drag SiteSeeker to your Applications folder
-            4. Launch SiteSeeker
-            
-            ### System Requirements
-            - macOS 10.15 (Catalina) or later
-            - For Apple Silicon version: M1/M2 Mac
-            - For Intel version: Intel-based Mac
-            - Universal version works on both
-            
-            ### Auto-Update Support
-            - The app will automatically check for updates
-            - You can also check manually from the app menu 
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Make build script executable
+      run: chmod +x build.sh
+    
+    - name: Build universal binary
+      run: ./build.sh universal
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/SiteSeeker-*.dmg
+          dist/SiteSeeker-*.zip
+          dist/*.blockmap
+          dist/latest-mac.yml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
