@@ -26,6 +26,8 @@ jobs:
     
     - name: Build universal binary
       run: ./build.sh universal
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Create Release
       uses: softprops/action-gh-release@v1
