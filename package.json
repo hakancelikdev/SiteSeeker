@@ -19,7 +19,7 @@
     "productName": "SiteSeeker",
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": ["universal"],
+      "target": "zip",
       "identity": null
     },
     "files": [
