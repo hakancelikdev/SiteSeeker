@@ -5,6 +5,9 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
   release:
     runs-on: macos-latest
@@ -20,8 +23,6 @@ jobs:
     
     - name: Install dependencies
       run: npm ci
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Build M1 (arm64)
       run: npm run build:arm64
@@ -47,5 +48,6 @@ jobs:
           dist/SiteSeeker-*-universal-mac.zip
           dist/*.blockmap
           dist/latest-mac.yml
+        generate_release_notes: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
