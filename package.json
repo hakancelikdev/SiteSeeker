@@ -9,6 +9,7 @@
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "build": "electron-builder build --mac --universal",
+    "build:universal": "electron-builder build --mac --universal",
     "build:arm64": "electron-builder build --mac --arm64",
     "build:x64": "electron-builder build --mac --x64",
     "test": "jest"
