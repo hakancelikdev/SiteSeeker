@@ -859,4 +859,19 @@ async function checkRecentHistory() {
   } catch (error) {
     console.error('Son geçmiş kontrolü sırasında hata:', error);
   }
-} 
+}
+
+// Export functions for testing
+module.exports = {
+  searchHistory,
+  importBrowserHistories,
+  getChromeProfiles,
+  loadHistory,
+  getHistoryCount,
+  saveHistory,
+  checkPermissions,
+  showPermissionDialog,
+  autoImportHistory,
+  resetHistory,
+  checkRecentHistory,
+}; 
