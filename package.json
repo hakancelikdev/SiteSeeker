@@ -48,7 +48,8 @@
     "publish": {
       "provider": "github",
       "owner": "hakancelikdev",
-      "repo": "SiteSeeker"
+      "repo": "SiteSeeker",
+      "draft": false
     }
   },
   "author": "Hakan Çelik",
