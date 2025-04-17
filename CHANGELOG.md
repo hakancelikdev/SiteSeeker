@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Jest test altyapısı eklendi
-- Browser history import testleri eklendi
-- Search functionality testleri eklendi
-- Main process testleri eklendi
+- Added Jest test infrastructure
+- Added browser history import tests
+- Added search functionality tests
+- Added main process tests
 - Electron-updater for automatic updates
 - Electron-log for better logging capabilities
 - Electron-store for persistent storage

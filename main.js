@@ -174,27 +174,27 @@ async function getChromeProfiles() {
       'Library/Application Support/Google/Chrome'
     );
 
-    console.log('Chrome profil dizini:', profilesPath);
+    console.log('Chrome profile directory:', profilesPath);
 
-    // Profil dizininin varlığını kontrol et
+    // Check if profile directory exists
     if (!fs.existsSync(profilesPath)) {
-      console.error('Chrome profil dizini bulunamadı:', profilesPath);
+      console.error('Chrome profile directory not found:', profilesPath);
       return [];
     }
 
-    // Profil dizinlerini oku
+    // Read profile directories
     const items = fs.readdirSync(profilesPath);
-    console.log('Bulunan dizinler:', items);
+    console.log('Found directories:', items);
 
     const profiles = [];
     
-    // Her bir dizini kontrol et
+    // Check each directory
     for (const item of items) {
       try {
         const itemPath = path.join(profilesPath, item);
         const historyPath = path.join(itemPath, 'History');
         
-        // Sadece dizin olup olmadığını ve History dosyasının varlığını kontrol et
+        // Check if it's a directory and has History file
         if (fs.existsSync(itemPath) && 
             fs.statSync(itemPath).isDirectory() && 
             fs.existsSync(historyPath) && 
@@ -202,18 +202,18 @@ async function getChromeProfiles() {
           
           profiles.push({
             id: item,
-            name: item === 'Default' ? 'Varsayılan Profil' : `Profil ${item.replace('Profile ', '')}`
+            name: item === 'Default' ? 'Default Profile' : `Profile ${item.replace('Profile ', '')}`
           });
           
-          console.log(`Geçerli profil bulundu: ${item}`);
+          console.log(`Valid profile found: ${item}`);
         }
       } catch (err) {
-        console.log(`${item} dizini kontrol edilirken hata:`, err.message);
+        console.log(`Error checking ${item} directory:`, err.message);
         continue;
       }
     }
 
-    console.log('Bulunan profiller:', profiles);
+    console.log('Found profiles:', profiles);
     return profiles;
   } catch (error) {
     console.error('Profil listesi alınırken detaylı hata:', error);
@@ -224,7 +224,7 @@ async function getChromeProfiles() {
 // Tarayıcı geçmişlerini içe aktar
 async function importBrowserHistories() {
   try {
-    console.log('Tarayıcı geçmişleri import işlemi başlatılıyor...');
+    console.log('Starting browser history import...');
     const os = require('os');
     const fs = require('fs');
     
@@ -268,9 +268,9 @@ async function importBrowserHistories() {
           }));
           
           allHistory = allHistory.concat(chromeHistory);
-          console.log(`Chrome ${profile} profilinden alınan kayıt sayısı:`, chromeHistory.length);
+          console.log(`Number of records from Chrome ${profile} profile:`, chromeHistory.length);
         } catch (error) {
-          console.error(`Chrome ${profile} geçmişi alınırken hata:`, error);
+          console.error(`Error getting Chrome ${profile} history:`, error);
         }
       }
     }
@@ -701,6 +701,8 @@ ipcMain.on('search-history', async (event, searchTerm) => {
     }
 
     const results = await searchHistory(searchTerm);
+    console.log('Search term:', searchTerm);
+    console.log('Number of results found:', results.length);
     event.reply('search-results', results);
   } catch (error) {
     console.error('Arama hatası:', error);
