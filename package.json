@@ -15,20 +15,25 @@
     "test": "jest"
   },
   "build": {
-    "appId": "com.hakancelik.siteseeker",
+    "appId": "dev.hakancelik.siteseeker",
     "productName": "SiteSeeker",
     "mac": {
-      "category": "public.app-category.utilities",
-      "target": "zip",
-      "darkModeSupport": true,
-      "hardenedRuntime": true,
-      "gatekeeperAssess": false,
-      "entitlements": "entitlements.mac.plist",
-      "entitlementsInherit": "entitlements.mac.plist"
+      "category": "public.app-category.developer-tools",
+      "target": ["universal"],
+      "identity": null
     },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
     "directories": {
-      "buildResources": "build",
       "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hakancelikdev",
+      "repo": "SiteSeeker"
     }
   },
   "author": "Hakan Çelik",
