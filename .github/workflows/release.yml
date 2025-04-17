@@ -21,18 +21,22 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
-    - name: Make build script executable
-      run: chmod +x build.sh
+    - name: Build M1 (arm64)
+      run: npm run build:arm64
     
-    - name: Build universal binary
-      run: ./build.sh universal
+    - name: Build Intel (x64)
+      run: npm run build:x64
+    
+    - name: Build Universal
+      run: npm run build:universal
     
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist/SiteSeeker-*.dmg
-          dist/SiteSeeker-*.zip
+          dist/SiteSeeker-*-arm64-mac.zip
+          dist/SiteSeeker-*-x64-mac.zip
+          dist/SiteSeeker-*-universal-mac.zip
           dist/*.blockmap
           dist/latest-mac.yml
       env:
