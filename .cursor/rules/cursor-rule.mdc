@@ -18,22 +18,22 @@ alwaysApply: true
 - Existing tests should never be changed. If the feature has changed, it should be changed.
 
 
-# Relase
-Here are the steps taken to create and publish the x.y.z release:
+# Create a new relase rule
+## Increase version from package.json
+Increase version of an annotated tag `"version": "x.y.z",`
 
-1. **Package file update**:
-   - Increase version of an annotated tag `"version": "x.y.z",`
+## Update dependencies
+npm update
 
-2. **Tag Creation**:
-   - Created an annotated tag `vx.y.z` with the message "Release version x.y.z"
-   - Command used: `git tag -a vx.y.z -m "Release version x.y.z"`
+## Update version in package.json
+## package-lock.json will be updated automatically
 
-3. **Tag Push**:
-   - Pushed the tag to the remote repository
-   - Command used: `git push origin vx.y.z`
+## Commit changes
+git add package.json package-lock.json
+git commit -m "Bump version to x.y.z"
 
-4. **Verification**:
-   - The tag was successfully created and pushed
-   - Output confirmed: `* [new tag] vx.y.z -> vx.y.z`
+## Create tag
+git tag -a vx.y.z -m "Release version x.y.z"
 
-These steps ensure that the 1.0.0 release is properly tagged and available in the remote repository. Would you like me to help you with anything else?
+## Push changes and tags
+git push && git push --tags

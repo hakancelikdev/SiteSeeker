@@ -51,22 +51,23 @@ npm run build:x64    # Intel Macs
 
 #### Build Outputs
 After running `npm run build`, you'll find:
-- `dist/SiteSeeker-1.0.0-universal.dmg`: Universal installer (Intel + Apple Silicon)
-- `dist/SiteSeeker-1.0.0-arm64.dmg`: Apple Silicon specific installer
-- `dist/SiteSeeker-1.0.0-x64.dmg`: Intel specific installer
+- `dist/SiteSeeker-1.0.0-universal-mac.pkg`: Universal installer (Intel + Apple Silicon)
+- `dist/SiteSeeker-1.0.0-arm64-mac.pkg`: Apple Silicon specific installer
+- `dist/SiteSeeker-1.0.0-x64-mac.pkg`: Intel specific installer
 - `dist/*.blockmap`: Differential update files
 - `dist/latest-mac.yml`: Auto-update configuration
 
 ## 🎬 Quick Start
 
 1. Download the latest version from [Releases](https://github.com/hakancelikdev/SiteSeeker/releases)
-2. Open the DMG file and drag SiteSeeker to your Applications folder
-3. Launch SiteSeeker from your Applications folder
-4. Grant necessary permissions when prompted:
+2. Double-click the PKG file to start the installation
+3. Follow the installation wizard steps
+4. Launch SiteSeeker from your Applications folder
+5. Grant necessary permissions when prompted:
    - Full Disk Access (required for browser history)
    - Chrome history file access
    - Firefox profile access
-5. Access from anywhere with ⌘+⇧+Space!
+6. Access from anywhere with ⌘+⇧+Space!
 
 ### 🔄 Updates
 
@@ -74,7 +75,7 @@ SiteSeeker checks for updates automatically when launched, but you can also manu
 
 1. Visit the [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) page
 2. Download the latest version
-3. Replace the existing application in your Applications folder
+3. Run the PKG installer to update your existing installation
 
 ## 🌟 Featured Capabilities
 

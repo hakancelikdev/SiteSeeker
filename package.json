@@ -19,7 +19,7 @@
     "productName": "SiteSeeker",
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": "zip",
+      "target": "pkg",
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -52,7 +52,7 @@
     }
   },
   "author": "Hakan Çelik",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
