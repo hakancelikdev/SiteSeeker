@@ -152,3 +152,88 @@ Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 ---
 
 ⭐️ If you like SiteSeeker, don't forget to give it a star!
+
+## Download
+
+Download the appropriate version for your Mac:
+
+- **Apple Silicon (M1/M2) Macs**: [SiteSeeker-1.0.0-arm64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/download/v1.0.0/SiteSeeker-1.0.0-arm64-mac.zip) (93.7 MB)
+  - Optimized for M1/M2 processors
+  - Smaller download size
+  - Better performance on Apple Silicon
+
+- **Intel Macs**: [SiteSeeker-1.0.0-x64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/download/v1.0.0/SiteSeeker-1.0.0-x64-mac.zip) (94.2 MB)
+  - Optimized for Intel processors
+  - Compatible with older Macs
+
+- **Universal Binary**: [SiteSeeker-1.0.0-universal-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/download/v1.0.0/SiteSeeker-1.0.0-universal-mac.zip) (168 MB)
+  - Works on both Intel and Apple Silicon
+  - Larger download size
+  - Recommended if you're unsure about your Mac's processor
+
+## Installation
+
+1. Download the appropriate version for your Mac
+2. Double-click the downloaded ZIP file to extract
+3. Move the SiteSeeker app to your Applications folder
+4. Launch SiteSeeker from your Applications folder
+
+Note: On first launch, you might see a security warning because the app is not signed. You can bypass this by:
+1. Right-click (or Control-click) the app
+2. Select "Open"
+3. Click "Open" in the security dialog
+
+## Auto Updates
+
+SiteSeeker includes an auto-update system that:
+- Checks for updates automatically
+- Downloads only the changed parts of the app (delta updates)
+- Installs updates seamlessly in the background
+- Notifies you when updates are ready
+
+## Permissions
+
+SiteSeeker requires the following permissions:
+- Full Disk Access (to read browser history files)
+- Chrome history access
+- Firefox history access
+
+These permissions are requested when you first launch the app.
+
+## Development
+
+### Prerequisites
+
+- Node.js 18 or later
+- npm 9 or later
+- macOS 12 or later
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/hakancelikdev/SiteSeeker.git
+
+# Install dependencies
+npm install
+
+# Start the app in development mode
+npm start
+```
+
+### Building
+
+```bash
+# Build for Apple Silicon (M1/M2)
+npm run build:arm64
+
+# Build for Intel
+npm run build:x64
+
+# Build Universal Binary
+npm run build:universal
+```
+
+## License
+
+MIT © [Hakan Çelik](https://github.com/hakancelikdev)
