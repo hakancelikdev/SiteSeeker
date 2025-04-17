@@ -19,8 +19,11 @@
     "productName": "SiteSeeker",
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": "zip",
-      "identity": null
+      "target": ["dmg", "zip"],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
     },
     "files": [
       "**/*",
