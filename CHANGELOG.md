@@ -8,35 +8,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added Jest test infrastructure
-- Added browser history import tests
-- Added search functionality tests
-- Added main process tests
-- Electron-updater for automatic updates
-- Electron-log for better logging capabilities
-- Electron-store for persistent storage
-- Permission checks and requests for browser history access
-- Bookmark integration functionality
-- macOS entitlements and permissions for Safari history access
+- Jest test infrastructure and test files
+- Browser history import tests
+- Search functionality tests
+- Main process tests
+- Electron features for updates, logging, storage, and permissions
+- Bookmark integration
+- Permission checks and requests
+- macOS build configuration and entitlements
+- Chrome and Firefox extensions to release workflow
+- Unified build script for macOS app and browser extensions
+- Dynamic window sizing
+- Import results modal
+- Score display and total result count
+- Extension icons in different sizes
+- Firefox compatibility
+- Modern UI improvements
 
 ### Changed
 - Converted to native macOS application
-- Removed browser extension code for a more native experience
-- Migrated from sqlite/sqlite3 to better-sqlite3 for improved performance
-- Improved UI layout and design with toolbar position and visual consistency
+- Removed browser extension code
+- Migrated from sqlite/sqlite3 to better-sqlite3
+- Improved UI layout and design
+- Updated toolbar position to top right
+- Enhanced URL counter and keyboard shortcuts styling
+- Changed scoring system from logarithmic to integer-based
+- Renamed project to SiteSeeker
+- Updated extension name to SiteSeeker
+- Improved search results display
+- Improved history indexing mechanism
+- Removed periodic updates in favor of event-based updates
 
 ### Fixed
 - Window resize event handling
 - Auto-updater configuration and error handling
-- Score display and calculation
+- Score display
 - Linter errors
+- Electron-store initialization and error handling
+- Native messaging host path for development
+- Safari permission handling
+- Search results display and window sizing logic
 
 ### Chore
 - Updated package dependencies
-- Reset version to 1.0.0 for the new native app approach
+- Reset version to 1.0.0
 - Added electron-builder update configurations
-- Added Jest configuration files
-- Added Babel configuration
+- Added electron-updater, electron-log and electron-store dependencies
+- Added comprehensive technical documentation
+- Updated README with new features and installation instructions
+- Added gitignore file
+- Removed auto fill
+- Removed manifest.json
+- Added separate manifest files for Chrome and Firefox
 
 ## [1.0.13] - 2025-04-15
 

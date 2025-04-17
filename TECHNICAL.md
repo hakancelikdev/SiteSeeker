@@ -1,7 +1,7 @@
 # SiteSeeker Technical Documentation
 
 ## Overview
-SiteSeeker is a native macOS application designed to provide fast and efficient search capabilities across browser histories and bookmarks. This document outlines the technical details, algorithms, workflows, and limitations of the application.
+SiteSeeker is a macOS application that allows users to search through their browser history and bookmarks quickly and efficiently. The application supports Chrome and Firefox browsers.
 
 ## Core Components
 
@@ -9,22 +9,20 @@ SiteSeeker is a native macOS application designed to provide fast and efficient 
 - **Engine**: better-sqlite3
 - **Storage Location**: `~/Library/Application Support/SiteSeeker/history.db`
 - **Schema Structure**:
-  - URLs table
-  - Bookmarks table
-  - Search history table
-  - Settings table
+  - URLs table (url, title, visit_count, typed_count, last_visit_time)
+  - Bookmarks table (url, title, date_added)
+  - Search history table (query, timestamp)
+  - Settings table (key, value)
 
 ### 2. Browser Integration
 
 #### Supported Browsers
 - Chrome (all profiles)
 - Firefox
-- Safari
 
 #### Access Permissions
 - Chrome: `~/Library/Application Support/Google/Chrome/Default/History`
 - Firefox: `~/Library/Application Support/Firefox/Profiles/*/places.sqlite`
-- Safari: `~/Library/Safari/History.db`
 
 ### 3. Search Algorithm
 

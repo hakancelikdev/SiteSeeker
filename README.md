@@ -31,6 +31,9 @@ npm run dev
 
 # Start in production mode
 npm start
+
+# Run tests
+npm test
 ```
 
 #### Build Commands
@@ -44,21 +47,15 @@ npm run build
 # Build for specific architecture
 npm run build:arm64  # Apple Silicon (M1/M2)
 npm run build:x64    # Intel Macs
-
-# Create unpacked build (for testing)
-npm run build:dir
-
-# Create DMG installer
-npm run build:universal
 ```
 
 #### Build Outputs
 After running `npm run build`, you'll find:
-- `dist/SiteSeeker-1.0.0.dmg`: Universal installer (Intel + Apple Silicon)
-- `dist/SiteSeeker-1.0.0-mac.zip`: Compressed application
-- `dist/mac-arm64`: Apple Silicon specific build
-- `dist/mac-x64`: Intel specific build
-- `dist/mac-universal`: Universal build
+- `dist/SiteSeeker-1.0.0-universal.dmg`: Universal installer (Intel + Apple Silicon)
+- `dist/SiteSeeker-1.0.0-arm64.dmg`: Apple Silicon specific installer
+- `dist/SiteSeeker-1.0.0-x64.dmg`: Intel specific installer
+- `dist/*.blockmap`: Differential update files
+- `dist/latest-mac.yml`: Auto-update configuration
 
 ## 🎬 Quick Start
 
@@ -101,7 +98,7 @@ SiteSeeker checks for updates automatically when launched, but you can also manu
 - Low system resource usage
 - Minimal background impact
 - Efficient data management
-- Native SQLite integration
+- better-sqlite3 integration
 
 ### 🔒 Privacy and Security
 - Data stays only on your local device
@@ -122,7 +119,7 @@ SiteSeeker checks for updates automatically when launched, but you can also manu
 
 - **Native Architecture**: Built specifically for macOS
 - **Electron Core**: Modern and fast desktop application
-- **SQLite Integration**: Fast and reliable data storage
+- **better-sqlite3 Integration**: Fast and reliable data storage
 - **Browser Integration**:
   - Automatic history and bookmark synchronization
   - Real-time updates
@@ -132,6 +129,11 @@ SiteSeeker checks for updates automatically when launched, but you can also manu
   - Silent download and installation
   - Manual update option
   - Seamless version transitions
+- **Testing Infrastructure**:
+  - Jest test framework
+  - Unit and integration tests
+  - Performance benchmarks
+  - Security audits
 
 ## 🤝 Community and Support
 

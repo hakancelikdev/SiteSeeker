@@ -310,9 +310,9 @@ async function importBrowserHistories() {
           }));
           
           allHistory = allHistory.concat(firefoxHistory);
-          console.log('Firefox geçmişinden alınan kayıt sayısı:', firefoxHistory.length);
+          console.log('Number of records from Firefox profile:', firefoxHistory.length);
         } catch (error) {
-          console.error('Firefox geçmişi alınırken hata:', error);
+          console.error('Error getting Firefox history:', error);
         }
       }
     }
@@ -336,7 +336,7 @@ async function importBrowserHistories() {
       error: null
     };
   } catch (error) {
-    console.error('Geçmiş verileri alınırken hata:', error);
+    console.error('Error importing browser histories:', error);
     return {
       success: false,
       totalItems: 0,
@@ -395,9 +395,9 @@ function checkPermissions() {
     if (fs.existsSync(chromeHistoryPath)) {
       try {
         fs.accessSync(chromeHistoryPath, fs.constants.R_OK);
-        log.info('Chrome geçmişine erişim izni mevcut');
+        log.info('Chrome history access permission available');
       } catch (error) {
-        log.warn('Chrome geçmişine erişim izni yok, izin isteniyor...');
+        log.warn('No Chrome history access permission, requesting...');
         showPermissionDialog();
         return false;
       }
@@ -414,9 +414,9 @@ function checkPermissions() {
         if (fs.existsSync(historyPath)) {
           try {
             fs.accessSync(historyPath, fs.constants.R_OK);
-            log.info('Firefox geçmişine erişim izni mevcut');
+            log.info('Firefox history access permission available');
           } catch (error) {
-            log.warn('Firefox geçmişine erişim izni yok, izin isteniyor...');
+            log.warn('No Firefox history access permission, requesting...');
             showPermissionDialog();
             return false;
           }
@@ -426,7 +426,7 @@ function checkPermissions() {
 
     return true;
   } catch (error) {
-    log.error('İzin kontrolü sırasında hata:', error);
+    log.error('Error during permission check:', error);
     return false;
   }
 }
