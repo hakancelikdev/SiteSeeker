@@ -22,6 +22,8 @@ alwaysApply: true
 ## Increase version from package.json
 Increase version of an annotated tag `"version": "x.y.z",`
 
+## Update changelog
+
 ## Update dependencies
 npm update
 
