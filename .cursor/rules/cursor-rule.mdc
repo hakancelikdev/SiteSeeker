@@ -16,3 +16,24 @@ alwaysApply: true
 - Always respect Domain-Driven Design (DDD)
 - Always respect to build a scalable, maintainable, and extendable
 - Existing tests should never be changed. If the feature has changed, it should be changed.
+
+
+# Relase
+Here are the steps taken to create and publish the x.y.z release:
+
+1. **Package file update**:
+   - Increase version of an annotated tag `"version": "x.y.z",`
+
+2. **Tag Creation**:
+   - Created an annotated tag `vx.y.z` with the message "Release version x.y.z"
+   - Command used: `git tag -a vx.y.z -m "Release version x.y.z"`
+
+3. **Tag Push**:
+   - Pushed the tag to the remote repository
+   - Command used: `git push origin vx.y.z`
+
+4. **Verification**:
+   - The tag was successfully created and pushed
+   - Output confirmed: `* [new tag] vx.y.z -> vx.y.z`
+
+These steps ensure that the 1.0.0 release is properly tagged and available in the remote repository. Would you like me to help you with anything else?
