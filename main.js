@@ -18,11 +18,11 @@ try {
   log.error('Failed to initialize electron-store:', error);
 }
 
-// Otomatik güncelleme için logging
+// Logging for automatic updates
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
 
-// Güncelleme dizinlerini oluştur
+// Create update directories
 const updaterCachePath = path.join(app.getPath('userData'), 'update-cache');
 const pendingUpdatePath = path.join(updaterCachePath, 'pending');
 
@@ -34,37 +34,37 @@ try {
     fs.mkdirSync(pendingUpdatePath, { recursive: true });
   }
 } catch (error) {
-  log.error('Güncelleme dizinleri oluşturulurken hata:', error);
+  log.error('Error creating update directories:', error);
 }
 
-// Güncelleme yapılandırması
+// Update configuration
 autoUpdater.autoDownload = true;
 autoUpdater.autoInstallOnAppQuit = true;
 
 autoUpdater.on('error', (error) => {
-  log.error('Güncelleme hatası:', error);
+  log.error('Update error:', error);
   if (mainWindow) {
     mainWindow.webContents.send('update-error', error.message);
   }
 });
 
 autoUpdater.on('checking-for-update', () => {
-  log.info('Güncellemeler kontrol ediliyor...');
+  log.info('Checking for updates...');
 });
 
 autoUpdater.on('update-available', (info) => {
-  log.info('Güncelleme mevcut:', info);
+  log.info('Update available:', info);
   if (mainWindow) {
     mainWindow.webContents.send('update-available', info);
   }
 });
 
 autoUpdater.on('update-not-available', (info) => {
-  log.info('Güncelleme mevcut değil:', info);
+  log.info('Update not available:', info);
 });
 
 autoUpdater.on('download-progress', (progressObj) => {
-  let message = `İndirme hızı: ${progressObj.bytesPerSecond} - İndirilen: ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`;
+  let message = `Download speed: ${progressObj.bytesPerSecond} - Downloaded: ${progressObj.percent}% (${progressObj.transferred}/${progressObj.total})`;
   log.info(message);
   if (mainWindow) {
     mainWindow.webContents.send('download-progress', progressObj);
@@ -72,52 +72,52 @@ autoUpdater.on('download-progress', (progressObj) => {
 });
 
 autoUpdater.on('update-downloaded', (info) => {
-  log.info('Güncelleme indirildi:', info);
+  log.info('Update downloaded:', info);
   if (mainWindow) {
     mainWindow.webContents.send('update-downloaded', info);
   }
 });
 
-// Geçmiş verilerini saklamak için
+// For storing history data
 const INITIAL_SCORE = 1;
 
 let mainWindow = null;
 let isVisible = false;
 
-// Sistem başlangıcında otomatik başlatma
+// Auto start on system startup
 app.setLoginItemSettings({
   openAtLogin: true,
   openAsHidden: true,
   path: app.getPath('exe')
 });
 
-// Geçmiş verilerini yükle
+// Load history data
 async function loadHistory() {
   if (!store) {
-    console.log('Store henüz yüklenmedi, bekleniyor...');
+    console.log('Store not loaded yet, waiting...');
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
   if (!store) {
-    console.error('Store hala yüklenemedi!');
+    console.error('Store still could not be loaded!');
     return [];
   }
   return store.get('savedHistory', []);
 }
 
-// Sadece kayıt sayısını al
+// Get only record count
 async function getHistoryCount() {
   if (!store) {
-    console.log('Store henüz yüklenmedi, bekleniyor...');
+    console.log('Store not loaded yet, waiting...');
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
   if (!store) {
-    console.error('Store hala yüklenemedi!');
+    console.error('Store still could not be loaded!');
     return 0;
   }
   const count = store.get('historyCount', 0);
-  console.log(`Toplam kayıt sayısı: ${count}`);
+  console.log(`Total record count: ${count}`);
   
-  // URL sayısını ana pencereye gönder
+  // Send URL count to main window
   if (mainWindow) {
     mainWindow.webContents.send('update-url-count', count);
   }
@@ -125,7 +125,7 @@ async function getHistoryCount() {
   return count;
 }
 
-// Geçmiş verilerini kaydet
+// Save history data
 async function saveHistory(history) {
   if (!store) {
     await new Promise(resolve => setTimeout(resolve, 100));
@@ -135,20 +135,20 @@ async function saveHistory(history) {
   store.set('savedHistory', history);
   store.set('historyCount', history.length);
   
-  // URL sayısını ana pencereye gönder
+  // Send URL count to main window
   if (mainWindow) {
     mainWindow.webContents.send('update-url-count', history.length);
   }
 }
 
-// Geçmişte arama yap
+// Search in history
 async function searchHistory(searchTerm) {
   if (!searchTerm || typeof searchTerm !== 'string') {
-    console.log('Geçersiz arama terimi:', searchTerm);
+    console.log('Invalid search term:', searchTerm);
     return [];
   }
 
-  console.log(`Arama terimi: "${searchTerm}"`);
+  console.log(`Search term: "${searchTerm}"`);
   const history = await loadHistory();
   const searchTermLower = searchTerm.toLowerCase();
   
@@ -160,68 +160,20 @@ async function searchHistory(searchTerm) {
     .sort((a, b) => b.score - a.score)
     .slice(0, 50);
 
-  console.log(`Bulunan sonuç sayısı: ${results.length}`);
+  console.log(`Number of results found: ${results.length}`);
   return results;
 }
 
-// Chrome profil listesini al
-async function getChromeProfiles() {
-  try {
-    const os = require('os');
-    const fs = require('fs');
-    const profilesPath = path.join(
-      os.homedir(),
-      'Library/Application Support/Google/Chrome'
-    );
+// Chrome history
+const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
 
-    console.log('Chrome profile directory:', profilesPath);
+// Firefox history
+const firefoxPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
 
-    // Check if profile directory exists
-    if (!fs.existsSync(profilesPath)) {
-      console.error('Chrome profile directory not found:', profilesPath);
-      return [];
-    }
+// Remove duplicate records
+const uniqueUrls = new Set();
 
-    // Read profile directories
-    const items = fs.readdirSync(profilesPath);
-    console.log('Found directories:', items);
-
-    const profiles = [];
-    
-    // Check each directory
-    for (const item of items) {
-      try {
-        const itemPath = path.join(profilesPath, item);
-        const historyPath = path.join(itemPath, 'History');
-        
-        // Check if it's a directory and has History file
-        if (fs.existsSync(itemPath) && 
-            fs.statSync(itemPath).isDirectory() && 
-            fs.existsSync(historyPath) && 
-            (item === 'Default' || item.startsWith('Profile '))) {
-          
-          profiles.push({
-            id: item,
-            name: item === 'Default' ? 'Default Profile' : `Profile ${item.replace('Profile ', '')}`
-          });
-          
-          console.log(`Valid profile found: ${item}`);
-        }
-      } catch (err) {
-        console.log(`Error checking ${item} directory:`, err.message);
-        continue;
-      }
-    }
-
-    console.log('Found profiles:', profiles);
-    return profiles;
-  } catch (error) {
-    console.error('Profil listesi alınırken detaylı hata:', error);
-    return [];
-  }
-}
-
-// Tarayıcı geçmişlerini içe aktar
+// Import browser histories
 async function importBrowserHistories() {
   try {
     console.log('Starting browser history import...');
@@ -231,7 +183,6 @@ async function importBrowserHistories() {
     let allHistory = [];
     
     // Chrome geçmişi
-    const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
     if (fs.existsSync(chromeBasePath)) {
       const profiles = fs.readdirSync(chromeBasePath)
         .filter(item => {
@@ -276,7 +227,6 @@ async function importBrowserHistories() {
     }
 
     // Firefox geçmişi
-    const firefoxPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
     if (fs.existsSync(firefoxPath)) {
       const profiles = fs.readdirSync(firefoxPath)
         .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
@@ -318,7 +268,6 @@ async function importBrowserHistories() {
     }
 
     // Tekrar eden kayıtları temizle
-    const uniqueUrls = new Set();
     allHistory = allHistory.filter(item => {
       if (uniqueUrls.has(item.url)) {
         return false;
@@ -387,10 +336,10 @@ function createWindow() {
   });
 }
 
-// İzinleri kontrol et
+// Check permissions
 function checkPermissions() {
   try {
-    // Chrome geçmişi için izin kontrolü
+    // Check Chrome history permissions
     const chromeHistoryPath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome/Default/History');
     if (fs.existsSync(chromeHistoryPath)) {
       try {
@@ -403,7 +352,7 @@ function checkPermissions() {
       }
     }
 
-    // Firefox geçmişi için izin kontrolü
+    // Check Firefox history permissions
     const firefoxProfilesPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
     if (fs.existsSync(firefoxProfilesPath)) {
       const profiles = fs.readdirSync(firefoxProfilesPath)
@@ -431,38 +380,37 @@ function checkPermissions() {
   }
 }
 
-// İzin isteği dialogu
+// Permission request dialog
 function showPermissionDialog() {
   const { dialog } = require('electron');
   dialog.showMessageBox(mainWindow, {
     type: 'info',
-    title: 'Tam Disk Erişimi Gerekli',
-    message: 'SiteSeeker tarayıcı geçmişine erişebilmek için tam disk erişimine ihtiyaç duyuyor.',
-    detail: 'Lütfen Sistem Ayarları > Gizlilik ve Güvenlik > Tam Disk Erişimi\'nden SiteSeeker uygulamasına izin verin.',
-    buttons: ['Tamam'],
+    title: 'Full Disk Access Required',
+    message: 'SiteSeeker needs full disk access to access browser history.',
+    detail: 'Please allow SiteSeeker application access in System Settings > Privacy & Security > Full Disk Access.',
+    buttons: ['OK'],
     defaultId: 0
   });
 }
 
-// İlk çalıştırmada ve her dakikada bir geçmişi içe aktar
+// Import history on first run and every minute
 let isFirstRun = true;
 async function autoImportHistory() {
   try {
     if (isFirstRun) {
-      // İlk çalıştırmada tüm geçmişi al
+      // Get all history on first run
       const result = await importBrowserHistories();
       if (result.success) {
-        log.info(`İlk geçmiş içe aktarma başarılı. Toplam kayıt: ${result.totalItems}`);
+        log.info(`First history import successful. Total records: ${result.totalItems}`);
       } else {
-        log.error('İlk geçmiş içe aktarma başarısız:', result.error);
+        log.error('First history import failed:', result.error);
       }
       isFirstRun = false;
     } else {
-      // Sonraki çalıştırmalarda son 2 dakikalık geçmişi al
-      const twoMinutesAgo = Date.now() - (2 * 60 * 1000); // 2 dakika öncesi
+      // Get last 2 minutes history on subsequent runs
+      const twoMinutesAgo = Date.now() - (2 * 60 * 1000); // 2 minutes ago
       
-      // Chrome için son 2 dakikalık geçmiş
-      const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+      // Last 2 minutes history for Chrome
       if (fs.existsSync(chromeBasePath)) {
         const profiles = fs.readdirSync(chromeBasePath)
           .filter(item => {
@@ -488,10 +436,10 @@ async function autoImportHistory() {
               ORDER BY last_visit_time DESC
             `).all(Math.floor(twoMinutesAgo / 1000));
             
-            // Mevcut geçmişi yükle
+            // Load current history
             let savedHistory = await loadHistory();
             
-            // Yeni kayıtları ekle veya güncelle
+            // Add or update new records
             results.forEach(item => {
               const existingIndex = savedHistory.findIndex(h => h.url === item.url);
               const newItem = {
@@ -512,26 +460,25 @@ async function autoImportHistory() {
               }
             });
             
-            // Değişiklikleri kaydet
+            // Save history
             await saveHistory(savedHistory);
             
             db.close();
             fs.unlinkSync(tempPath);
           } catch (error) {
-            console.error(`Chrome ${profile} son geçmişi alınırken hata:`, error);
+            console.error(`Error getting Chrome ${profile} recent history:`, error);
           }
         }
       }
       
-      // Firefox için son 2 dakikalık geçmiş
-      const firefoxBasePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
-      if (fs.existsSync(firefoxBasePath)) {
-        const profiles = fs.readdirSync(firefoxBasePath)
+      // Last 2 minutes history for Firefox
+      if (fs.existsSync(firefoxPath)) {
+        const profiles = fs.readdirSync(firefoxPath)
           .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
         
         for (const profile of profiles) {
           try {
-            const historyPath = path.join(firefoxBasePath, profile, 'places.sqlite');
+            const historyPath = path.join(firefoxPath, profile, 'places.sqlite');
             if (!fs.existsSync(historyPath)) continue;
             
             const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
@@ -547,10 +494,10 @@ async function autoImportHistory() {
               ORDER BY last_visit_date DESC
             `).all(twoMinutesAgo);
             
-            // Mevcut geçmişi yükle
+            // Load current history
             let savedHistory = await loadHistory();
             
-            // Yeni kayıtları ekle veya güncelle
+            // Add or update new records
             results.forEach(item => {
               const existingIndex = savedHistory.findIndex(h => h.url === item.url);
               const newItem = {
@@ -571,13 +518,13 @@ async function autoImportHistory() {
               }
             });
             
-            // Değişiklikleri kaydet
+            // Save history
             await saveHistory(savedHistory);
             
             db.close();
             fs.unlinkSync(tempPath);
           } catch (error) {
-            console.error(`Firefox ${profile} son geçmişi alınırken hata:`, error);
+            console.error(`Error getting Firefox ${profile} recent history:`, error);
           }
         }
       }
@@ -631,12 +578,12 @@ async function autoImportHistory() {
           db.close();
           fs.unlinkSync(tempPath);
         } catch (error) {
-          console.error('Safari son geçmişi alınırken hata:', error);
+          console.error('Error getting Safari recent history:', error);
         }
       }
     }
   } catch (error) {
-    log.error('Otomatik geçmiş içe aktarma hatası:', error);
+    log.error('Automatic history import error:', error);
   }
   
   if (isFirstRun) {
@@ -695,7 +642,7 @@ app.on('before-quit', () => {
 ipcMain.on('search-history', async (event, searchTerm) => {
   try {
     if (!searchTerm || typeof searchTerm !== 'string') {
-      console.log('Geçersiz arama terimi alındı:', searchTerm);
+      console.log('Invalid search term received:', searchTerm);
       event.reply('search-results', []);
       return;
     }
@@ -705,7 +652,7 @@ ipcMain.on('search-history', async (event, searchTerm) => {
     console.log('Number of results found:', results.length);
     event.reply('search-results', results);
   } catch (error) {
-    console.error('Arama hatası:', error);
+    console.error('Search error:', error);
     event.reply('search-results', []);
   }
 });
@@ -715,7 +662,7 @@ ipcMain.on('import-chrome-history', async (event) => {
     const result = await importBrowserHistories();
     event.reply('import-complete', result);
   } catch (error) {
-    console.error('İçe aktarma hatası:', error);
+    console.error('Import error:', error);
     event.reply('import-complete', { success: false, error: error.message });
   }
 });
@@ -738,7 +685,7 @@ async function resetHistory() {
     await saveHistory([]);
     return { success: true };
   } catch (error) {
-    console.error('Geçmiş sıfırlama hatası:', error);
+    console.error('History reset error:', error);
     return { success: false, error: error.message };
   }
 }
@@ -748,7 +695,7 @@ ipcMain.on('reset-history', async (event) => {
     const result = await resetHistory();
     event.reply('reset-complete', result);
   } catch (error) {
-    console.error('Sıfırlama hatası:', error);
+    console.error('Reset error:', error);
     event.reply('reset-complete', { success: false, error: error.message });
   }
 });
@@ -757,10 +704,9 @@ ipcMain.on('reset-history', async (event) => {
 async function checkRecentHistory() {
   try {
     let recentHistory = [];
-    const twoMinutesAgo = Date.now() - (2 * 60 * 1000); // 2 dakika öncesi
+    const twoMinutesAgo = Date.now() - (2 * 60 * 1000); // 2 minutes ago
 
     // Chrome için son 2 dakikalık geçmiş
-    const chromeBasePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
     if (fs.existsSync(chromeBasePath)) {
       const profiles = fs.readdirSync(chromeBasePath)
         .filter(item => {
@@ -804,7 +750,6 @@ async function checkRecentHistory() {
     }
 
     // Firefox için son 2 dakikalık geçmiş
-    const firefoxPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
     if (fs.existsSync(firefoxPath)) {
       const profiles = fs.readdirSync(firefoxPath)
         .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
@@ -855,11 +800,11 @@ async function checkRecentHistory() {
         const updatedHistory = [...newHistory, ...currentHistory];
         
         await saveHistory(updatedHistory);
-        console.log(`${newHistory.length} yeni kayıt eklendi`);
+        console.log(`${newHistory.length} new records added`);
       }
     }
   } catch (error) {
-    console.error('Son geçmiş kontrolü sırasında hata:', error);
+    console.error('Error during recent history check:', error);
   }
 }
 

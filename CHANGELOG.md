@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Translated all log messages and comments from Turkish to English in main.js
+- Improved code readability with consistent English documentation
+- Standardized logging format across the application
+
 ## [1.0.2] - 2025-04-18
 
 ### Changed
