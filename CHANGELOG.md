@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Jest test altyapısı eklendi
+- Browser history import testleri eklendi
+- Search functionality testleri eklendi
+- Main process testleri eklendi
 - Electron-updater for automatic updates
 - Electron-log for better logging capabilities
 - Electron-store for persistent storage
@@ -31,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies
 - Reset version to 1.0.0 for the new native app approach
 - Added electron-builder update configurations
+- Added Jest configuration files
+- Added Babel configuration
 
 ## [1.0.13] - 2025-04-15
 
