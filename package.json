@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.3",
+  "version": "1.0.2",
   "description": "A native macOS application for searching through browser history and bookmarks",
   "main": "main.js",
   "scripts": {
@@ -19,7 +19,10 @@
     "productName": "SiteSeeker",
     "mac": {
       "category": "public.app-category.developer-tools",
-      "target": "pkg",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
@@ -49,7 +52,8 @@
       "provider": "github",
       "owner": "hakancelikdev",
       "repo": "SiteSeeker",
-      "draft": false
+      "private": false,
+      "releaseType": "release"
     }
   },
   "author": "Hakan Çelik",
