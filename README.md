@@ -51,31 +51,40 @@ npm run build:x64    # Intel Macs
 
 #### Build Outputs
 After running `npm run build`, you'll find:
-- `dist/SiteSeeker-1.0.0-universal-mac.pkg`: Universal installer (Intel + Apple Silicon)
-- `dist/SiteSeeker-1.0.0-arm64-mac.pkg`: Apple Silicon specific installer
-- `dist/SiteSeeker-1.0.0-x64-mac.pkg`: Intel specific installer
+- `dist/SiteSeeker-[version].dmg`: Installer disk image
+- `dist/SiteSeeker-[version]-mac.zip`: Portable ZIP archive
 - `dist/*.blockmap`: Differential update files
 - `dist/latest-mac.yml`: Auto-update configuration
 
 ## 🎬 Quick Start
 
 1. Download the latest version from [Releases](https://github.com/hakancelikdev/SiteSeeker/releases)
-2. Double-click the PKG file to start the installation
-3. Follow the installation wizard steps
-4. Launch SiteSeeker from your Applications folder
-5. Grant necessary permissions when prompted:
+2. Install using one of these methods:
+   - **DMG Installation (Recommended)**:
+     1. Double-click the DMG file
+     2. Drag SiteSeeker to the Applications folder
+     3. Eject the disk image
+   - **ZIP Installation**:
+     1. Extract the ZIP file
+     2. Move SiteSeeker to the Applications folder
+3. Launch SiteSeeker from your Applications folder
+4. Grant necessary permissions when prompted:
    - Full Disk Access (required for browser history)
    - Chrome history file access
    - Firefox profile access
-6. Access from anywhere with ⌘+⇧+Space!
+5. Access from anywhere with ⌘+⇧+Space!
 
 ### 🔄 Updates
 
-SiteSeeker checks for updates automatically when launched, but you can also manually update:
+SiteSeeker includes an automatic update system that:
+- Checks for updates automatically on launch
+- Downloads updates silently in the background
+- Installs updates seamlessly
+- Notifies you when updates are ready to apply
 
-1. Visit the [Releases](https://github.com/hakancelikdev/SiteSeeker/releases) page
-2. Download the latest version
-3. Run the PKG installer to update your existing installation
+You can also manually update by:
+1. Downloading the latest version from [Releases](https://github.com/hakancelikdev/SiteSeeker/releases)
+2. Installing using either the DMG or ZIP method described above
 
 ## 🌟 Featured Capabilities
 
@@ -158,39 +167,55 @@ Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 
 Download the appropriate version for your Mac:
 
-- **Apple Silicon (M1/M2) Macs**: [SiteSeeker-1.0.0-arm64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/download/v1.0.0/SiteSeeker-1.0.0-arm64-mac.zip) (93.7 MB)
+- **Apple Silicon (M1/M2) Macs**: 
+  - DMG: [SiteSeeker-[version]-arm64.dmg](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
+  - ZIP: [SiteSeeker-[version]-arm64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - Optimized for M1/M2 processors
-  - Smaller download size
   - Better performance on Apple Silicon
 
-- **Intel Macs**: [SiteSeeker-1.0.0-x64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/download/v1.0.0/SiteSeeker-1.0.0-x64-mac.zip) (94.2 MB)
+- **Intel Macs**: 
+  - DMG: [SiteSeeker-[version]-x64.dmg](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
+  - ZIP: [SiteSeeker-[version]-x64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - Optimized for Intel processors
   - Compatible with older Macs
 
-- **Universal Binary**: [SiteSeeker-1.0.0-universal-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/download/v1.0.0/SiteSeeker-1.0.0-universal-mac.zip) (168 MB)
+- **Universal Binary**: 
+  - DMG: [SiteSeeker-[version]-universal.dmg](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
+  - ZIP: [SiteSeeker-[version]-universal-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - Works on both Intel and Apple Silicon
   - Larger download size
   - Recommended if you're unsure about your Mac's processor
 
 ## Installation
 
-1. Download the appropriate version for your Mac
-2. Double-click the downloaded ZIP file to extract
-3. Move the SiteSeeker app to your Applications folder
-4. Launch SiteSeeker from your Applications folder
+1. Choose your preferred installation method:
 
-Note: On first launch, you might see a security warning because the app is not signed. You can bypass this by:
+   ### DMG Installation (Recommended)
+   1. Download the DMG file for your Mac
+   2. Double-click the DMG file to mount it
+   3. Drag SiteSeeker to your Applications folder
+   4. Eject the disk image
+   5. Launch SiteSeeker from Applications
+
+   ### ZIP Installation
+   1. Download the ZIP file for your Mac
+   2. Double-click to extract
+   3. Move SiteSeeker to your Applications folder
+   4. Launch SiteSeeker from Applications
+
+Note: On first launch, you might need to:
 1. Right-click (or Control-click) the app
 2. Select "Open"
 3. Click "Open" in the security dialog
 
 ## Auto Updates
 
-SiteSeeker includes an auto-update system that:
-- Checks for updates automatically
-- Downloads only the changed parts of the app (delta updates)
-- Installs updates seamlessly in the background
-- Notifies you when updates are ready
+SiteSeeker includes an automatic update system that:
+- Checks for updates automatically on launch
+- Downloads updates silently in the background
+- Installs updates seamlessly
+- Notifies you when updates are ready to apply
+- Supports differential updates to minimize download size
 
 ## Permissions
 
