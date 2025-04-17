@@ -49,6 +49,15 @@
       "provider": "github",
       "owner": "hakancelikdev",
       "repo": "SiteSeeker"
+    },
+    "npmRebuild": true,
+    "asar": true,
+    "extraMetadata": {
+      "better-sqlite3": {
+        "build": {
+          "target_arch": "arm64"
+        }
+      }
     }
   },
   "author": "Hakan Çelik",
