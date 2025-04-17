@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A native macOS application for searching through browser history and bookmarks",
   "main": "main.js",
   "scripts": {
@@ -49,15 +49,6 @@
       "provider": "github",
       "owner": "hakancelikdev",
       "repo": "SiteSeeker"
-    },
-    "npmRebuild": true,
-    "asar": true,
-    "extraMetadata": {
-      "better-sqlite3": {
-        "build": {
-          "target_arch": "arm64"
-        }
-      }
     }
   },
   "author": "Hakan Çelik",
