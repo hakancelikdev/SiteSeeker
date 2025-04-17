@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-04-18
+
 ### Changed
 - Changed installer format from ZIP to PKG for better macOS integration
 - Updated license from MIT to GPL-3.0
