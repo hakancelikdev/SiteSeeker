@@ -33,10 +33,12 @@ console.log('DOM Elements:', {
 // State
 let searchResults = [];
 let currentSearchTerm = '';
+let selectedResultIndex = -1;
 
 // Event Listeners
 if (searchInput) {
     searchInput.addEventListener('input', debounce(handleSearch, 300));
+    searchInput.addEventListener('keydown', handleKeyboardNavigation);
 }
 document.addEventListener('keydown', handleKeyboardShortcuts);
 
@@ -128,10 +130,59 @@ function handleSearch(event) {
     }
 }
 
+function handleKeyboardNavigation(event) {
+    if (!searchResults.length) return;
+
+    switch (event.key) {
+        case 'ArrowDown':
+            event.preventDefault();
+            if (selectedResultIndex < searchResults.length - 1) {
+                selectedResultIndex++;
+            } else {
+                selectedResultIndex = 0;
+            }
+            updateSelectedResult();
+            break;
+
+        case 'ArrowUp':
+            event.preventDefault();
+            if (selectedResultIndex > 0) {
+                selectedResultIndex--;
+            } else {
+                selectedResultIndex = searchResults.length - 1;
+            }
+            updateSelectedResult();
+            break;
+
+        case 'Enter':
+            event.preventDefault();
+            if (selectedResultIndex >= 0 && selectedResultIndex < searchResults.length) {
+                const selectedResult = searchResults[selectedResultIndex];
+                if (window.api) {
+                    window.api.send('open-url', selectedResult.url);
+                }
+            }
+            break;
+    }
+}
+
+function updateSelectedResult() {
+    const resultItems = resultsContainer.querySelectorAll('.result-item');
+    resultItems.forEach((item, index) => {
+        if (index === selectedResultIndex) {
+            item.classList.add('selected');
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } else {
+            item.classList.remove('selected');
+        }
+    });
+}
+
 function renderResults() {
     try {
         console.log('Rendering search results:', searchResults);
         clearResults();
+        selectedResultIndex = -1;
         
         if (searchResults.length === 0) {
             console.log('No results found, showing empty state');
@@ -160,6 +211,18 @@ function createResultElement(result) {
     const div = document.createElement('div');
     div.className = 'result-item';
     
+    // Create favicon element
+    const favicon = document.createElement('img');
+    favicon.className = 'result-icon';
+    favicon.src = `https://www.google.com/s2/favicons?domain=${new URL(result.url).hostname}&sz=32`;
+    favicon.alt = '';
+    favicon.onerror = () => {
+        favicon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    };
+
+    const content = document.createElement('div');
+    content.className = 'result-content';
+    
     const title = document.createElement('div');
     title.className = 'result-title';
     title.textContent = result.title || 'Untitled';
@@ -182,9 +245,12 @@ function createResultElement(result) {
     meta.appendChild(visitCount);
     meta.appendChild(lastVisit);
     
-    div.appendChild(title);
-    div.appendChild(url);
-    div.appendChild(meta);
+    content.appendChild(title);
+    content.appendChild(url);
+    content.appendChild(meta);
+
+    div.appendChild(favicon);
+    div.appendChild(content);
     
     div.addEventListener('click', () => {
         try {
@@ -241,13 +307,23 @@ function handleKeyboardShortcuts(event) {
         // Cmd + Shift + Space for focusing search
         if (event.metaKey && event.shiftKey && event.code === 'Space') {
             if (searchInput) {
+                event.preventDefault();
                 searchInput.focus();
+                searchInput.select();
             }
         }
     } catch (error) {
         console.error('Error handling keyboard shortcut:', error);
     }
 }
+
+// Pencere görünür olduğunda otomatik odaklanma
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && searchInput) {
+        searchInput.focus();
+        searchInput.select();
+    }
+});
 
 function formatDate(timestamp) {
     if (!timestamp) return 'Unknown';

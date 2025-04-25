@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added IPC handlers for better main/renderer process communication
 - Implemented new window management system
 - Added new CSS styles for improved UI
+- Added keyboard navigation support for search results (arrow keys and enter)
+- Added favicon support for search results
+- Added search icon to the search input
+- Added automatic focus on window visibility
+- Added multi-display support with separate windows for each display
 
 ### Removed
 - Removed old test files in preparation for new testing strategy
@@ -26,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed empty title handling in browser history providers
 - Improved error handling and validation in history providers
 - Enhanced search results display with better formatting and styling
+- Fixed window positioning and centering on multiple displays
 
 ### Changed
 - Translated all log messages and comments from Turkish to English in main.js
@@ -37,6 +43,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restructured project into domain-driven architecture
 - Moved UI components to presentation layer
 - Separated infrastructure concerns into dedicated modules
+- Enhanced UI with transparent background and blur effect
+- Improved search result cards layout and styling
+- Updated window management for better multi-display support
+- Enhanced keyboard shortcuts and focus management
 
 ## [1.0.2] - 2025-04-18
 

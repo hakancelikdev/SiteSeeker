@@ -1,29 +1,51 @@
-const { BrowserWindow } = require('electron');
+const { BrowserWindow, screen } = require('electron');
 const path = require('path');
 const log = require('electron-log');
 
 class MainWindow {
   constructor() {
-    this.window = null;
+    this.windows = new Map(); // Her Space için ayrı pencere tutacak Map
     this.isQuitting = false;
-    this.isVisible = false;
   }
 
-  create() {
-    if (this.window === null) {
-      log.info('Creating main window...');
+  getCurrentDisplay() {
+    return screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
+  }
+
+  getWindowForDisplay(display) {
+    return this.windows.get(display.id);
+  }
+
+  create(display = null) {
+    // Eğer display parametresi verilmemişse, aktif display'i al
+    const currentDisplay = display || this.getCurrentDisplay();
+    const displayId = currentDisplay.id;
+    
+    if (!this.windows.has(displayId)) {
+      log.info(`Creating window for display ${displayId}...`);
       
       const preloadPath = path.join(__dirname, '../preload.js');
       log.info('Preload script path:', preloadPath);
 
-      this.window = new BrowserWindow({
-        width: 800,
-        height: 600,
+      const { width: screenWidth, height: screenHeight } = currentDisplay.workAreaSize;
+      const windowWidth = 700;
+      const windowHeight = 500;
+
+      // Calculate initial position for the display
+      const x = Math.floor(currentDisplay.bounds.x + (screenWidth - windowWidth) / 2);
+      const y = Math.floor(currentDisplay.bounds.y + (screenHeight - windowHeight) / 2);
+
+      const window = new BrowserWindow({
+        width: windowWidth,
+        height: windowHeight,
+        x: x,
+        y: y,
         skipTaskbar: true,
         alwaysOnTop: true,
         resizable: false,
         frame: false,
         show: false,
+        transparent: true,
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true,
@@ -34,81 +56,109 @@ class MainWindow {
       const htmlPath = path.join(__dirname, '../views/index.html');
       log.info('Loading HTML file:', htmlPath);
       
-      this.window.loadFile(htmlPath);
+      window.loadFile(htmlPath);
       
-      // Development: Open DevTools
       if (process.env.NODE_ENV === 'development') {
         log.info('Opening DevTools in development mode');
-        this.window.webContents.openDevTools();
+        window.webContents.openDevTools();
       }
 
-      this.window.webContents.on('did-finish-load', () => {
-        log.info('Window loaded successfully');
+      window.webContents.on('did-finish-load', () => {
+        log.info(`Window loaded successfully for display ${displayId}`);
       });
 
-      this.window.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-        log.error('Failed to load window:', errorCode, errorDescription);
+      window.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+        log.error(`Failed to load window for display ${displayId}:`, errorCode, errorDescription);
       });
 
-      this.window.on('close', (event) => {
+      window.on('close', (event) => {
         if (!this.isQuitting) {
           event.preventDefault();
-          this.hide();
+          window.hide();
         }
       });
 
-      this.window.on('closed', () => {
-        log.info('Window closed');
-        this.window = null;
+      window.on('closed', () => {
+        log.info(`Window closed for display ${displayId}`);
+        this.windows.delete(displayId);
       });
 
       // Center window on show
-      this.window.on('show', () => {
-        this.window.center();
-        log.info('Window shown and centered');
+      window.on('show', () => {
+        try {
+          const [currentWidth, currentHeight] = window.getSize();
+          const newX = Math.floor(currentDisplay.bounds.x + (currentDisplay.workAreaSize.width - currentWidth) / 2);
+          const newY = Math.floor(currentDisplay.bounds.y + (currentDisplay.workAreaSize.height - currentHeight) / 2);
+          
+          window.setPosition(newX, newY);
+          log.info(`Window shown and centered for display ${displayId} at:`, { x: newX, y: newY });
+        } catch (error) {
+          log.error(`Error centering window for display ${displayId}:`, error);
+        }
       });
 
-      log.info('Main window created successfully');
+      this.windows.set(displayId, window);
+      log.info(`Window created successfully for display ${displayId}`);
     }
+
+    return this.windows.get(displayId);
   }
 
   toggle() {
-    if (this.isVisible) {
-      this.hide();
+    const currentDisplay = this.getCurrentDisplay();
+    const window = this.getWindowForDisplay(currentDisplay);
+
+    if (window && window.isVisible()) {
+      this.hide(currentDisplay);
     } else {
       this.show();
     }
   }
 
   show() {
-    if (this.window === null) {
-      this.create();
+    const currentDisplay = this.getCurrentDisplay();
+    let window = this.getWindowForDisplay(currentDisplay);
+
+    if (!window) {
+      window = this.create(currentDisplay);
     }
-    this.window.show();
-    this.isVisible = true;
-    log.info('Window shown');
+
+    window.show();
+    log.info(`Window shown for display ${currentDisplay.id}`);
   }
 
-  hide() {
-    if (this.window) {
-      this.window.hide();
-      this.isVisible = false;
-      log.info('Window hidden');
+  hide(display) {
+    const window = this.getWindowForDisplay(display);
+    if (window) {
+      window.hide();
+      log.info(`Window hidden for display ${display.id}`);
     }
   }
 
   send(channel, ...args) {
-    if (this.window) {
-      log.info('Sending message to window:', channel, args);
-      this.window.webContents.send(channel, ...args);
+    const currentDisplay = this.getCurrentDisplay();
+    const window = this.getWindowForDisplay(currentDisplay);
+
+    if (window) {
+      log.info(`Sending message to window on display ${currentDisplay.id}:`, channel, args);
+      window.webContents.send(channel, ...args);
     } else {
-      log.error('Cannot send message - window is null:', channel);
+      log.error(`Cannot send message - no window for display ${currentDisplay.id}:`, channel);
     }
   }
 
   setQuitting(isQuitting) {
     this.isQuitting = isQuitting;
     log.info('Quitting state set to:', isQuitting);
+
+    if (isQuitting) {
+      // Tüm pencereleri kapat
+      for (const [displayId, window] of this.windows) {
+        log.info(`Closing window for display ${displayId}`);
+        window.close();
+      }
+      this.windows.clear();
+    }
   }
 }
 
