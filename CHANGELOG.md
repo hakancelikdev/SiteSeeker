@@ -7,10 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Implemented new domain-driven architecture with clear separation of concerns
+- Added new browser history providers for Chrome and Firefox
+- Introduced permission management system for browser access
+- Created new persistence layer using Electron Store
+- Added IPC handlers for better main/renderer process communication
+- Implemented new window management system
+- Added new CSS styles for improved UI
+
+### Removed
+- Removed old test files in preparation for new testing strategy
+- Removed old notarization script
+- Removed old index.html and main.js files
+
+### Fixed
+- Fixed search results not being displayed in the UI
+- Fixed empty title handling in browser history providers
+- Improved error handling and validation in history providers
+- Enhanced search results display with better formatting and styling
+
 ### Changed
 - Translated all log messages and comments from Turkish to English in main.js
 - Improved code readability with consistent English documentation
 - Standardized logging format across the application
+- Updated search results UI with better visual hierarchy
+- Enhanced date formatting for better readability
+- Improved error handling in browser history providers
+- Restructured project into domain-driven architecture
+- Moved UI components to presentation layer
+- Separated infrastructure concerns into dedicated modules
 
 ## [1.0.2] - 2025-04-18
 
@@ -73,7 +99,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Linter errors
 - Electron-store initialization and error handling
 - Native messaging host path for development
-- Safari permission handling
 - Search results display and window sizing logic
 
 ### Chore

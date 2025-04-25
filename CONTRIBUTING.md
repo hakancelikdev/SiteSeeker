@@ -189,11 +189,6 @@ Before submitting a pull request:
 - Files: places.sqlite
 - Database: better-sqlite3
 
-### Safari
-- Location: ~/Library/Safari/
-- Files: History.db
-- Database: better-sqlite3
-
 ## Security Considerations
 
 - Never store sensitive data

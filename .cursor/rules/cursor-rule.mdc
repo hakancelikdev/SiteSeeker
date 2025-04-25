@@ -39,3 +39,6 @@ git tag -a vx.y.z -m "Release version x.y.z"
 
 ## Push changes and tags
 git push && git push --tags
+
+# Language
+Use turkish

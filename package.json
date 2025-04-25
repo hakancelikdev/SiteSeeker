@@ -27,8 +27,7 @@
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "identity": null,
-      "notarize": false
+      "identity": null
     },
     "files": [
       "**/*",

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="SiteSeeker - A native macOS application for searching through browser history and bookmarks">
+        <meta name="theme-color" content="#ffffff">
+        <title>SiteSeeker</title>
+        <link rel="stylesheet" href="styles/main.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <script>
+            window.onerror = function(msg, url, lineNo, columnNo, error) {
+                console.error('Window Error:', msg, url, 'Line:', lineNo, 'Column:', columnNo, 'Error:', error);
+                return false;
+            };
+        </script>
+    </head>
+<body>
+    <div class="modal-overlay" id="modalOverlay" aria-hidden="true"></div>
+    <div class="app-container">
+        <header class="toolbar" role="toolbar">
+            <button data-action="import" title="Import Browser History" aria-label="Import browser history">
+                <i class="fas fa-download" aria-hidden="true"></i>
+                Import History
+            </button>
+            <button data-action="reset" title="Reset All History" class="reset-button" aria-label="Reset all history">
+                <i class="fas fa-trash" aria-hidden="true"></i>
+                Reset
+            </button>
+        </header>
+        
+        <div class="top-bar" role="status">
+            <div class="url-counter">
+                <span class="url-counter-value" id="urlCounter">0</span>
+                <span class="url-counter-label">URLs</span>
+            </div>
+            <div class="keyboard-shortcut" aria-label="Keyboard shortcut">
+                <span class="key">⌘</span>
+                <span>+</span>
+                <span class="key">⇧</span>
+                <span>+</span>
+                <span class="key">Space</span>
+            </div>
+        </div>
+        
+        <main id="search-container" role="main">
+            <div class="search-wrapper">
+                <input 
+                    type="text" 
+                    id="search-input" 
+                    placeholder="Search in history..." 
+                    autofocus
+                    aria-label="Search in history"
+                    role="searchbox"
+                >
+                <div id="results-container" role="list"></div>
+            </div>
+        </main>
+        
+        <div id="notification" role="alert" aria-live="polite"></div>
+    </div>
+    <script>
+        // Check if required APIs are available
+        window.addEventListener('load', () => {
+            console.log('Window loaded');
+            if (!window.api) {
+                console.error('window.api is not available');
+                document.body.innerHTML = '<div class="error">Error: Application API is not available. Please restart the application.</div>';
+            }
+        });
+    </script>
+    <script src="scripts/main.js"></script>
+</body>
+</html> 
