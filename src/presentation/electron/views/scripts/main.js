@@ -332,20 +332,45 @@ function formatDate(timestamp) {
         const now = new Date();
         const diff = now - date;
         
-        // If less than 24 hours ago, show relative time
+        // If less than 1 minute ago
+        if (diff < 60 * 1000) {
+            const seconds = Math.floor(diff / 1000);
+            return seconds === 0 ? 'Just now' : `${seconds} seconds ago`;
+        }
+        
+        // If less than 1 hour ago
+        if (diff < 60 * 60 * 1000) {
+            const minutes = Math.floor(diff / (60 * 1000));
+            return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
+        }
+        
+        // If less than 24 hours ago
         if (diff < 24 * 60 * 60 * 1000) {
-            if (diff < 60 * 1000) return 'Just now';
-            if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))}m ago`;
-            return `${Math.floor(diff / (60 * 60 * 1000))}h ago`;
+            const hours = Math.floor(diff / (60 * 60 * 1000));
+            return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
         }
         
-        // If less than a week ago, show day name
+        // If less than 7 days ago
         if (diff < 7 * 24 * 60 * 60 * 1000) {
-            return date.toLocaleDateString(undefined, { weekday: 'long' });
+            const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+            return days === 1 ? 'Yesterday' : `${days} days ago`;
         }
         
-        // Otherwise show full date
-        return date.toLocaleDateString();
+        // If less than 30 days ago
+        if (diff < 30 * 24 * 60 * 60 * 1000) {
+            const weeks = Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
+            return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+        }
+        
+        // If less than 1 year ago
+        if (diff < 365 * 24 * 60 * 60 * 1000) {
+            const months = Math.floor(diff / (30 * 24 * 60 * 60 * 1000));
+            return months === 1 ? '1 month ago' : `${months} months ago`;
+        }
+        
+        // Otherwise show years
+        const years = Math.floor(diff / (365 * 24 * 60 * 60 * 1000));
+        return years === 1 ? '1 year ago' : `${years} years ago`;
     } catch (error) {
         console.error('Error formatting date:', error);
         return 'Invalid date';

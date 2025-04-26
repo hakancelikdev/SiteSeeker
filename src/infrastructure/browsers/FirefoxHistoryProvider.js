@@ -73,11 +73,11 @@ class FirefoxHistoryProvider {
         }
 
         const query = fromTime === 0
-          ? `SELECT p.title, p.url, p.visit_count, p.typed 
+          ? `SELECT p.title, p.url, p.visit_count, p.typed, p.last_visit_date 
              FROM moz_places p 
              WHERE p.title IS NOT NULL AND p.title != '' 
              ORDER BY p.last_visit_date DESC`
-          : `SELECT p.title, p.url, p.visit_count, p.typed 
+          : `SELECT p.title, p.url, p.visit_count, p.typed, p.last_visit_date 
              FROM moz_places p 
              WHERE p.title IS NOT NULL AND p.title != '' 
              AND p.last_visit_date/1000000 > ? 
@@ -101,7 +101,12 @@ class FirefoxHistoryProvider {
             const score = row.visit_count 
               ? INITIAL_SCORE + row.visit_count + (row.typed || 0)
               : INITIAL_SCORE;
-            allHistory.push(new HistoryItem(row.title.trim(), row.url, score));
+            allHistory.push(new HistoryItem(
+              row.title.trim(), 
+              row.url, 
+              score,
+              row.last_visit_date ? row.last_visit_date/1000 : null
+            ));
           }
         }
 

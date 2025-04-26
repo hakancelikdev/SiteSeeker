@@ -99,7 +99,12 @@ class ChromeHistoryProvider {
             const score = row.visit_count 
               ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
               : INITIAL_SCORE;
-            allHistory.push(new HistoryItem(row.title.trim(), row.url, score));
+            allHistory.push(new HistoryItem(
+              row.title.trim(), 
+              row.url, 
+              score,
+              row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
+            ));
           }
         }
 

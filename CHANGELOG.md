@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 - Fixed history import limit that was causing only 1000 items to be imported from each browser
+- Fixed Chrome history date conversion error by using native JavaScript Date functions
+
+### Changed
+- Improved date formatting to show more human-readable relative times (e.g., "2 minutes ago", "1 hour ago", "Yesterday")
 
 ## [1.0.3] - 2024-03-21
 
