@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [1.0.4] - 2024-04-26
 ### Fixed
 - Fixed history import limit that was causing only 1000 items to be imported from each browser
 - Fixed Chrome history date conversion error by using native JavaScript Date functions
@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved date formatting to show more human-readable relative times (e.g., "2 minutes ago", "1 hour ago", "Yesterday")
 
-## [1.0.3] - 2024-03-21
+## [1.0.3] - 2024-04-21
 
 ### Added
 - Implemented new domain-driven architecture with clear separation of concerns
