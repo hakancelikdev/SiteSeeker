@@ -1,7 +1,7 @@
-const { BookmarkItem } = require('../models/BookmarkItem');
+const log = require('electron-log');
+
 const ChromeBookmarkProvider = require('../../infrastructure/browsers/ChromeBookmarkProvider');
 const FirefoxBookmarkProvider = require('../../infrastructure/browsers/FirefoxBookmarkProvider');
-const log = require('electron-log');
 
 class BookmarkService {
     constructor(historyRepository) {

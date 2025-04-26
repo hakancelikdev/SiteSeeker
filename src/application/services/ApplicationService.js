@@ -1,10 +1,10 @@
 const { app, globalShortcut } = require('electron');
 const log = require('electron-log');
+
 const MainWindow = require('../../presentation/electron/windows/MainWindow');
 const IpcHandlers = require('../../presentation/electron/handlers/IpcHandlers');
 const UpdateHandlers = require('../../presentation/electron/handlers/UpdateHandlers');
 const PermissionService = require('../../infrastructure/permissions/PermissionService');
-const BookmarkService = require('../../domain/services/BookmarkService');
 
 class ApplicationService {
   constructor(historyService, bookmarkService) {

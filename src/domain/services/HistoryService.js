@@ -1,7 +1,8 @@
+const log = require('electron-log');
+
 const ChromeHistoryProvider = require('../../infrastructure/browsers/ChromeHistoryProvider');
 const FirefoxHistoryProvider = require('../../infrastructure/browsers/FirefoxHistoryProvider');
 const BrowserPermissions = require('../../infrastructure/permissions/BrowserPermissions');
-const log = require('electron-log');
 
 class HistoryServiceError extends Error {
     constructor(message, code) {

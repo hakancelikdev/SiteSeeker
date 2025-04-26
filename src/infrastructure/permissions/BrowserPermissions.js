@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+
 const log = require('electron-log');
 
 class BrowserPermissions {
@@ -26,7 +27,7 @@ class BrowserPermissions {
             try {
                 fs.accessSync(basePath, fs.constants.R_OK);
             } catch (error) {
-                log.error(`No read permission for ${browserName} base path: ${basePath}`);
+                log.error(`No read permission for ${browserName} base path: ${basePath}`, error);
                 return false;
             }
 
@@ -34,7 +35,7 @@ class BrowserPermissions {
             try {
                 fs.readdirSync(basePath);
             } catch (error) {
-                log.error(`Cannot read ${browserName} directory: ${basePath}`);
+                log.error(`Cannot read ${browserName} directory: ${basePath}`, error);
                 return false;
             }
 
@@ -60,7 +61,7 @@ class BrowserPermissions {
                 try {
                     fs.accessSync(historyPath, fs.constants.R_OK);
                 } catch (error) {
-                    log.error(`No read permission for ${browserName} history file: ${historyPath}`);
+                    log.error(`No read permission for ${browserName} history file: ${historyPath}`, error);
                     return false;
                 }
             }
@@ -87,7 +88,7 @@ class BrowserPermissions {
                 try {
                     fs.accessSync(historyPath, fs.constants.R_OK);
                 } catch (error) {
-                    log.error(`No read permission for ${browserName} history file: ${historyPath}`);
+                    log.error(`No read permission for ${browserName} history file: ${historyPath}`, error);
                     return false;
                 }
             }
@@ -95,7 +96,27 @@ class BrowserPermissions {
             log.info(`${browserName} permissions check passed`);
             return true;
         } catch (error) {
-            log.error(`Error checking ${browserName} permissions:`, error);
+            log.error(`Error checking ${browserName} permissions`, error);
+            return false;
+        }
+    }
+
+    async requestChromePermissions() {
+        try {
+            await this.requestFilePermissions(this.getChromeHistoryPath());
+            return true;
+        } catch (error) {
+            log.error('Failed to get Chrome history file permissions', error);
+            return false;
+        }
+    }
+
+    async requestFirefoxPermissions() {
+        try {
+            await this.requestFilePermissions(this.getFirefoxHistoryPath());
+            return true;
+        } catch (error) {
+            log.error('Failed to get Firefox history file permissions', error);
             return false;
         }
     }

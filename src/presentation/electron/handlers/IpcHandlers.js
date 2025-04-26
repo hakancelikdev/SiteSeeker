@@ -23,7 +23,7 @@ class IpcHandlers {
     });
 
     // Handle reset history
-    ipcMain.on('resetHistory', async (event) => {
+    ipcMain.on('resetHistory', async (_) => {
       try {
         await this.historyService.resetHistory();
         this.mainWindow.send('resetHistoryResponse', { success: true });
@@ -52,40 +52,40 @@ class IpcHandlers {
     });
 
     // Handle import request
-    ipcMain.on('importHistory', async (event) => {
+    ipcMain.on('importHistory', async (_) => {
       try {
-          log.info('Import request received');
-          
-          // First import history
-          log.info('Starting history import...');
-          const historyCount = await this.historyService.importFromBrowser();
-          event.reply('importHistoryResponse', { success: true, count: historyCount });
-          event.reply('history-updated', historyCount);
-          
-          // Then import bookmarks
-          log.info('Starting bookmark import...');
-          const bookmarkCount = await this.bookmarkService.importFromBrowser();
-          event.reply('bookmark-import-complete', bookmarkCount);
-          
-          log.info(`Import completed. History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
+        log.info('Import request received');
+        
+        // First import history
+        log.info('Starting history import...');
+        const historyCount = await this.historyService.importFromBrowser();
+        this.mainWindow.send('importHistoryResponse', { success: true, count: historyCount });
+        this.mainWindow.send('history-updated', historyCount);
+        
+        // Then import bookmarks
+        log.info('Starting bookmark import...');
+        const bookmarkCount = await this.bookmarkService.importFromBrowser();
+        this.mainWindow.send('bookmark-import-complete', bookmarkCount);
+        
+        log.info(`Import completed. History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
       } catch (error) {
-          log.error('Error during import:', error);
-          event.reply('importHistoryResponse', { success: false, error: error.message });
+        log.error('Error during import:', error);
+        this.mainWindow.send('importHistoryResponse', { success: false, error: error.message });
       }
     });
 
     // Handle get-url-count request
-      ipcMain.on('get-url-count', async (event) => {
-        try {
-            log.info('Get URL count request received');
-            const count = await this.historyService.getUrlCount();
-            event.reply('history-updated', count);
-        } catch (error) {
-            log.error('Error getting URL count:', error);
-            event.reply('error', error.message);
-        }
-      });
-    }
+    ipcMain.on('get-url-count', async (_) => {
+      try {
+        log.info('Get URL count request received');
+        const count = await this.historyService.getUrlCount();
+        this.mainWindow.send('history-updated', count);
+      } catch (error) {
+        log.error('Error getting URL count:', error);
+        this.mainWindow.send('error', error.message);
+      }
+    });
+  }
 }
 
 module.exports = IpcHandlers; 

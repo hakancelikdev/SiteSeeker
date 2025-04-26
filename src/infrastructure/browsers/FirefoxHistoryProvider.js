@@ -1,10 +1,12 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+
 const Database = require('better-sqlite3');
 const { app } = require('electron');
-const { HistoryItem, INITIAL_SCORE } = require('../../domain/models/HistoryItem');
 const log = require('electron-log');
+
+const { HistoryItem, INITIAL_SCORE } = require('../../domain/models/HistoryItem');
 
 class FirefoxHistoryProvider {
   constructor() {

@@ -1,5 +1,6 @@
 const { app } = require('electron');
 const log = require('electron-log');
+
 const MainWindow = require('../windows/MainWindow');
 const ApplicationService = require('../../../application/services/ApplicationService');
 const ElectronStore = require('../../../infrastructure/persistence/ElectronStore');

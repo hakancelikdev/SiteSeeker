@@ -13,11 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced logging throughout the application
 - Simplified main.js by moving functionality to dedicated classes
 - Improved code organization and separation of concerns
+- Enhanced error handling in catch blocks with proper error logging
+- Improved IPC event handlers with proper event parameter usage
 
 ### Fixed
 - Fixed IPC communication between main and renderer processes
 - Improved error handling in import and search operations
 - Enhanced logging for better debugging and monitoring
+- Fixed ESLint warnings related to unused parameters
+- Fixed try-catch block syntax in PermissionService
 
 ## [1.0.5] - 2024-04-26
 

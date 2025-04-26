@@ -1,10 +1,12 @@
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
+
 const Database = require('better-sqlite3');
 const { app } = require('electron');
-const BookmarkItem = require('../../domain/models/BookmarkItem');
 const log = require('electron-log');
+
+const BookmarkItem = require('../../domain/models/BookmarkItem');
 
 class FirefoxBookmarkProvider {
     constructor() {
