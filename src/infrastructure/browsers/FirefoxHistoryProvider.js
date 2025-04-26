@@ -76,7 +76,7 @@ class FirefoxHistoryProvider {
           ? `SELECT p.title, p.url, p.visit_count, p.typed 
              FROM moz_places p 
              WHERE p.title IS NOT NULL AND p.title != '' 
-             ORDER BY p.last_visit_date DESC LIMIT 1000`
+             ORDER BY p.last_visit_date DESC`
           : `SELECT p.title, p.url, p.visit_count, p.typed 
              FROM moz_places p 
              WHERE p.title IS NOT NULL AND p.title != '' 

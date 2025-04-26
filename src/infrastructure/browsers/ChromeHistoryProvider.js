@@ -75,7 +75,7 @@ class ChromeHistoryProvider {
         const query = fromTime === 0 
           ? `SELECT title, url, last_visit_time, visit_count, typed_count FROM urls 
              WHERE title IS NOT NULL AND title != '' 
-             ORDER BY last_visit_time DESC LIMIT 1000`
+             ORDER BY last_visit_time DESC`
           : `SELECT url, title, visit_count, typed_count FROM urls 
              WHERE title IS NOT NULL AND title != '' 
              AND last_visit_time/1000000 + (strftime('%s', '1601-01-01')) > ? 

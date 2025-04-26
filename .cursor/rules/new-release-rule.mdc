@@ -1,0 +1,24 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Increase version from package.json
+> Increase version of an annotated tag `"version": "x.y.z",`
+
+- Update changelog
+
+- Update version in package.json
+
+- Update dependencies
+> npm update
+
+- Commit changes
+> git add package.json package-lock.json
+> git commit -m "Bump version to x.y.z"
+
+- Create tag
+> git tag -a vx.y.z -m "Release version x.y.z"
+
+- Push changes and tags
+> git push && git push --tags
