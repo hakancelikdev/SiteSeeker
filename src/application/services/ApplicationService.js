@@ -22,6 +22,8 @@ class ApplicationService {
 
   async initialize() {
     try {
+      log.info('Initializing application services...');
+
       await app.whenReady();
       
       this.mainWindow.create();
@@ -50,7 +52,7 @@ class ApplicationService {
         await this.startHistoryImport();
       }
     } catch (error) {
-      log.error('Error initializing application:', error);
+      log.error('Failed to initialize application services:', error);
       app.quit();
     }
   }
@@ -164,6 +166,25 @@ class ApplicationService {
 
     // Schedule periodic imports every minute
     setInterval(importBookmarks, 60000);
+  }
+
+  async search(searchTerm) {
+    return await this.historyService.search(searchTerm);
+  }
+
+  async importFromBrowser() {
+    const historyCount = await this.historyService.importFromBrowser();
+    const bookmarkCount = await this.bookmarkService.importFromBrowser();
+    return { historyCount, bookmarkCount };
+  }
+
+  async resetHistory() {
+    await this.historyService.resetHistory();
+    await this.bookmarkService.resetBookmarks();
+  }
+
+  async getUrlCount() {
+    return await this.historyService.getUrlCount();
   }
 }
 

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Refactored main application structure for better organization and maintainability
+- Improved IPC handlers with better error handling and logging
+- Enhanced logging throughout the application
+- Simplified main.js by moving functionality to dedicated classes
+- Improved code organization and separation of concerns
+
+### Fixed
+- Fixed IPC communication between main and renderer processes
+- Improved error handling in import and search operations
+- Enhanced logging for better debugging and monitoring
+
 ## [1.0.5] - 2024-04-26
 
 ### Added
