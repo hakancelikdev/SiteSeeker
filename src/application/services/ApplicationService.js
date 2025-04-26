@@ -4,12 +4,14 @@ const MainWindow = require('../../presentation/electron/windows/MainWindow');
 const IpcHandlers = require('../../presentation/electron/handlers/IpcHandlers');
 const UpdateHandlers = require('../../presentation/electron/handlers/UpdateHandlers');
 const PermissionService = require('../../infrastructure/permissions/PermissionService');
+const BookmarkService = require('../../domain/services/BookmarkService');
 
 class ApplicationService {
-  constructor(historyService) {
+  constructor(historyService, bookmarkService) {
     this.historyService = historyService;
+    this.bookmarkService = bookmarkService;
     this.mainWindow = new MainWindow();
-    this.ipcHandlers = new IpcHandlers(historyService, this.mainWindow);
+    this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this.mainWindow);
     this.updateHandlers = new UpdateHandlers(this.mainWindow);
     this.permissionService = new PermissionService(this.mainWindow);
     
@@ -125,6 +127,43 @@ class ApplicationService {
 
     // Schedule periodic imports every minute
     setInterval(importHistory, 60000);
+  }
+
+  async startBookmarkImport() {
+    let isFirstRun = true;
+
+    const importBookmarks = async () => {
+      try {
+        if (isFirstRun) {
+          log.info('Starting initial bookmark import...');
+          const result = await this.bookmarkService.importFromBrowser();
+          if (result > 0) {
+            log.info(`Initial bookmark import successful. Total records: ${result}`);
+            // Update UI with imported count
+            if (this.mainWindow) {
+              this.mainWindow.send('bookmark-import-complete', result);
+            }
+          } else {
+            log.error('Initial bookmark import failed: No records imported');
+          }
+          isFirstRun = false;
+        } else {
+          const twoMinutesAgo = Date.now() - (2 * 60 * 1000);
+          const result = await this.bookmarkService.importRecentBookmarks(twoMinutesAgo);
+          if (result > 0) {
+            log.info(`Incremental bookmark import successful. New records: ${result}`);
+          }
+        }
+      } catch (error) {
+        log.error('Automatic bookmark import error:', error);
+      }
+    };
+
+    // Run initial import
+    await importBookmarks();
+
+    // Schedule periodic imports every minute
+    setInterval(importBookmarks, 60000);
   }
 }
 

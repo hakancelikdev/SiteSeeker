@@ -28,7 +28,8 @@ contextBridge.exposeInMainWorld(
                 'resetHistoryResponse',
                 'history-updated',
                 'search-results',
-                'error'
+                'error',
+                'bookmark-import-complete'
             ];
             if (validChannels.includes(channel)) {
                 console.log('Registering IPC listener for channel:', channel);

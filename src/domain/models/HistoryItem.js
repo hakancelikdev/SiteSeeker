@@ -6,6 +6,7 @@ class HistoryItem {
     this.url = url;
     this.score = score;
     this.lastVisitTime = lastVisitTime;
+    this.isBookmark = false; // Flag to identify if this is a bookmark
   }
 }
 

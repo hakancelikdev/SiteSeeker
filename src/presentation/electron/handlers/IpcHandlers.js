@@ -2,8 +2,9 @@ const { ipcMain } = require('electron');
 const log = require('electron-log');
 
 class IpcHandlers {
-  constructor(historyService, mainWindow) {
+  constructor(historyService, bookmarkService, mainWindow) {
     this.historyService = historyService;
+    this.bookmarkService = bookmarkService;
     this.mainWindow = mainWindow;
   }
 
@@ -29,14 +30,25 @@ class IpcHandlers {
       }
     });
 
+    // Handle bookmark import request
+    ipcMain.on('import-bookmarks', async (event) => {
+      try {
+        const result = await this.bookmarkService.importFromBrowser();
+        this.mainWindow.send('bookmark-import-complete', result);
+      } catch (error) {
+        log.error('Error handling bookmark import:', error);
+        this.mainWindow.send('bookmark-import-complete', null);
+      }
+    });
+
     // Handle reset history
-    ipcMain.on('reset-history', async (event) => {
+    ipcMain.on('resetHistory', async (event) => {
       try {
         await this.historyService.resetHistory();
-        this.mainWindow.send('reset-complete', { success: true });
+        this.mainWindow.send('resetHistoryResponse', { success: true });
       } catch (error) {
         log.error('Error resetting history:', error);
-        this.mainWindow.send('reset-complete', { success: false, error: error.message });
+        this.mainWindow.send('resetHistoryResponse', { success: false, error: error.message });
       }
     });
 

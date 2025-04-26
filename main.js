@@ -3,6 +3,7 @@ const log = require('electron-log');
 const ElectronStore = require('./src/infrastructure/persistence/ElectronStore');
 const HistoryRepository = require('./src/domain/repositories/HistoryRepository');
 const HistoryService = require('./src/domain/services/HistoryService');
+const BookmarkService = require('./src/domain/services/BookmarkService');
 const ApplicationService = require('./src/application/services/ApplicationService');
 const MainWindow = require('./src/presentation/electron/windows/MainWindow');
 const { shell } = require('electron');
@@ -29,7 +30,8 @@ async function initializeApplication() {
         const store = new ElectronStore();
         const historyRepository = new HistoryRepository(store);
         const historyService = new HistoryService(historyRepository);
-        applicationService = new ApplicationService(historyService);
+        const bookmarkService = new BookmarkService(historyRepository);
+        applicationService = new ApplicationService(historyService, bookmarkService);
 
         // Start application
         await applicationService.initialize();
@@ -42,29 +44,26 @@ async function initializeApplication() {
     }
 }
 
-// Handle import history request
+// Handle import request
 ipcMain.on('importHistory', async (event) => {
     try {
-        log.info('Import history request received');
-        const count = await applicationService.historyService.importFromBrowser();
-        event.reply('importHistoryResponse', { success: true, count });
-        event.reply('history-updated', count);
+        log.info('Import request received');
+        
+        // First import history
+        log.info('Starting history import...');
+        const historyCount = await applicationService.historyService.importFromBrowser();
+        event.reply('importHistoryResponse', { success: true, count: historyCount });
+        event.reply('history-updated', historyCount);
+        
+        // Then import bookmarks
+        log.info('Starting bookmark import...');
+        const bookmarkCount = await applicationService.bookmarkService.importFromBrowser();
+        event.reply('bookmark-import-complete', bookmarkCount);
+        
+        log.info(`Import completed. History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
     } catch (error) {
-        log.error('Error importing history:', error);
+        log.error('Error during import:', error);
         event.reply('importHistoryResponse', { success: false, error: error.message });
-    }
-});
-
-// Handle reset history request
-ipcMain.on('resetHistory', async (event) => {
-    try {
-        log.info('Reset history request received');
-        await applicationService.historyService.resetHistory();
-        event.reply('resetHistoryResponse', { success: true });
-        event.reply('history-updated', 0);
-    } catch (error) {
-        log.error('Error resetting history:', error);
-        event.reply('resetHistoryResponse', { success: false, error: error.message });
     }
 });
 

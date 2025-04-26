@@ -45,7 +45,7 @@ document.addEventListener('keydown', handleKeyboardShortcuts);
 if (importButton) {
     importButton.addEventListener('click', () => {
         console.log('Import button clicked');
-        importHistory();
+        importAll();
     });
 } else {
     console.error('Import button not found');
@@ -67,10 +67,19 @@ if (!window.api) {
 
 // IPC Event Listeners
 if (window.api) {
+    let historyCount = 0;
+    let bookmarkCount = 0;
+
     window.api.receive('history-updated', (count) => {
         console.log('Received history-updated event with count:', count);
+        historyCount = count;
         updateUrlCounter(count);
-        showNotification('History updated successfully', 'success');
+    });
+
+    window.api.receive('bookmark-import-complete', (count) => {
+        console.log('Received bookmark-import-complete event with count:', count);
+        bookmarkCount = count;
+        showNotification(`Successfully imported ${historyCount} history items and ${bookmarkCount} bookmarks`, 'success');
     });
 
     window.api.receive('search-results', (results) => {
@@ -86,10 +95,7 @@ if (window.api) {
 
     window.api.receive('importHistoryResponse', (response) => {
         console.log('Received import response:', response);
-        if (response.success) {
-            updateUrlCounter(response.count);
-            showNotification(`Successfully imported ${response.count} history items`, 'success');
-        } else {
+        if (!response.success) {
             showNotification(`Import failed: ${response.error}`, 'error');
         }
     });
@@ -252,6 +258,13 @@ function createResultElement(result) {
     div.appendChild(favicon);
     div.appendChild(content);
     
+    if (result.isBookmark) {
+        const starIcon = document.createElement('span');
+        starIcon.className = 'bookmark-icon';
+        starIcon.innerHTML = '★';
+        div.appendChild(starIcon);
+    }
+
     div.addEventListener('click', () => {
         try {
             if (window.api) {
@@ -388,18 +401,18 @@ function escapeHtml(unsafe) {
 }
 
 // Import and Reset functions
-function importHistory() {
+function importAll() {
     try {
-        console.log('Importing history...');
-        showNotification('Importing history...', 'info');
+        console.log('Importing history and bookmarks...');
+        showNotification('Importing history and bookmarks...', 'info');
         if (window.api) {
             window.api.send('importHistory');
         } else {
-            console.error('Cannot import history: window.api is not available');
+            console.error('Cannot import: window.api is not available');
         }
     } catch (error) {
-        console.error('Error importing history:', error);
-        showNotification('Error importing history', 'error');
+        console.error('Error importing:', error);
+        showNotification('Error importing', 'error');
     }
 }
 
