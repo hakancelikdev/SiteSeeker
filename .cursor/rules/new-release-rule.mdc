@@ -3,22 +3,18 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Increase version from package.json
-> Increase version of an annotated tag `"version": "x.y.z",`
-
-- Update changelog
-
+- Read the improvements in the Unreleased section in the changelog file
+- Get the current version number in package.json
+- Set a new version number according to the changes in the Unreleased section
+- Change the Unreleased name to the new version number
+- Update version from package.json
 - Update version in package.json
-
-- Update dependencies
-> npm update
-
+> Increase version of an annotated tag `"version": "x.y.z",`
+- Update dependencies via run following command npm update
 - Commit changes
 > git add package.json package-lock.json
 > git commit -m "Bump version to x.y.z"
-
 - Create tag
 > git tag -a vx.y.z -m "Release version x.y.z"
-
 - Push changes and tags
 > git push && git push --tags
