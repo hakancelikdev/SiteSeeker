@@ -21,10 +21,10 @@ class MainWindow {
     // Eğer display parametresi verilmemişse, aktif display'i al
     const currentDisplay = display || this.getCurrentDisplay();
     const displayId = currentDisplay.id;
-    
+
     if (!this.windows.has(displayId)) {
       log.info(`Creating window for display ${displayId}...`);
-      
+
       const preloadPath = path.join(__dirname, '../preload.js');
       log.info('Preload script path:', preloadPath);
 
@@ -56,9 +56,9 @@ class MainWindow {
 
       const htmlPath = path.join(__dirname, '../views/index.html');
       log.info('Loading HTML file:', htmlPath);
-      
+
       window.loadFile(htmlPath);
-      
+
       if (process.env.NODE_ENV === 'development') {
         log.info('Opening DevTools in development mode');
         window.webContents.openDevTools();
@@ -90,7 +90,7 @@ class MainWindow {
           const [currentWidth, currentHeight] = window.getSize();
           const newX = Math.floor(currentDisplay.bounds.x + (currentDisplay.workAreaSize.width - currentWidth) / 2);
           const newY = Math.floor(currentDisplay.bounds.y + (currentDisplay.workAreaSize.height - currentHeight) / 2);
-          
+
           window.setPosition(newX, newY);
           log.info(`Window shown and centered for display ${displayId} at:`, { x: newX, y: newY });
         } catch (error) {
@@ -163,4 +163,4 @@ class MainWindow {
   }
 }
 
-module.exports = MainWindow; 
+module.exports = MainWindow;

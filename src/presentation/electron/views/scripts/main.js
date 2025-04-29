@@ -117,7 +117,7 @@ function handleSearch(event) {
     try {
         currentSearchTerm = event.target.value.trim();
         console.log('Search input changed:', currentSearchTerm);
-        
+
         if (currentSearchTerm) {
             if (window.api) {
                 console.log('Sending search request for term:', currentSearchTerm);
@@ -189,7 +189,7 @@ function renderResults() {
         console.log('Rendering search results:', searchResults);
         clearResults();
         selectedResultIndex = -1;
-        
+
         if (searchResults.length === 0) {
             console.log('No results found, showing empty state');
             resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
@@ -198,7 +198,7 @@ function renderResults() {
 
         console.log(`Rendering ${searchResults.length} results`);
         const fragment = document.createDocumentFragment();
-        
+
         searchResults.forEach((result, index) => {
             console.log(`Creating result element ${index + 1}:`, result);
             const resultElement = createResultElement(result);
@@ -216,7 +216,7 @@ function renderResults() {
 function createResultElement(result) {
     const div = document.createElement('div');
     div.className = 'result-item';
-    
+
     // Create favicon element
     const favicon = document.createElement('img');
     favicon.className = 'result-icon';
@@ -228,36 +228,36 @@ function createResultElement(result) {
 
     const content = document.createElement('div');
     content.className = 'result-content';
-    
+
     const title = document.createElement('div');
     title.className = 'result-title';
     title.textContent = result.title || 'Untitled';
-    
+
     const url = document.createElement('div');
     url.className = 'result-url';
     url.textContent = result.url;
-    
+
     const meta = document.createElement('div');
     meta.className = 'result-meta';
-    
+
     const visitCount = document.createElement('span');
     visitCount.className = 'visit-count';
     visitCount.innerHTML = `<i class="fas fa-eye"></i> ${result.score - INITIAL_SCORE}`;
-    
+
     const lastVisit = document.createElement('span');
     lastVisit.className = 'last-visit';
     lastVisit.innerHTML = `<i class="fas fa-clock"></i> ${formatDate(result.lastVisitTime)}`;
-    
+
     meta.appendChild(visitCount);
     meta.appendChild(lastVisit);
-    
+
     content.appendChild(title);
     content.appendChild(url);
     content.appendChild(meta);
 
     div.appendChild(favicon);
     div.appendChild(content);
-    
+
     if (result.isBookmark) {
         const starIcon = document.createElement('span');
         starIcon.className = 'bookmark-icon';
@@ -344,43 +344,43 @@ function formatDate(timestamp) {
         const date = new Date(timestamp);
         const now = new Date();
         const diff = now - date;
-        
+
         // If less than 1 minute ago
         if (diff < 60 * 1000) {
             const seconds = Math.floor(diff / 1000);
             return seconds === 0 ? 'Just now' : `${seconds} seconds ago`;
         }
-        
+
         // If less than 1 hour ago
         if (diff < 60 * 60 * 1000) {
             const minutes = Math.floor(diff / (60 * 1000));
             return minutes === 1 ? '1 minute ago' : `${minutes} minutes ago`;
         }
-        
+
         // If less than 24 hours ago
         if (diff < 24 * 60 * 60 * 1000) {
             const hours = Math.floor(diff / (60 * 60 * 1000));
             return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
         }
-        
+
         // If less than 7 days ago
         if (diff < 7 * 24 * 60 * 60 * 1000) {
             const days = Math.floor(diff / (24 * 60 * 60 * 1000));
             return days === 1 ? 'Yesterday' : `${days} days ago`;
         }
-        
+
         // If less than 30 days ago
         if (diff < 30 * 24 * 60 * 60 * 1000) {
             const weeks = Math.floor(diff / (7 * 24 * 60 * 60 * 1000));
             return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
         }
-        
+
         // If less than 1 year ago
         if (diff < 365 * 24 * 60 * 60 * 1000) {
             const months = Math.floor(diff / (30 * 24 * 60 * 60 * 1000));
             return months === 1 ? '1 month ago' : `${months} months ago`;
         }
-        
+
         // Otherwise show years
         const years = Math.floor(diff / (365 * 24 * 60 * 60 * 1000));
         return years === 1 ? '1 year ago' : `${years} years ago`;

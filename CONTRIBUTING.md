@@ -208,4 +208,4 @@ Before submitting a pull request:
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the GNU General Public License v3.0. 
+By contributing, you agree that your contributions will be licensed under the GNU General Public License v3.0.

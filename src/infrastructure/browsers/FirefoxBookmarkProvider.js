@@ -18,14 +18,14 @@ class FirefoxBookmarkProvider {
         try {
             const profiles = [];
             const items = fs.readdirSync(this.basePath);
-            
+
             for (const item of items) {
                 const itemPath = path.join(this.basePath, item);
                 if (fs.statSync(itemPath).isDirectory() && item.endsWith('.default-release')) {
                     profiles.push(item);
                 }
             }
-            
+
             return profiles;
         } catch (error) {
             log.error('Error getting Firefox profiles:', error);
@@ -56,7 +56,7 @@ class FirefoxBookmarkProvider {
                 const db = new Database(tempPath, { readonly: true });
 
                 const query = `
-                    SELECT b.title, p.url, b.dateAdded, b.lastModified, 
+                    SELECT b.title, p.url, b.dateAdded, b.lastModified,
                            GROUP_CONCAT(f.title, '/') as folder_path
                     FROM moz_bookmarks b
                     JOIN moz_places p ON b.fk = p.id
@@ -91,4 +91,4 @@ class FirefoxBookmarkProvider {
     }
 }
 
-module.exports = FirefoxBookmarkProvider; 
+module.exports = FirefoxBookmarkProvider;

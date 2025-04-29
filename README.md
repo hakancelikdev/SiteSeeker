@@ -134,7 +134,7 @@ You can also manually update by:
   - Automatic history and bookmark synchronization
   - Real-time updates
   - Support for Chrome and Firefox
-- **Auto-Update System**: 
+- **Auto-Update System**:
   - Automatic update checks
   - Silent download and installation
   - Manual update option
@@ -167,19 +167,19 @@ Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
 
 Download the appropriate version for your Mac:
 
-- **Apple Silicon (M1/M2) Macs**: 
+- **Apple Silicon (M1/M2) Macs**:
   - DMG: [SiteSeeker-[version]-arm64.dmg](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - ZIP: [SiteSeeker-[version]-arm64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - Optimized for M1/M2 processors
   - Better performance on Apple Silicon
 
-- **Intel Macs**: 
+- **Intel Macs**:
   - DMG: [SiteSeeker-[version]-x64.dmg](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - ZIP: [SiteSeeker-[version]-x64-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - Optimized for Intel processors
   - Compatible with older Macs
 
-- **Universal Binary**: 
+- **Universal Binary**:
   - DMG: [SiteSeeker-[version]-universal.dmg](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - ZIP: [SiteSeeker-[version]-universal-mac.zip](https://github.com/hakancelikdev/SiteSeeker/releases/latest)
   - Works on both Intel and Apple Silicon

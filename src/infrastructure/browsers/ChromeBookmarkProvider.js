@@ -83,7 +83,7 @@ class ChromeBookmarkProvider {
         for (const profile of profiles) {
             try {
                 const bookmarkPath = path.join(this.basePath, profile, 'Bookmarks');
-                
+
                 if (!fs.existsSync(bookmarkPath)) {
                     log.warn(`Bookmarks file not found for profile ${profile}: ${bookmarkPath}`);
                     continue;
@@ -91,7 +91,7 @@ class ChromeBookmarkProvider {
 
                 const bookmarksData = JSON.parse(fs.readFileSync(bookmarkPath, 'utf8'));
                 log.info(`Processing bookmarks for profile ${profile}`);
-                
+
                 // Process each root folder (bookmark_bar, other, synced)
                 for (const [rootName, rootNode] of Object.entries(bookmarksData.roots)) {
                     const bookmarks = this.extractBookmarks(rootNode, rootName);
@@ -120,7 +120,7 @@ class ChromeBookmarkProvider {
 
     extractBookmarks(node, folder = '') {
         let bookmarks = [];
-        
+
         if (!node) {
             return bookmarks;
         }
@@ -138,14 +138,14 @@ class ChromeBookmarkProvider {
         else if (node.type === 'folder' || node.children) {
             const newFolder = folder ? `${folder}/${node.name}` : node.name;
             const children = node.children || [];
-            
+
             for (const child of children) {
                 bookmarks = bookmarks.concat(this.extractBookmarks(child, newFolder));
             }
         }
-        
+
         return bookmarks;
     }
 }
 
-module.exports = ChromeBookmarkProvider; 
+module.exports = ChromeBookmarkProvider;

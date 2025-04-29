@@ -24,8 +24,8 @@ class FirefoxHistoryProvider {
       const profiles = fs.readdirSync(this.basePath)
         .filter(item => {
           const itemPath = path.join(this.basePath, item);
-          return fs.existsSync(itemPath) && 
-                 fs.statSync(itemPath).isDirectory() && 
+          return fs.existsSync(itemPath) &&
+                 fs.statSync(itemPath).isDirectory() &&
                  fs.existsSync(path.join(itemPath, 'places.sqlite'));
         });
 
@@ -75,19 +75,19 @@ class FirefoxHistoryProvider {
         }
 
         const query = fromTime === 0
-          ? `SELECT p.title, p.url, p.visit_count, p.typed, p.last_visit_date 
-             FROM moz_places p 
-             WHERE p.title IS NOT NULL AND p.title != '' 
+          ? `SELECT p.title, p.url, p.visit_count, p.typed, p.last_visit_date
+             FROM moz_places p
+             WHERE p.title IS NOT NULL AND p.title != ''
              ORDER BY p.last_visit_date DESC`
-          : `SELECT p.title, p.url, p.visit_count, p.typed, p.last_visit_date 
-             FROM moz_places p 
-             WHERE p.title IS NOT NULL AND p.title != '' 
-             AND p.last_visit_date/1000000 > ? 
+          : `SELECT p.title, p.url, p.visit_count, p.typed, p.last_visit_date
+             FROM moz_places p
+             WHERE p.title IS NOT NULL AND p.title != ''
+             AND p.last_visit_date/1000000 > ?
              ORDER BY p.last_visit_date DESC`;
 
         let rows;
         try {
-          rows = fromTime === 0 
+          rows = fromTime === 0
             ? db.prepare(query).all()
             : db.prepare(query).all(Math.floor(fromTime / 1000));
         } catch (error) {
@@ -100,12 +100,12 @@ class FirefoxHistoryProvider {
         for (const row of rows) {
           if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
             uniqueUrls.add(row.url);
-            const score = row.visit_count 
+            const score = row.visit_count
               ? INITIAL_SCORE + row.visit_count + (row.typed || 0)
               : INITIAL_SCORE;
             allHistory.push(new HistoryItem(
-              row.title.trim(), 
-              row.url, 
+              row.title.trim(),
+              row.url,
               score,
               row.last_visit_date ? row.last_visit_date/1000 : null
             ));
@@ -124,4 +124,4 @@ class FirefoxHistoryProvider {
   }
 }
 
-module.exports = FirefoxHistoryProvider; 
+module.exports = FirefoxHistoryProvider;

@@ -8,4 +8,4 @@ class BookmarkItem {
     }
 }
 
-module.exports = BookmarkItem; 
+module.exports = BookmarkItem;

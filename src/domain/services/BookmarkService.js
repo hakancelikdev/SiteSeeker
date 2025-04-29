@@ -16,21 +16,21 @@ class BookmarkService {
     async importFromBrowser() {
         try {
             log.info('Starting browser bookmark import...');
-            
+
             let allBookmarks = [];
             this.uniqueUrls.clear();
-            
+
             // Import from all browser providers in parallel
-            const importPromises = this.bookmarkProviders.map(provider => 
+            const importPromises = this.bookmarkProviders.map(provider =>
                 provider.importBookmarks(this.uniqueUrls)
             );
-            
+
             const results = await Promise.all(importPromises);
             allBookmarks = results.flat();
-            
+
             // Update history items with bookmark names
             await this.updateHistoryWithBookmarks(allBookmarks);
-            
+
             log.info(`Successfully imported ${allBookmarks.length} bookmarks`);
             return allBookmarks.length;
         } catch (error) {
@@ -44,7 +44,7 @@ class BookmarkService {
             const historyItems = await this.historyRepository.getAll();
             const historyMap = new Map(historyItems.map(item => [item.url, item]));
             let updatedCount = 0;
-            
+
             for (const bookmark of bookmarks) {
                 const existingHistory = historyMap.get(bookmark.url);
                 if (existingHistory && !existingHistory.isBookmark) {
@@ -54,7 +54,7 @@ class BookmarkService {
                     updatedCount++;
                 }
             }
-            
+
             if (updatedCount > 0) {
                 // Save the updated history
                 await this.historyRepository.save([...historyMap.values()]);
@@ -81,4 +81,4 @@ class BookmarkService {
     }
 }
 
-module.exports = BookmarkService; 
+module.exports = BookmarkService;

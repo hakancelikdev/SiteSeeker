@@ -75,13 +75,13 @@ class HistoryService {
             }
 
             log.info(`Searching history for term: "${searchTerm}"`);
-            
+
             const history = await this.historyRepository.getAll();
             log.info(`Retrieved ${history.length} total history items`);
-            
+
             const searchTermLower = searchTerm.toLowerCase();
             log.info('Normalized search term:', searchTermLower);
-            
+
             const filteredResults = history.filter(item => {
                 if (!item.title || !item.url) {
                     log.debug('Skipping invalid history item:', item);
@@ -93,13 +93,13 @@ class HistoryService {
             });
 
             log.info(`Found ${filteredResults.length} matching items before sorting`);
-            
+
             const sortedResults = filteredResults.sort((a, b) => b.score - a.score);
             const finalResults = sortedResults.slice(0, 50);
-            
+
             log.info(`Returning ${finalResults.length} results`);
             log.debug('Search results:', finalResults);
-            
+
             return finalResults;
         } catch (error) {
             log.error('Error during search:', error);
@@ -114,25 +114,25 @@ class HistoryService {
     async importFromBrowser() {
         try {
             log.info('Starting browser history import...');
-            
+
             // Check permissions first
             const permissions = await this.checkBrowserPermissions();
             log.info('Browser permissions:', permissions);
 
             let allHistory = [];
             this.uniqueUrls.clear();
-            
+
             // Import from all browser providers in parallel
-            const importPromises = this.browserProviders.map(provider => 
+            const importPromises = this.browserProviders.map(provider =>
                 provider.importHistory(this.uniqueUrls)
             );
-            
+
             const results = await Promise.all(importPromises);
             allHistory = results.flat();
-            
+
             // Save imported history
             await this.saveHistory(allHistory);
-            
+
             log.info(`Successfully imported ${allHistory.length} history items`);
             return allHistory.length;
         } catch (error) {
@@ -153,18 +153,18 @@ class HistoryService {
 
             log.info(`Importing recent history from ${new Date(fromTime).toISOString()}`);
             let allHistory = await this.historyRepository.getAll();
-            
+
             // Import recent history from all providers in parallel
             const importPromises = this.browserProviders.map(provider =>
                 provider.importHistory(this.uniqueUrls, fromTime)
             );
-            
+
             const results = await Promise.all(importPromises);
             const recentHistory = results.flat();
-            
+
             // Update or add new items using Map for better performance
             const historyMap = new Map(allHistory.map(item => [item.url, item]));
-            
+
             for (const item of recentHistory) {
                 const existing = historyMap.get(item.url);
                 if (existing) {
@@ -177,12 +177,12 @@ class HistoryService {
                     historyMap.set(item.url, item);
                 }
             }
-            
+
             allHistory = Array.from(historyMap.values());
-            
+
             // Save updated history
             await this.saveHistory(allHistory);
-            
+
             log.info(`Successfully updated history with ${recentHistory.length} new items`);
             return allHistory.length;
         } catch (error) {
@@ -225,4 +225,4 @@ class HistoryService {
     }
 }
 
-module.exports = HistoryService; 
+module.exports = HistoryService;

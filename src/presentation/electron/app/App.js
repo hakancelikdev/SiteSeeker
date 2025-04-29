@@ -29,7 +29,7 @@ class App {
         await app.whenReady();
 
         log.info('Initializing application...');
-        
+
         // Initialize dependencies
         const store = new ElectronStore();
         const historyRepository = new HistoryRepository(store);
@@ -40,7 +40,7 @@ class App {
         // Start application services
         await this.applicationService.initialize();
         log.info('Application initialized successfully');
-        
+
         // Create main window
         this.mainWindow = new MainWindow();
         this.mainWindow.create();
@@ -67,4 +67,4 @@ class App {
     }
 }
 
-module.exports = App; 
+module.exports = App;

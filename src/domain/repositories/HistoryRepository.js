@@ -35,10 +35,10 @@ class HistoryRepository {
         try {
             log.info('Getting all history items...');
             await this.ensureStoreInitialized();
-            
+
             const history = this.store.get('savedHistory', []);
             log.info(`Retrieved ${history.length} history items from store`);
-            
+
             if (history.length > 0) {
                 log.debug('Sample history item:', history[0]);
             } else {
@@ -88,7 +88,7 @@ class HistoryRepository {
     async save(history) {
         try {
             await this.ensureStoreInitialized();
-            
+
             if (!Array.isArray(history)) {
                 throw new HistoryRepositoryError(
                     'History must be an array',
@@ -98,7 +98,7 @@ class HistoryRepository {
 
             this.store.set('savedHistory', history);
             this.store.set('historyCount', history.length);
-            
+
             log.info(`Saved ${history.length} history items`);
             return history.length;
         } catch (error) {
@@ -112,4 +112,4 @@ class HistoryRepository {
     }
 }
 
-module.exports = HistoryRepository; 
+module.exports = HistoryRepository;

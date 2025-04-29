@@ -169,4 +169,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 - macOS entitlements for secure access to browser data
-- Improved error handling and validation 
+- Improved error handling and validation

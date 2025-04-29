@@ -33,7 +33,7 @@ contextBridge.exposeInMainWorld(
             ];
             if (validChannels.includes(channel)) {
                 console.log('Registering IPC listener for channel:', channel);
-                // Deliberately strip event as it includes `sender` 
+                // Deliberately strip event as it includes `sender`
                 ipcRenderer.on(channel, (event, ...args) => {
                     console.log('Received IPC message:', channel, args);
                     func(...args);
@@ -46,4 +46,4 @@ contextBridge.exposeInMainWorld(
 );
 
 // Log that preload script has loaded
-console.log('Preload script loaded successfully'); 
+console.log('Preload script loaded successfully');

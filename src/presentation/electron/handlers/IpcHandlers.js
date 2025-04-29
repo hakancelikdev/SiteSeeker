@@ -55,18 +55,18 @@ class IpcHandlers {
     ipcMain.on('importHistory', async (_) => {
       try {
         log.info('Import request received');
-        
+
         // First import history
         log.info('Starting history import...');
         const historyCount = await this.historyService.importFromBrowser();
         this.mainWindow.send('importHistoryResponse', { success: true, count: historyCount });
         this.mainWindow.send('history-updated', historyCount);
-        
+
         // Then import bookmarks
         log.info('Starting bookmark import...');
         const bookmarkCount = await this.bookmarkService.importFromBrowser();
         this.mainWindow.send('bookmark-import-complete', bookmarkCount);
-        
+
         log.info(`Import completed. History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
       } catch (error) {
         log.error('Error during import:', error);
@@ -88,4 +88,4 @@ class IpcHandlers {
   }
 }
 
-module.exports = IpcHandlers; 
+module.exports = IpcHandlers;

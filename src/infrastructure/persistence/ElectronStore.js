@@ -113,4 +113,4 @@ class ElectronStore {
     }
 }
 
-module.exports = ElectronStore; 
+module.exports = ElectronStore;

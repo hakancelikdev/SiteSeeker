@@ -44,8 +44,8 @@ class BrowserPermissions {
                 const profiles = fs.readdirSync(basePath)
                     .filter(item => {
                         const itemPath = path.join(basePath, item);
-                        return fs.existsSync(itemPath) && 
-                               fs.statSync(itemPath).isDirectory() && 
+                        return fs.existsSync(itemPath) &&
+                               fs.statSync(itemPath).isDirectory() &&
                                fs.existsSync(path.join(itemPath, 'places.sqlite'));
                     });
 
@@ -57,7 +57,7 @@ class BrowserPermissions {
                 // Check if we can access the history file
                 const profilePath = path.join(basePath, profiles[0]);
                 const historyPath = path.join(profilePath, 'places.sqlite');
-                
+
                 try {
                     fs.accessSync(historyPath, fs.constants.R_OK);
                 } catch (error) {
@@ -71,8 +71,8 @@ class BrowserPermissions {
                 const profiles = fs.readdirSync(basePath)
                     .filter(item => {
                         const itemPath = path.join(basePath, item);
-                        return fs.existsSync(itemPath) && 
-                               fs.statSync(itemPath).isDirectory() && 
+                        return fs.existsSync(itemPath) &&
+                               fs.statSync(itemPath).isDirectory() &&
                                fs.existsSync(path.join(itemPath, 'History'));
                     });
 
@@ -84,7 +84,7 @@ class BrowserPermissions {
                 // Check if we can access the history file
                 const profilePath = path.join(basePath, profiles[0]);
                 const historyPath = path.join(profilePath, 'History');
-                
+
                 try {
                     fs.accessSync(historyPath, fs.constants.R_OK);
                 } catch (error) {
@@ -122,4 +122,4 @@ class BrowserPermissions {
     }
 }
 
-module.exports = BrowserPermissions; 
+module.exports = BrowserPermissions;

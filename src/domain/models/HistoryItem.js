@@ -13,4 +13,4 @@ class HistoryItem {
 module.exports = {
   HistoryItem,
   INITIAL_SCORE
-}; 
+};

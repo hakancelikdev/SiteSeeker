@@ -60,7 +60,7 @@ class PermissionService {
       if (fs.existsSync(firefoxProfilesPath)) {
         const profiles = fs.readdirSync(firefoxProfilesPath)
           .filter(item => item.endsWith('.default') || item.endsWith('.default-release'));
-        
+
         for (const profile of profiles) {
           const historyPath = path.join(firefoxProfilesPath, profile, 'places.sqlite');
           if (fs.existsSync(historyPath)) {
@@ -95,4 +95,4 @@ class PermissionService {
   }
 }
 
-module.exports = PermissionService; 
+module.exports = PermissionService;

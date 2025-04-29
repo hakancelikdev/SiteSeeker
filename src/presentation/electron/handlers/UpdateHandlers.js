@@ -59,4 +59,4 @@ class UpdateHandlers {
   }
 }
 
-module.exports = UpdateHandlers; 
+module.exports = UpdateHandlers;

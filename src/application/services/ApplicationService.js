@@ -14,7 +14,7 @@ class ApplicationService {
     this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this.mainWindow);
     this.updateHandlers = new UpdateHandlers(this.mainWindow);
     this.permissionService = new PermissionService(this.mainWindow);
-    
+
     // Bind methods to maintain context
     this.handleWindowAllClosed = this.handleWindowAllClosed.bind(this);
     this.handleActivate = this.handleActivate.bind(this);
@@ -25,17 +25,17 @@ class ApplicationService {
       log.info('Initializing application services...');
 
       await app.whenReady();
-      
+
       this.mainWindow.create();
       this.ipcHandlers.setup();
       this.updateHandlers.setup();
-      
+
       // Register global shortcut
       this.registerGlobalShortcut();
-      
+
       app.on('window-all-closed', this.handleWindowAllClosed);
       app.on('activate', this.handleActivate);
-      
+
       // Handle app quit
       app.on('before-quit', () => {
         // Unregister shortcut
@@ -77,7 +77,7 @@ class ApplicationService {
 
   registerGlobalShortcut() {
     const shortcut = process.platform === 'darwin' ? 'Command+Shift+Space' : 'Control+Shift+Space';
-    
+
     const success = globalShortcut.register(shortcut, () => {
       this.mainWindow.toggle();
     });
@@ -188,4 +188,4 @@ class ApplicationService {
   }
 }
 
-module.exports = ApplicationService; 
+module.exports = ApplicationService;

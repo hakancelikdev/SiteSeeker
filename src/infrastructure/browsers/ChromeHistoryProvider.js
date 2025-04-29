@@ -24,8 +24,8 @@ class ChromeHistoryProvider {
       const profiles = fs.readdirSync(this.basePath)
         .filter(item => {
           const itemPath = path.join(this.basePath, item);
-          return fs.existsSync(itemPath) && 
-                 fs.statSync(itemPath).isDirectory() && 
+          return fs.existsSync(itemPath) &&
+                 fs.statSync(itemPath).isDirectory() &&
                  fs.existsSync(path.join(itemPath, 'History'));
         });
 
@@ -74,18 +74,18 @@ class ChromeHistoryProvider {
           continue;
         }
 
-        const query = fromTime === 0 
-          ? `SELECT title, url, last_visit_time, visit_count, typed_count FROM urls 
-             WHERE title IS NOT NULL AND title != '' 
+        const query = fromTime === 0
+          ? `SELECT title, url, last_visit_time, visit_count, typed_count FROM urls
+             WHERE title IS NOT NULL AND title != ''
              ORDER BY last_visit_time DESC`
-          : `SELECT url, title, visit_count, typed_count FROM urls 
-             WHERE title IS NOT NULL AND title != '' 
-             AND last_visit_time/1000000 + (strftime('%s', '1601-01-01')) > ? 
+          : `SELECT url, title, visit_count, typed_count FROM urls
+             WHERE title IS NOT NULL AND title != ''
+             AND last_visit_time/1000000 + (strftime('%s', '1601-01-01')) > ?
              ORDER BY last_visit_time DESC`;
 
         let rows;
         try {
-          rows = fromTime === 0 
+          rows = fromTime === 0
             ? db.prepare(query).all()
             : db.prepare(query).all(Math.floor(fromTime / 1000));
         } catch (error) {
@@ -98,12 +98,12 @@ class ChromeHistoryProvider {
         for (const row of rows) {
           if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
             uniqueUrls.add(row.url);
-            const score = row.visit_count 
+            const score = row.visit_count
               ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
               : INITIAL_SCORE;
             allHistory.push(new HistoryItem(
-              row.title.trim(), 
-              row.url, 
+              row.title.trim(),
+              row.url,
               score,
               row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
             ));
@@ -122,4 +122,4 @@ class ChromeHistoryProvider {
   }
 }
 
-module.exports = ChromeHistoryProvider; 
+module.exports = ChromeHistoryProvider;
