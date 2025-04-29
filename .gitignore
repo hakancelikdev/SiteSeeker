@@ -33,4 +33,7 @@ coverage/
 # Cache directories
 .cache/
 .npm/
-.eslintcache 
+.eslintcache
+
+# Husky temporary files
+.husky/_/

@@ -1,0 +1,75 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Release Process
+
+## Description
+This rule defines the standardized process for creating and publishing new releases of the project.
+
+## Conditions
+- All tests must pass
+- All changes must be committed
+- Main branch must be up to date
+- CHANGELOG.md must be updated
+- Version must follow semantic versioning (X.Y.Z)
+
+## Steps
+
+### 1. Pre-Release Checks
+```bash
+# Run tests
+npm test
+
+# Run linting
+npm run lint
+
+# Verify branch
+git status
+```
+
+### 2. Version Update
+```bash
+# Update version in package.json and CHANGELOG.md
+# Commit changes
+git add package.json CHANGELOG.md
+git commit -m "chore: bump version to X.Y.Z"
+```
+
+### 3. Build Process
+```bash
+# Clean previous builds
+npm run clean
+
+# Build for all architectures
+npm run build:universal
+
+# Or build for specific architecture
+npm run build:arm64  # For Apple Silicon
+npm run build:x64    # For Intel
+```
+
+### 4. Release Creation
+```bash
+# Create and push tag
+git tag vX.Y.Z
+git push origin vX.Y.Z
+```
+
+### 5. Post-Release Tasks
+- [ ] Verify GitHub release
+- [ ] Check auto-update mechanism
+- [ ] Update documentation
+- [ ] Announce release
+
+## Validation
+- Release appears on GitHub
+- Auto-update works for existing installations
+- All artifacts are properly signed
+- CHANGELOG.md reflects all changes
+
+## Related
+- `package.json`: Version management
+- `CHANGELOG.md`: Release notes
+- `.github/workflows`: CI/CD configuration
