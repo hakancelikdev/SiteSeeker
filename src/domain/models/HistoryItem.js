@@ -1,4 +1,4 @@
-const INITIAL_SCORE = 1;
+const INITIAL_SCORE = 0;
 
 class HistoryItem {
   constructor(title, url, score = INITIAL_SCORE, lastVisitTime = null) {

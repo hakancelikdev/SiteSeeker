@@ -85,6 +85,11 @@ class IpcHandlers {
         this.mainWindow.send('error', error.message);
       }
     });
+
+    // Handle hide-window request
+    ipcMain.on('hide-window', () => {
+      this.mainWindow.hide(this.mainWindow.getCurrentDisplay());
+    });
   }
 }
 

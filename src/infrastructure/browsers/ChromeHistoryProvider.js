@@ -2,7 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const { app } = require('electron');
 const log = require('electron-log');
 
@@ -68,7 +68,7 @@ class ChromeHistoryProvider {
 
         let db;
         try {
-          db = new Database(tempPath, { readonly: true });
+          db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
         } catch (error) {
           log.error(`Failed to open Chrome history database for profile ${profile}:`, error);
           continue;
@@ -83,31 +83,36 @@ class ChromeHistoryProvider {
              AND last_visit_time/1000000 + (strftime('%s', '1601-01-01')) > ?
              ORDER BY last_visit_time DESC`;
 
-        let rows;
         try {
-          rows = fromTime === 0
-            ? db.prepare(query).all()
-            : db.prepare(query).all(Math.floor(fromTime / 1000));
+          await new Promise((resolve, reject) => {
+            db.all(query, fromTime === 0 ? [] : [Math.floor(fromTime / 1000)], (error, rows) => {
+              if (error) {
+                reject(error);
+                return;
+              }
+
+              log.info(`Found ${rows.length} history items in Chrome profile ${profile}`);
+
+              for (const row of rows) {
+                if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
+                  uniqueUrls.add(row.url);
+                  const score = row.visit_count
+                    ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
+                    : INITIAL_SCORE;
+                  allHistory.push(new HistoryItem(
+                    row.title.trim(),
+                    row.url,
+                    score,
+                    row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
+                  ));
+                }
+              }
+              resolve();
+            });
+          });
         } catch (error) {
           log.error(`Failed to execute query for Chrome profile ${profile}:`, error);
           continue;
-        }
-
-        log.info(`Found ${rows.length} history items in Chrome profile ${profile}`);
-
-        for (const row of rows) {
-          if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
-            uniqueUrls.add(row.url);
-            const score = row.visit_count
-              ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
-              : INITIAL_SCORE;
-            allHistory.push(new HistoryItem(
-              row.title.trim(),
-              row.url,
-              score,
-              row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
-            ));
-          }
         }
 
         db.close();

@@ -166,6 +166,8 @@ function handleKeyboardNavigation(event) {
                 const selectedResult = searchResults[selectedResultIndex];
                 if (window.api) {
                     window.api.send('open-url', selectedResult.url);
+                    // Hide window after opening URL
+                    window.api.send('hide-window');
                 }
             }
             break;
@@ -269,6 +271,8 @@ function createResultElement(result) {
         try {
             if (window.api) {
                 window.api.send('open-url', result.url);
+                // Hide window after opening URL
+                window.api.send('hide-window');
             } else {
                 console.error('Cannot open URL: window.api is not available');
             }

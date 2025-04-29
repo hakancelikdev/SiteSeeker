@@ -93,6 +93,18 @@ class MainWindow {
 
           window.setPosition(newX, newY);
           log.info(`Window shown and centered for display ${displayId} at:`, { x: newX, y: newY });
+
+          // Add ESC key listener when window is shown
+          window.webContents.on('before-input-event', (event, input) => {
+            if (input.key === 'Escape') {
+              window.hide();
+            }
+          });
+
+          // Add blur listener to hide window when clicking outside
+          window.on('blur', () => {
+            window.hide();
+          });
         } catch (error) {
           log.error(`Error centering window for display ${displayId}:`, error);
         }

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2024-04-28
+
+### Changed
+- Migrated from better-sqlite3 to sqlite3 for better compatibility
+- Improved Firefox history and bookmark import with better SQL queries
+- Enhanced window management with automatic hiding on blur and ESC key
+- Updated database queries to use proper async/await patterns
+- Improved error handling in browser history providers
+
+### Fixed
+- Fixed Firefox history import to properly join with visit dates
+- Fixed window hiding behavior when clicking outside or pressing ESC
+- Fixed initial score calculation for history items
+- Fixed database connection handling in browser providers
+
+### Added
+- Added automatic window hiding after opening URLs
+- Added ESC key shortcut to hide window
+- Added blur event handler to hide window when clicking outside
+
 ## [1.0.6] - 2024-04-27
 
 ### Changed
