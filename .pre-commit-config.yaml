@@ -14,7 +14,18 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [commit-msg]
-        args: [] # optional: list of Conventional Commits types to allow
+        args:
+          - feat     # Yeni özellikler
+          - fix      # Hata düzeltmeleri
+          - docs     # Dokümantasyon değişiklikleri
+          - style    # Kod stili değişiklikleri (formatting, semicolons vs)
+          - refactor # Kod refactoring
+          - perf     # Performans iyileştirmeleri
+          - test     # Test ekleme veya düzenleme
+          - build    # Build sistemi veya dış bağımlılık değişiklikleri
+          - ci       # CI konfigürasyon değişiklikleri
+          - chore    # Diğer değişiklikler
+          - revert   # Önceki bir commit'i geri alma
 
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.56.0
