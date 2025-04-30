@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.7] - 2024-04-28
+## [Unreleased]
+
+### Fixed
+- Fixed bookmark import timing and sequence issues
+- Fixed Firefox history import to properly join with visit dates
+- Fixed window hiding behavior when clicking outside or pressing ESC
+- Fixed initial score calculation for history items
+- Fixed database connection handling in browser providers
 
 ### Changed
 - Migrated from better-sqlite3 to sqlite3 for better compatibility
@@ -13,12 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced window management with automatic hiding on blur and ESC key
 - Updated database queries to use proper async/await patterns
 - Improved error handling in browser history providers
-
-### Fixed
-- Fixed Firefox history import to properly join with visit dates
-- Fixed window hiding behavior when clicking outside or pressing ESC
-- Fixed initial score calculation for history items
-- Fixed database connection handling in browser providers
 
 ### Added
 - Added automatic window hiding after opening URLs
@@ -33,8 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enhanced logging throughout the application
 - Simplified main.js by moving functionality to dedicated classes
 - Improved code organization and separation of concerns
-- Enhanced error handling in catch blocks with proper error logging
-- Improved IPC event handlers with proper event parameter usage
 
 ### Fixed
 - Fixed IPC communication between main and renderer processes
@@ -62,12 +61,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved error handling for import operations
 
 ## [1.0.4] - 2024-04-26
+
 ### Fixed
 - Fixed history import limit that was causing only 1000 items to be imported from each browser
 - Fixed Chrome history date conversion error by using native JavaScript Date functions
 
 ### Changed
-- Improved date formatting to show more human-readable relative times (e.g., "2 minutes ago", "1 hour ago", "Yesterday")
+- Improved date formatting to show more human-readable relative times
 
 ## [1.0.3] - 2024-04-21
 
@@ -79,7 +79,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added IPC handlers for better main/renderer process communication
 - Implemented new window management system
 - Added new CSS styles for improved UI
-- Added keyboard navigation support for search results (arrow keys and enter)
+- Added keyboard navigation support for search results
 - Added favicon support for search results
 - Added search icon to the search input
 - Added automatic focus on window visibility
@@ -98,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed window positioning and centering on multiple displays
 
 ### Changed
-- Translated all log messages and comments from Turkish to English in main.js
+- Translated all log messages and comments from Turkish to English
 - Improved code readability with consistent English documentation
 - Standardized logging format across the application
 - Updated search results UI with better visual hierarchy
@@ -129,8 +129,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.1] - 2025-04-17
 
 ### Fixed
-- ARM64 (M1) build compatibility issues by updating Node.js version to 20
-- Native module compilation for better-sqlite3 on ARM64 architecture
+- Fixed ARM64 (M1) build compatibility issues by updating Node.js version to 20
+- Fixed native module compilation for better-sqlite3 on ARM64 architecture
 
 ## [1.0.0] - 2025-04-16
 
@@ -167,26 +167,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed periodic updates in favor of event-based updates
 
 ### Fixed
-- Window resize event handling
-- Auto-updater configuration and error handling
-- Score display
-- Linter errors
-- Electron-store initialization and error handling
-- Native messaging host path for development
-- Search results display and window sizing logic
-
-### Chore
-- Updated package dependencies
-- Reset version to 1.0.0
-- Added electron-builder update configurations
-- Added electron-updater, electron-log and electron-store dependencies
-- Added comprehensive technical documentation
-- Updated README with new features and installation instructions
-- Added gitignore file
-- Removed auto fill
-- Removed manifest.json
-- Added separate manifest files for Chrome and Firefox
+- Fixed window resize event handling
+- Fixed auto-updater configuration and error handling
+- Fixed score display
+- Fixed linter errors
+- Fixed Electron-store initialization and error handling
+- Fixed native messaging host path for development
+- Fixed search results display and window sizing logic
 
 ### Security
-- macOS entitlements for secure access to browser data
+- Added macOS entitlements for secure access to browser data
 - Improved error handling and validation

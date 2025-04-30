@@ -50,6 +50,9 @@ class ApplicationService {
       if (this.permissionService.checkPermissions()) {
         // Start history import
         await this.startHistoryImport();
+        // Start bookmark import
+        await this.startBookmarkImport();
+
       }
     } catch (error) {
       log.error('Failed to initialize application services:', error);
