@@ -23,8 +23,11 @@ jobs:
 
     - name: Install Python dependencies
       run: |
-        brew install python@3.11 pipx
-        pipx install setuptools
+        brew install python@3.11
+        python3 -m venv .venv
+        source .venv/bin/activate
+        python3 -m pip install --upgrade pip
+        python3 -m pip install setuptools
 
     - name: Install dependencies
       run: npm ci
