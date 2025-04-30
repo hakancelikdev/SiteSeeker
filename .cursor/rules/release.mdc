@@ -23,7 +23,7 @@ This rule defines the standardized process for creating and publishing new relea
 npm test
 
 # Run linting
-npm run lint
+pre-commit run --all-files
 
 # Verify branch
 git status
