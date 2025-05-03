@@ -71,7 +71,10 @@ class HistoryService {
         try {
             if (!searchTerm || typeof searchTerm !== 'string') {
                 log.error('Invalid search term:', searchTerm);
-                throw new HistoryServiceError('Invalid search term provided', 'INVALID_SEARCH_TERM');
+                throw new HistoryServiceError(
+                    'Invalid search term provided',
+                    'INVALID_SEARCH_TERM'
+                );
             }
 
             log.info(`Searching history for term: "${searchTerm}"`);
@@ -79,22 +82,49 @@ class HistoryService {
             const history = await this.historyRepository.getAll();
             log.info(`Retrieved ${history.length} total history items`);
 
-            const searchTermLower = searchTerm.toLowerCase();
+            // Check if searching only bookmarks
+            const isBookmarkSearch = searchTerm.startsWith('b:');
+            const searchTermLower = isBookmarkSearch
+                ? searchTerm.slice(2).toLowerCase().trim()
+                : searchTerm.toLowerCase();
+
             log.info('Normalized search term:', searchTermLower);
+
+            // Split search term into words for partial matching
+            const searchWords = searchTermLower.split(/\s+/).filter(word => word.length > 0);
 
             const filteredResults = history.filter(item => {
                 if (!item.title || !item.url) {
                     log.debug('Skipping invalid history item:', item);
                     return false;
                 }
-                const matchesTitle = item.title.toLowerCase().includes(searchTermLower);
-                const matchesUrl = item.url.toLowerCase().includes(searchTermLower);
-                return matchesTitle || matchesUrl;
+
+                // Filter by bookmark status if needed
+                if (isBookmarkSearch && !item.isBookmark) {
+                    return false;
+                }
+
+                const titleLower = item.title.toLowerCase();
+                const urlLower = item.url.toLowerCase();
+
+                // Check if all search words are found in either title or URL
+                return searchWords.every(word =>
+                    titleLower.includes(word) || urlLower.includes(word)
+                );
             });
 
             log.info(`Found ${filteredResults.length} matching items before sorting`);
 
-            const sortedResults = filteredResults.sort((a, b) => b.score - a.score);
+            // Sort by score and last visit time
+            const sortedResults = filteredResults.sort((a, b) => {
+                // Primary sort by score
+                const scoreDiff = b.score - a.score;
+                if (scoreDiff !== 0) return scoreDiff;
+
+                // Secondary sort by last visit time
+                return b.lastVisitTime - a.lastVisitTime;
+            });
+
             const finalResults = sortedResults.slice(0, 50);
 
             log.info(`Returning ${finalResults.length} results`);
