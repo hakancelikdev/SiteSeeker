@@ -18,6 +18,20 @@
 <body>
     <div class="modal-overlay" id="modalOverlay" aria-hidden="true"></div>
     <div class="app-container">
+        <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
+            <div class="loading-spinner"></div>
+            <span class="loading-text">Loading...</span>
+        </div>
+        <div class="error-overlay" id="errorOverlay" aria-hidden="true">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="error-content">
+                <h3 class="error-title">Something went wrong</h3>
+                <p class="error-message" id="errorMessage"></p>
+                <button class="error-retry" id="errorRetry">Try Again</button>
+            </div>
+        </div>
         <header class="toolbar" role="toolbar">
             <button data-action="import" title="Import Browser History and Bookmarks" aria-label="Import browser history and bookmarks">
                 <i class="fas fa-download" aria-hidden="true"></i>
@@ -55,6 +69,13 @@
                     role="searchbox"
                 >
                 <div id="results-container" role="list"></div>
+                <div class="empty-state" id="emptyState" aria-hidden="true">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="empty-title">No Results Found</h3>
+                    <p class="empty-message">Try different keywords or check your spelling</p>
+                </div>
             </div>
         </main>
 

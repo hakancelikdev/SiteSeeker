@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 2025-04-30
 
 ### Fixed
+- Fixed loading overlay not closing after import and reset operations
 - Fixed bookmark import timing and sequence issues
 - Fixed Firefox history import to properly join with visit dates
 - Fixed window hiding behavior when clicking outside or pressing ESC
