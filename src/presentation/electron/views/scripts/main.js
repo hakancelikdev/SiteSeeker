@@ -18,6 +18,11 @@ const urlCounter = document.getElementById('urlCounter');
 const notification = document.getElementById('notification');
 const importButton = document.querySelector('button[data-action="import"]');
 const resetButton = document.querySelector('button[data-action="reset"]');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const errorOverlay = document.getElementById('errorOverlay');
+const errorMessage = document.getElementById('errorMessage');
+const errorRetry = document.getElementById('errorRetry');
+const emptyState = document.getElementById('emptyState');
 const INITIAL_SCORE = 1;
 
 // Log DOM elements for debugging
@@ -27,7 +32,12 @@ console.log('DOM Elements:', {
     urlCounter: !!urlCounter,
     notification: !!notification,
     importButton: !!importButton,
-    resetButton: !!resetButton
+    resetButton: !!resetButton,
+    loadingOverlay: !!loadingOverlay,
+    errorOverlay: !!errorOverlay,
+    errorMessage: !!errorMessage,
+    errorRetry: !!errorRetry,
+    emptyState: !!emptyState
 });
 
 // State
@@ -79,6 +89,7 @@ if (window.api) {
     window.api.receive('bookmark-import-complete', (count) => {
         console.log('Received bookmark-import-complete event with count:', count);
         bookmarkCount = count;
+        hideLoading();
         showNotification(`Successfully imported ${historyCount} history items and ${bookmarkCount} bookmarks`, 'success');
     });
 
@@ -90,11 +101,13 @@ if (window.api) {
 
     window.api.receive('error', (message) => {
         console.error('Received error:', message);
+        hideLoading();
         showNotification(message, 'error');
     });
 
     window.api.receive('importHistoryResponse', (response) => {
         console.log('Received import response:', response);
+        hideLoading();
         if (!response.success) {
             showNotification(`Import failed: ${response.error}`, 'error');
         }
@@ -102,6 +115,7 @@ if (window.api) {
 
     window.api.receive('resetHistoryResponse', (response) => {
         console.log('Received reset response:', response);
+        hideLoading();
         if (response.success) {
             updateUrlCounter(0);
             clearResults();
@@ -119,20 +133,26 @@ function handleSearch(event) {
         console.log('Search input changed:', currentSearchTerm);
 
         if (currentSearchTerm) {
+            showLoading('Searching...');
             if (window.api) {
                 console.log('Sending search request for term:', currentSearchTerm);
                 window.api.send('search', currentSearchTerm);
             } else {
                 console.error('Cannot search: window.api is not available');
-                showNotification('Search is not available', 'error');
+                showError('Search is not available', () => {
+                    // Retry logic if needed
+                });
             }
         } else {
             console.log('Clearing results due to empty search term');
             clearResults();
+            hideEmptyState();
         }
     } catch (error) {
         console.error('Error handling search:', error);
-        showNotification('Error performing search', 'error');
+        showError('Error performing search', () => {
+            handleSearch(event);
+        });
     }
 }
 
@@ -191,13 +211,15 @@ function renderResults() {
         console.log('Rendering search results:', searchResults);
         clearResults();
         selectedResultIndex = -1;
+        hideLoading();
 
         if (searchResults.length === 0) {
             console.log('No results found, showing empty state');
-            resultsContainer.innerHTML = '<div class="no-results">No results found</div>';
+            showEmptyState();
             return;
         }
 
+        hideEmptyState();
         console.log(`Rendering ${searchResults.length} results`);
         const fragment = document.createDocumentFragment();
 
@@ -211,7 +233,9 @@ function renderResults() {
         console.log('Results rendered successfully');
     } catch (error) {
         console.error('Error rendering results:', error);
-        showNotification('Error displaying results', 'error');
+        showError('Error displaying results', () => {
+            renderResults();
+        });
     }
 }
 
@@ -394,36 +418,73 @@ function formatDate(timestamp) {
     }
 }
 
+// State Management Functions
+function showLoading(message = 'Loading...') {
+    if (loadingOverlay) {
+        loadingOverlay.querySelector('.loading-text').textContent = message;
+        loadingOverlay.classList.add('visible');
+    }
+}
+
+function hideLoading() {
+    if (loadingOverlay) {
+        loadingOverlay.classList.remove('visible');
+    }
+}
+
+function showError(message, retryCallback = null) {
+    if (errorOverlay) {
+        errorMessage.textContent = message;
+        errorOverlay.classList.add('visible');
+
+        if (retryCallback) {
+            errorRetry.onclick = () => {
+                hideError();
+                retryCallback();
+            };
+            errorRetry.style.display = 'block';
+        } else {
+            errorRetry.style.display = 'none';
+        }
+    }
+}
+
+function hideError() {
+    if (errorOverlay) {
+        errorOverlay.classList.remove('visible');
+    }
+}
+
+function showEmptyState() {
+    if (emptyState) {
+        emptyState.classList.add('visible');
+    }
+}
+
+function hideEmptyState() {
+    if (emptyState) {
+        emptyState.classList.remove('visible');
+    }
+}
+
 // Import and Reset functions
 function importAll() {
-    try {
-        console.log('Importing history and bookmarks...');
-        showNotification('Importing history and bookmarks...', 'info');
-        if (window.api) {
-            window.api.send('importHistory');
-        } else {
-            console.error('Cannot import: window.api is not available');
-        }
-    } catch (error) {
-        console.error('Error importing:', error);
-        showNotification('Error importing', 'error');
+    showLoading('Importing browser data...');
+    if (window.api) {
+        window.api.send('importHistory');
+    } else {
+        showError('Import is not available');
     }
 }
 
 function resetHistory() {
-    try {
-        if (confirm('Are you sure you want to reset all history? This action cannot be undone.')) {
-            console.log('Resetting history...');
-            showNotification('Resetting history...', 'info');
-            if (window.api) {
-                window.api.send('resetHistory');
-            } else {
-                console.error('Cannot reset history: window.api is not available');
-            }
+    if (confirm('Are you sure you want to reset all history?')) {
+        showLoading('Resetting history...');
+        if (window.api) {
+            window.api.send('resetHistory');
+        } else {
+            showError('Reset is not available');
         }
-    } catch (error) {
-        console.error('Error resetting history:', error);
-        showNotification('Error resetting history', 'error');
     }
 }
 
