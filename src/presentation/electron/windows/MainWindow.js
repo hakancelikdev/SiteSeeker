@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { BrowserWindow, screen } = require('electron');
+const { BrowserWindow, screen, nativeTheme } = require('electron');
 const log = require('electron-log');
 
 class MainWindow {
@@ -55,14 +55,22 @@ class MainWindow {
 
     this.window.loadFile(htmlPath);
 
+    // Wait for window to load before applying theme
+    this.window.webContents.on('did-finish-load', () => {
+      log.info('Window loaded successfully');
+      // Apply system theme after window is loaded
+      this.applySystemTheme();
+    });
+
+    // Listen for theme changes
+    nativeTheme.on('updated', () => {
+      this.applySystemTheme();
+    });
+
     if (process.env.NODE_ENV === 'development') {
       log.info('Opening DevTools in development mode');
       this.window.webContents.openDevTools();
     }
-
-    this.window.webContents.on('did-finish-load', () => {
-      log.info('Window loaded successfully');
-    });
 
     this.window.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
       log.error('Failed to load window:', errorCode, errorDescription);
@@ -90,24 +98,34 @@ class MainWindow {
 
         this.window.setPosition(newX, newY);
         log.info('Window shown and centered at:', { x: newX, y: newY });
-
-        // Add ESC key listener when window is shown
-        this.window.webContents.on('before-input-event', (event, input) => {
-          if (input.key === 'Escape') {
-            this.window.hide();
-          }
-        });
-
-        // Add blur listener to hide window when clicking outside
-        this.window.on('blur', () => {
-          this.window.hide();
-        });
       } catch (error) {
         log.error('Error centering window:', error);
       }
     });
 
+    // Listener'ları sadece bir kez ekle
+    this.window.webContents.removeAllListeners('before-input-event');
+    this.window.webContents.on('before-input-event', (event, input) => {
+      if (input.key === 'Escape') {
+        this.window.hide();
+      }
+    });
+    this.window.removeAllListeners('blur');
+    this.window.on('blur', () => {
+      this.window.hide();
+    });
+
     return this.window;
+  }
+
+  applySystemTheme() {
+    if (!this.window) return;
+
+    const isDarkMode = nativeTheme.shouldUseDarkColors;
+    log.info(`Applying system theme: ${isDarkMode ? 'dark' : 'light'}`);
+
+    // Send theme change to renderer
+    this.window.webContents.send('theme-changed', { isDarkMode });
   }
 
   toggle() {

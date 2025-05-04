@@ -11,9 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added partial word search support
 - Added bookmark search with 'b:' prefix
 - Added combined score and visit time sorting
+- Light/dark mode UI consistency for search bar, shortcut box, notification, and search icon
+- Border to shortcut box in light mode
+- User-friendly English placeholder for search input
 
 ### Fixed
 - Fixed loading overlay not closing after import and reset operations
+- Search icon visibility in all themes
+- MaxListenersExceededWarning in MainWindow (event listeners are now only added once)
+
+### Removed
+- Remove fromTime parameter and simplify bookmark import
 
 ## [1.1.0] - 2025-04-30
 

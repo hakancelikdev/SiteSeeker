@@ -45,6 +45,25 @@ let searchResults = [];
 let currentSearchTerm = '';
 let selectedResultIndex = -1;
 
+// Theme Management
+let currentTheme = null; // No default theme, will be set by system
+
+function applyTheme(isDarkMode) {
+    currentTheme = isDarkMode ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+}
+
+// Initialize theme based on system settings
+if (window.matchMedia) {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+    applyTheme(prefersDark.matches);
+
+    // Listen for system theme changes
+    prefersDark.addEventListener('change', (e) => {
+        applyTheme(e.matches);
+    });
+}
+
 // Event Listeners
 if (searchInput) {
     searchInput.addEventListener('input', debounce(handleSearch, 300));
@@ -123,6 +142,11 @@ if (window.api) {
         } else {
             showNotification(`Reset failed: ${response.error}`, 'error');
         }
+    });
+
+    // Listen for theme changes from main process
+    window.api.receive('theme-changed', (data) => {
+        applyTheme(data.isDarkMode);
     });
 }
 
