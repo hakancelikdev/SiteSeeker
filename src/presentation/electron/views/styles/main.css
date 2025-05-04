@@ -89,7 +89,16 @@ body {
     background-color: var(--primary-bg);
     border-radius: var(--border-radius);
     backdrop-filter: blur(30px) saturate(180%);
+    -webkit-app-region: drag;
 }
+
+/* Sürüklenebilir alan dışındaki elementler için */
+.search-wrapper,
+#results-container,
+.toolbar button {
+    -webkit-app-region: no-drag;
+}
+
 
 .toolbar {
     position: absolute;

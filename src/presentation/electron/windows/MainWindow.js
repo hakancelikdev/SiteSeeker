@@ -3,13 +3,36 @@ const path = require('path');
 const { BrowserWindow, screen, nativeTheme } = require('electron');
 const log = require('electron-log');
 
+const WindowPositionRepository = require('../../../infrastructure/persistence/WindowPositionRepository');
+
 class MainWindow {
   constructor() {
     this.window = null;
     this.isQuitting = false;
+    this.windowPositionRepository = new WindowPositionRepository();
   }
 
-  create() {
+  async saveWindowPosition(x, y) {
+    try {
+      await this.windowPositionRepository.savePosition(x, y);
+      log.info('Window position saved successfully:', { x, y });
+    } catch (error) {
+      log.error('Error saving window position:', error);
+    }
+  }
+
+  async loadWindowPosition() {
+    try {
+      const position = await this.windowPositionRepository.getLatestPosition();
+      log.info('Loading window position:', position);
+      return position;
+    } catch (error) {
+      log.error('Error loading window position:', error);
+      return null;
+    }
+  }
+
+  async create() {
     if (this.window) {
       return this.window;
     }
@@ -23,9 +46,37 @@ class MainWindow {
     const windowWidth = 700;
     const windowHeight = 500;
 
-    // Calculate initial position for the display
-    const x = Math.floor((screenWidth - windowWidth) / 2);
-    const y = Math.floor((screenHeight - windowHeight) / 2);
+    // Kaydedilmiş pozisyonu yükle
+    const savedPosition = await this.loadWindowPosition();
+    let x, y;
+
+    if (savedPosition && typeof savedPosition.x === 'number' && typeof savedPosition.y === 'number') {
+      // Ekran sınırlarını kontrol et
+      const isOutOfBounds =
+        savedPosition.x + windowWidth < 0 || // Pencere tamamen ekranın solunda
+        savedPosition.x > screenWidth || // Pencere tamamen ekranın sağında
+        savedPosition.y + windowHeight < 0 || // Pencere tamamen ekranın üstünde
+        savedPosition.y > screenHeight; // Pencere tamamen ekranın altında
+
+      if (isOutOfBounds) {
+        // Pencere ekranın dışındaysa sol tarafa yerleştir
+        x = 20; // Sol taraftan 20px boşluk
+        y = Math.min(
+          Math.max(20, savedPosition.y), // Üstten en az 20px boşluk
+          screenHeight - windowHeight - 20 // Alttan en az 20px boşluk
+        );
+      } else {
+        // Pencere ekranın içindeyse kaydedilen pozisyonda göster
+        x = savedPosition.x;
+        y = savedPosition.y;
+      }
+    } else {
+      // Eğer kaydedilmiş pozisyon yoksa veya geçersizse, sol tarafta göster
+      x = 20; // Sol taraftan 20px boşluk
+      y = Math.floor((screenHeight - windowHeight) / 2); // Dikey olarak ortala
+    }
+
+    log.info('Creating window with position:', { x, y });
 
     this.window = new BrowserWindow({
       width: windowWidth,
@@ -45,6 +96,30 @@ class MainWindow {
       }
     });
 
+    // Pencere sürükleme işlemleri için
+    this.window.setMovable(true);
+    this.window.setMinimizable(false);
+    this.window.setMaximizable(false);
+
+    // Pencere pozisyonunu kaydetmek için
+    let saveTimeout;
+    this.window.on('moved', () => {
+      // Debounce the save operation to prevent multiple saves
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const [x, y] = this.window.getPosition();
+        log.info('Window moved event triggered:', { x, y });
+        this.saveWindowPosition(x, y);
+      }, 100);
+    });
+
+    // Pencere gizlendiğinde pozisyonu kaydet
+    this.window.on('hide', () => {
+      const [x, y] = this.window.getPosition();
+      log.info('Window hide event triggered:', { x, y });
+      this.saveWindowPosition(x, y);
+    });
+
     this.window.setVisibleOnAllWorkspaces(true);
     this.window.setAlwaysOnTop(true, 'floating');
     this.window.setSkipTaskbar(true);
@@ -53,13 +128,18 @@ class MainWindow {
     const htmlPath = path.join(__dirname, '../views/index.html');
     log.info('Loading HTML file:', htmlPath);
 
-    this.window.loadFile(htmlPath);
+    await this.window.loadFile(htmlPath);
 
     // Wait for window to load before applying theme
     this.window.webContents.on('did-finish-load', () => {
       log.info('Window loaded successfully');
-      // Apply system theme after window is loaded
       this.applySystemTheme();
+    });
+
+    // Remove the auto-center on show event
+    this.window.removeAllListeners('show');
+    this.window.on('show', () => {
+      log.info('Window shown successfully');
     });
 
     // Listen for theme changes
@@ -86,21 +166,6 @@ class MainWindow {
     this.window.on('closed', () => {
       log.info('Window closed');
       this.window = null;
-    });
-
-    // Center window on show
-    this.window.on('show', () => {
-      try {
-        const [currentWidth, currentHeight] = this.window.getSize();
-        const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
-        const newX = Math.floor((screenWidth - currentWidth) / 2);
-        const newY = Math.floor((screenHeight - currentHeight) / 2);
-
-        this.window.setPosition(newX, newY);
-        log.info('Window shown and centered at:', { x: newX, y: newY });
-      } catch (error) {
-        log.error('Error centering window:', error);
-      }
     });
 
     // Listener'ları sadece bir kez ekle
@@ -136,17 +201,31 @@ class MainWindow {
     }
   }
 
-  show() {
+  async show() {
     if (!this.window) {
-      this.create();
+      await this.create();
     }
-    this.window.show();
-    this.window.focus();
+
+    try {
+      // Pencereyi göster ve odakla
+      this.window.show();
+      this.window.focus();
+      log.info('Window shown successfully');
+    } catch (error) {
+      log.error('Error showing window:', error);
+      this.window.show();
+      this.window.focus();
+    }
   }
 
   hide() {
     if (this.window) {
+      // Pencere gizlenmeden önce pozisyonu kaydet
+      const [x, y] = this.window.getPosition();
+      log.info('Window hiding, saving position:', { x, y });
+      this.saveWindowPosition(x, y);
       this.window.hide();
+      log.info('Window hidden successfully');
     }
   }
 
@@ -164,6 +243,16 @@ class MainWindow {
     this.isQuitting = isQuitting;
     if (isQuitting && this.window) {
       this.window.close();
+    }
+  }
+
+  destroy() {
+    if (this.window) {
+      this.window.destroy();
+      this.window = null;
+    }
+    if (this.windowPositionRepository) {
+      this.windowPositionRepository.close();
     }
   }
 }
