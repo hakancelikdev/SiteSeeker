@@ -30,7 +30,7 @@ class FirefoxBookmarkProvider {
         }
     }
 
-    async importBookmarks(uniqueUrls = new Set(), fromTime = 0) {
+    async importBookmarks(uniqueUrls = new Set()) {
         const allBookmarks = [];
         const profiles = await this.getProfiles();
 
@@ -67,26 +67,17 @@ class FirefoxBookmarkProvider {
                     continue;
                 }
 
-                const query = fromTime === 0
-                    ? `SELECT moz_bookmarks.title, moz_places.url, moz_bookmarks.dateAdded
-                       FROM moz_bookmarks
-                       JOIN moz_places ON moz_bookmarks.fk = moz_places.id
-                       WHERE moz_bookmarks.type = 1
-                       AND moz_bookmarks.title IS NOT NULL
-                       AND moz_bookmarks.title != ''
-                       ORDER BY moz_bookmarks.dateAdded DESC`
-                    : `SELECT moz_bookmarks.title, moz_places.url, moz_bookmarks.dateAdded
-                       FROM moz_bookmarks
-                       JOIN moz_places ON moz_bookmarks.fk = moz_places.id
-                       WHERE moz_bookmarks.type = 1
-                       AND moz_bookmarks.title IS NOT NULL
-                       AND moz_bookmarks.title != ''
-                       AND moz_bookmarks.dateAdded/1000000 > ?
-                       ORDER BY moz_bookmarks.dateAdded DESC`;
+                const query = `SELECT moz_bookmarks.title, moz_places.url, moz_bookmarks.dateAdded
+                             FROM moz_bookmarks
+                             JOIN moz_places ON moz_bookmarks.fk = moz_places.id
+                             WHERE moz_bookmarks.type = 1
+                             AND moz_bookmarks.title IS NOT NULL
+                             AND moz_bookmarks.title != ''
+                             ORDER BY moz_bookmarks.dateAdded DESC`;
 
                 try {
                     await new Promise((resolve, reject) => {
-                        db.all(query, fromTime === 0 ? [] : [Math.floor(fromTime / 1000)], (error, rows) => {
+                        db.all(query, [], (error, rows) => {
                             if (error) {
                                 reject(error);
                                 return;

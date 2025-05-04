@@ -66,16 +66,12 @@ class BookmarkService {
         }
     }
 
-    async importRecentBookmarks(fromTime) {
+    async importRecentBookmarks() {
         try {
-            if (!fromTime || typeof fromTime !== 'number') {
-                throw new Error('Invalid fromTime parameter');
-            }
-
-            log.info(`Importing recent bookmarks from ${new Date(fromTime).toISOString()}`);
+            log.info('Importing all bookmarks...');
             return await this.importFromBrowser();
         } catch (error) {
-            log.error('Error importing recent bookmarks:', error);
+            log.error('Error importing bookmarks:', error);
             throw error;
         }
     }

@@ -52,7 +52,6 @@ class ApplicationService {
         await this.startHistoryImport();
         // Start bookmark import
         await this.startBookmarkImport();
-
       }
     } catch (error) {
       log.error('Failed to initialize application services:', error);
@@ -153,10 +152,9 @@ class ApplicationService {
           }
           isFirstRun = false;
         } else {
-          const twoMinutesAgo = Date.now() - (2 * 60 * 1000);
-          const result = await this.bookmarkService.importRecentBookmarks(twoMinutesAgo);
+          const result = await this.bookmarkService.importRecentBookmarks();
           if (result > 0) {
-            log.info(`Incremental bookmark import successful. New records: ${result}`);
+            log.info(`Bookmark import successful. Total records: ${result}`);
           }
         }
       } catch (error) {

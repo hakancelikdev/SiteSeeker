@@ -123,6 +123,7 @@ class MainWindow {
       this.create();
     }
     this.window.show();
+    this.window.focus();
   }
 
   hide() {
@@ -131,9 +132,13 @@ class MainWindow {
     }
   }
 
+  get webContents() {
+    return this.window ? this.window.webContents : null;
+  }
+
   send(channel, ...args) {
-    if (this.window) {
-      this.window.webContents.send(channel, ...args);
+    if (this.window && this.webContents) {
+      this.webContents.send(channel, ...args);
     }
   }
 
