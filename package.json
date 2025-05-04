@@ -1,6 +1,6 @@
 {
   "name": "siteseeker",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A native macOS application for searching through browser history and bookmarks",
   "main": "main.js",
   "scripts": {
