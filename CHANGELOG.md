@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Light/dark mode UI consistency for search bar, shortcut box, notification, and search icon
 - Border to shortcut box in light mode
 - User-friendly English placeholder for search input
+- Added window drag functionality with position persistence
+- Added window position repository for saving window positions
+
+### Changed
+- Improved window management with better positioning and state handling
 
 ### Fixed
 - Fixed loading overlay not closing after import and reset operations
