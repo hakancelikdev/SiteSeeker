@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2024-05-05
+
+### Fixed
+- Fixed window hide functionality by removing incorrect parameter from hide() method
+
 ## [1.2.0] - 2024-05-04
 
 ### Added
