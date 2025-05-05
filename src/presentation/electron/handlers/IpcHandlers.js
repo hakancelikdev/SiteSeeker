@@ -88,7 +88,7 @@ class IpcHandlers {
 
     // Handle hide-window request
     ipcMain.on('hide-window', () => {
-      this.mainWindow.hide(this.mainWindow.getCurrentDisplay());
+      this.mainWindow.hide();
     });
   }
 }
