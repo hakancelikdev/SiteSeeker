@@ -39,12 +39,6 @@ class HistoryRepository {
             const history = this.store.get('savedHistory', []);
             log.info(`Retrieved ${history.length} history items from store`);
 
-            if (history.length > 0) {
-                log.debug('Sample history item:', history[0]);
-            } else {
-                log.warn('History is empty');
-            }
-
             // Validate history items
             const validHistory = history.filter(item => {
                 const isValid = item && typeof item === 'object' && item.url && item.title;

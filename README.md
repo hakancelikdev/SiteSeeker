@@ -86,16 +86,25 @@ npm run build:arm64  # Apple Silicon
 npm run build:x64    # Intel Macs
 ```
 
-### Project Structure
-
+#### Project Structure
 ```
 SiteSeeker/
 ├── src/                    # Source code
-├── build/                  # Build configurations
-├── assets/                 # Resources
-├── dist/                   # Build output
-└── __tests__/             # Test files
+│   ├── application/        # Application services and use cases
+│   ├── domain/            # Domain models and business logic
+│   ├── infrastructure/    # External services and implementations
+│   └── presentation/      # UI components and views
+├── public/                # Static assets
+├── build/                 # Build configurations
+├── coverage/              # Test coverage reports
+├── .github/              # GitHub workflows and templates
+├── __tests__/            # Test files
+├── .babelrc              # Babel configuration
+├── .eslintrc.cjs         # ESLint configuration
+├── package.json          # Project configuration
+└── main.js               # Application entry point
 ```
+
 
 ## 🌟 Advanced Features
 
@@ -120,7 +129,7 @@ SiteSeeker/
 ## 🤝 Community & Support
 
 - [GitHub Issues](https://github.com/hakancelikdev/SiteSeeker/issues)
-- [Twitter Updates](https://twitter.com/hakancelikdev)
+- [Twitter Updates](https://x.com/hakancelikdev)
 - [GitHub Discussions](https://github.com/hakancelikdev/SiteSeeker/discussions)
 
 ## 📝 License
@@ -129,7 +138,7 @@ SiteSeeker/
 
 ## 👨‍💻 Developer
 
-Hakan Çelik ([@hakancelikdev](https://twitter.com/hakancelikdev))
+Hakan Çelik ([@hakancelikdev](https://x.com/hakancelikdev))
 
 ---
 

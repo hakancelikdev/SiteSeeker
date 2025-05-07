@@ -1,5 +1,6 @@
 const { ipcMain } = require('electron');
 const log = require('electron-log');
+const { shell } = require('electron');
 
 class IpcHandlers {
   constructor(historyService, bookmarkService, mainWindow) {
@@ -35,7 +36,7 @@ class IpcHandlers {
 
     // Handle URL opening
     ipcMain.on('open-url', (event, url) => {
-      require('electron').shell.openExternal(url);
+      shell.openExternal(url);
     });
 
     // Handle search history (legacy support)

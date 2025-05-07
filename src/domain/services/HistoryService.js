@@ -128,7 +128,6 @@ class HistoryService {
             const finalResults = sortedResults.slice(0, 50);
 
             log.info(`Returning ${finalResults.length} results`);
-            log.debug('Search results:', finalResults);
 
             return finalResults;
         } catch (error) {

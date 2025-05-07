@@ -44,9 +44,29 @@ console.log('DOM Elements:', {
 let searchResults = [];
 let currentSearchTerm = '';
 let selectedResultIndex = -1;
+let isCommandKeyPressed = false; // Track Command key state
 
 // Theme Management
 let currentTheme = null; // No default theme, will be set by system
+
+// Track Command key state
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Meta') {
+        isCommandKeyPressed = true;
+        if (window.api) {
+            window.api.send('command-key-state', true);
+        }
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    if (event.key === 'Meta') {
+        isCommandKeyPressed = false;
+        if (window.api) {
+            window.api.send('command-key-state', false);
+        }
+    }
+});
 
 function applyTheme(isDarkMode) {
     currentTheme = isDarkMode ? 'dark' : 'light';
@@ -210,8 +230,10 @@ function handleKeyboardNavigation(event) {
                 const selectedResult = searchResults[selectedResultIndex];
                 if (window.api) {
                     window.api.send('open-url', selectedResult.url);
-                    // Hide window after opening URL
-                    window.api.send('hide-window');
+                    // Only hide window if Command key is not pressed
+                    if (!event.metaKey) {
+                        window.api.send('hide-window');
+                    }
                 }
             }
             break;
@@ -315,20 +337,24 @@ function createResultElement(result) {
         div.appendChild(starIcon);
     }
 
-    div.addEventListener('click', () => {
+    // Add click handler directly to the div element
+    div.onclick = (event) => {
         try {
             if (window.api) {
                 window.api.send('open-url', result.url);
-                // Hide window after opening URL
-                window.api.send('hide-window');
+
+                // Only hide window if Command key is not pressed
+                if (!event.metaKey) {
+                    console.log('Command key not pressed, hiding window');
+                    window.api.send('hide-window');
+                }
             } else {
                 console.error('Cannot open URL: window.api is not available');
             }
         } catch (error) {
-            console.error('Error opening URL:', error);
             showNotification('Error opening URL', 'error');
         }
-    });
+    };
 
     return div;
 }

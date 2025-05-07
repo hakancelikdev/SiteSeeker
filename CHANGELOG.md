@@ -4,6 +4,12 @@ Track the evolution of your favorite browser history search tool. This changelog
 
 ## [Unreleased]
 
+## [1.2.2] - 2024-05-06
+
+### ✨ New Features
+- **Command Key Support**: Hold Command (⌘) while clicking links to keep window open
+
+
 ## [1.2.1] - 2024-05-05
 
 ### Fixed

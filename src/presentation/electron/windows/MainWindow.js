@@ -10,10 +10,16 @@ class MainWindow {
     this.window = null;
     this.isQuitting = false;
     this.windowPositionRepository = new WindowPositionRepository();
+    this.isCommandKeyPressed = false;
   }
 
   async saveWindowPosition(x, y) {
     try {
+      // If x and y are not provided, get them from window position
+      if (x === undefined || y === undefined) {
+        [x, y] = this.window.getPosition();
+      }
+
       await this.windowPositionRepository.savePosition(x, y);
       log.info('Window position saved successfully:', { x, y });
     } catch (error) {
@@ -177,7 +183,19 @@ class MainWindow {
     });
     this.window.removeAllListeners('blur');
     this.window.on('blur', () => {
-      this.window.hide();
+      // Only hide if Command key is not pressed
+      if (!this.isCommandKeyPressed) {
+        this.window.hide();
+        this.saveWindowPosition();
+      }
+    });
+
+    // Track Command key state
+    this.isCommandKeyPressed = false;
+    this.window.webContents.on('ipc-message', (event, channel, ...args) => {
+      if (channel === 'command-key-state') {
+        this.isCommandKeyPressed = args[0];
+      }
     });
 
     return this.window;

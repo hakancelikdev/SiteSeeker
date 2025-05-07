@@ -13,7 +13,8 @@ contextBridge.exposeInMainWorld(
                 'search',
                 'get-url-count',
                 'open-url',
-                'hide-window'
+                'hide-window',
+                'command-key-state'
             ];
             if (validChannels.includes(channel)) {
                 console.log('Sending IPC message:', channel, data);
