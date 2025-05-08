@@ -29,6 +29,31 @@ Your intelligent browser history and bookmark search companion for macOS. Find a
 - **Secure Access**: macOS sandbox compliance
 - **Fast Database**: Optimized SQLite integration
 
+### 📊 Analytics & Usage Data
+SiteSeeker uses Google Analytics to help us understand how users interact with the application. This helps us make better decisions about features and improvements. Here's what we collect and why:
+
+- **Basic Usage Metrics**:
+  - App launch frequency
+  - Feature usage patterns
+  - Search query patterns (anonymized)
+  - Performance metrics
+
+- **What We Don't Collect**:
+  - Personal browsing history
+  - Bookmark contents
+  - Personal information
+  - Search query contents
+  - Browser data
+
+- **Why We Use Analytics**:
+  - Improve user experience
+  - Identify popular features
+  - Fix performance issues
+  - Guide future development
+  - Understand user needs
+
+All analytics data is collected anonymously and in aggregate form. Your privacy is our top priority, and we never collect or store your personal browsing data or search history.
+
 ## 🚀 Quick Start
 
 ### Installation
