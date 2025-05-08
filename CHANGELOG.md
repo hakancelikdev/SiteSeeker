@@ -2,7 +2,11 @@
 
 Track the evolution of your favorite browser history search tool. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+
+## [1.2.3] - 2024-05-07
+
+### 🔄 Improvements
+- **Google Analytics Service**: Enhanced client ID generation with persistent storage
 
 ## [1.2.2] - 2024-05-06
 

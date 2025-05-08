@@ -82,9 +82,14 @@
     "typescript": "^5.4.3"
   },
   "dependencies": {
+    "@analytics/google-analytics": "^1.1.0",
+    "analytics": "^0.8.16",
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0",
     "electron-log": "^5.1.1",
     "electron-store": "^8.2.0",
     "electron-updater": "^6.2.1",
+    "node-fetch": "^3.3.2",
     "sqlite3": "^5.1.7"
   }
 }

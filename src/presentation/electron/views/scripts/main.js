@@ -94,6 +94,7 @@ document.addEventListener('keydown', handleKeyboardShortcuts);
 if (importButton) {
     importButton.addEventListener('click', () => {
         console.log('Import button clicked');
+        if (window.api) window.api.send('analytics-import-clicked');
         importAll();
     });
 } else {
@@ -103,6 +104,7 @@ if (importButton) {
 if (resetButton) {
     resetButton.addEventListener('click', () => {
         console.log('Reset button clicked');
+        if (window.api) window.api.send('analytics-reset-clicked');
         resetHistory();
     });
 } else {
@@ -179,6 +181,7 @@ function handleSearch(event) {
         if (currentSearchTerm) {
             showLoading('Searching...');
             if (window.api) {
+                window.api.send('analytics-search-performed', currentSearchTerm);
                 console.log('Sending search request for term:', currentSearchTerm);
                 window.api.send('search', currentSearchTerm);
             } else {
@@ -230,6 +233,7 @@ function handleKeyboardNavigation(event) {
                 const selectedResult = searchResults[selectedResultIndex];
                 if (window.api) {
                     window.api.send('open-url', selectedResult.url);
+                    window.api.send('analytics-search-result-clicked', { url: selectedResult.url, searchTerm: currentSearchTerm, command: !!event.metaKey });
                     // Only hide window if Command key is not pressed
                     if (!event.metaKey) {
                         window.api.send('hide-window');
@@ -342,7 +346,10 @@ function createResultElement(result) {
         try {
             if (window.api) {
                 window.api.send('open-url', result.url);
-
+                window.api.send('analytics-search-result-clicked', { url: result.url, searchTerm: currentSearchTerm, command: !!event.metaKey });
+                if (event.metaKey) {
+                    window.api.send('analytics-command-link-opened', result.url);
+                }
                 // Only hide window if Command key is not pressed
                 if (!event.metaKey) {
                     console.log('Command key not pressed, hiding window');

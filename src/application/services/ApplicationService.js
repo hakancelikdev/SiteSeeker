@@ -5,6 +5,7 @@ const MainWindow = require('../../presentation/electron/windows/MainWindow');
 const IpcHandlers = require('../../presentation/electron/handlers/IpcHandlers');
 const UpdateHandlers = require('../../presentation/electron/handlers/UpdateHandlers');
 const PermissionService = require('../../infrastructure/permissions/PermissionService');
+const GoogleAnalyticsService = require('../../infrastructure/analytics/GoogleAnalyticsService');
 
 class ApplicationService {
   constructor(historyService, bookmarkService) {
@@ -14,6 +15,7 @@ class ApplicationService {
     this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this.mainWindow);
     this.updateHandlers = new UpdateHandlers(this.mainWindow);
     this.permissionService = new PermissionService(this.mainWindow);
+    this.analytics = new GoogleAnalyticsService();
 
     // Bind methods to maintain context
     this.handleWindowAllClosed = this.handleWindowAllClosed.bind(this);
@@ -30,6 +32,9 @@ class ApplicationService {
       this.ipcHandlers.setup();
       this.updateHandlers.setup();
 
+      // Track app start
+      this.analytics.trackAppStart();
+
       // Register global shortcut
       this.registerGlobalShortcut();
 
@@ -41,6 +46,10 @@ class ApplicationService {
         // Unregister shortcut
         globalShortcut.unregisterAll();
         this.mainWindow.setQuitting(true);
+
+        // Track session duration
+        const sessionDuration = Date.now() - app.getStartTime();
+        this.analytics.trackSessionDuration(sessionDuration);
       });
 
       // Setup auto start
@@ -55,6 +64,7 @@ class ApplicationService {
       }
     } catch (error) {
       log.error('Failed to initialize application services:', error);
+      this.analytics.trackError('initialization_error', error.message);
       app.quit();
     }
   }
@@ -66,6 +76,7 @@ class ApplicationService {
   }
 
   handleActivate() {
+    this.analytics.trackAppVisible();
     this.mainWindow.show();
   }
 
@@ -81,6 +92,7 @@ class ApplicationService {
     const shortcut = process.platform === 'darwin' ? 'Command+Shift+Space' : 'Control+Shift+Space';
 
     const success = globalShortcut.register(shortcut, () => {
+      this.analytics.trackShortcutUsed();
       this.mainWindow.toggle();
     });
 
@@ -170,13 +182,24 @@ class ApplicationService {
   }
 
   async search(searchTerm) {
-    return await this.historyService.search(searchTerm);
+    try {
+      const results = await this.historyService.search(searchTerm);
+      return results;
+    } catch (error) {
+      this.analytics.trackError('search_error', error.message);
+      throw error;
+    }
   }
 
   async importFromBrowser() {
-    const historyCount = await this.historyService.importFromBrowser();
-    const bookmarkCount = await this.bookmarkService.importFromBrowser();
-    return { historyCount, bookmarkCount };
+    try {
+      const historyCount = await this.historyService.importFromBrowser();
+      const bookmarkCount = await this.bookmarkService.importFromBrowser();
+      return { historyCount, bookmarkCount };
+    } catch (error) {
+      this.analytics.trackError('import_error', error.message);
+      throw error;
+    }
   }
 
   async resetHistory() {

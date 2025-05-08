@@ -32,6 +32,11 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Create .env file
+      run: |
+        echo "GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID }}" > .env
+        echo "GA_API_SECRET=${{ secrets.GA_API_SECRET }}" >> .env
+
     - name: Build M1 (arm64)
       run: npm run build:arm64
       env:

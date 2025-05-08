@@ -51,3 +51,6 @@ coverage/
 
 # Husky temporary files
 .husky/_/
+
+# Environment variables
+.env
