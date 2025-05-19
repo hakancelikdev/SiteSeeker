@@ -55,7 +55,9 @@ class App {
             const contextMenu = Menu.buildFromTemplate([
                 {
                     label: 'Search History & Bookmarks',
-                    click: () => this.mainWindow.toggle()
+                    click: () => {
+                        this.mainWindow.toggle();
+                    }
                 },
                 { type: 'separator' },
                 {
@@ -85,7 +87,9 @@ class App {
                 { type: 'separator' },
                 {
                     label: 'Quit SiteSeeker',
-                    click: () => app.quit()
+                    click: () => {
+                        app.quit();
+                    }
                 }
             ]);
 
