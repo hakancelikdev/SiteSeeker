@@ -2,17 +2,33 @@
 
 Track the evolution of your favorite browser history search tool. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.4] - 2024-..-..
+## [1.2.4] - 2024-05-21
+
+### ✨ New Features
+- **Counter System**: Separate history and bookmark count display
+- **Enhanced Logging**: Detailed count updates and error tracking
+- **Bookmark Integration**: Improved bookmark count functionality
+
+### 🔄 Improvements
+- **UI Enhancements**:
+  - Refined search icon positioning
+  - Optimized light theme visibility
+  - Enhanced toolbar layout
+- **Performance**:
+  - Streamlined window management
+  - Simplified codebase
+  - Reduced dependencies
+
+### 🐛 Bug Fixes
+- Fixed search icon visibility in light mode
+- Resolved bookmark count update issues
+- Corrected counter display problems
+- Fixed event handling for bookmark updates
 
 ### 🗑️ Removed
 - Removed unused dependencies (jest, babel-jest, axios, dotenv)
 - Removed Google Analytics integration
 - Removed automatic import mechanism
-
-### 🔄 Improvements
-- Simplified codebase by removing unused features
-- Enhanced application performance by reducing dependencies
-- Streamlined window management code
 
 ## [1.2.3] - 2024-05-07
 

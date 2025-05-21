@@ -75,6 +75,19 @@ class BookmarkService {
             throw error;
         }
     }
+
+    async getBookmarkCount() {
+        try {
+            log.info('Getting bookmark count...');
+            const historyItems = await this.historyRepository.getAll();
+            const bookmarkCount = historyItems.filter(item => item.isBookmark).length;
+            log.info(`Found ${bookmarkCount} bookmarks`);
+            return bookmarkCount;
+        } catch (error) {
+            log.error('Error getting bookmark count:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = BookmarkService;

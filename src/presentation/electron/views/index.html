@@ -18,6 +18,31 @@
 <body>
     <div class="modal-overlay" id="modalOverlay" aria-hidden="true"></div>
     <div class="app-container">
+        <header class="toolbar" role="toolbar">
+            <div class="info-group">
+                <div class="url-counter">
+                    <div class="counter-item">
+                        <span class="url-counter-value" id="historyCounter">0</span>
+                        <span class="url-counter-label">History</span>
+                    </div>
+                    <div class="counter-divider"></div>
+                    <div class="counter-item">
+                        <span class="url-counter-value" id="bookmarkCounter">0</span>
+                        <span class="url-counter-label">Bookmarks</span>
+                    </div>
+                </div>
+            </div>
+            <div class="toolbar-buttons">
+                <button data-action="import" title="Import Browser History and Bookmarks" aria-label="Import browser history and bookmarks">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    Import All
+                </button>
+                <button data-action="reset" title="Reset All History" class="reset-button" aria-label="Reset all history">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                    Reset
+                </button>
+            </div>
+        </header>
         <div class="loading-overlay" id="loadingOverlay" aria-hidden="true">
             <div class="loading-spinner"></div>
             <span class="loading-text">Loading...</span>
@@ -32,38 +57,13 @@
                 <button class="error-retry" id="errorRetry">Try Again</button>
             </div>
         </div>
-        <header class="toolbar" role="toolbar">
-            <button data-action="import" title="Import Browser History and Bookmarks" aria-label="Import browser history and bookmarks">
-                <i class="fas fa-download" aria-hidden="true"></i>
-                Import All
-            </button>
-            <button data-action="reset" title="Reset All History" class="reset-button" aria-label="Reset all history">
-                <i class="fas fa-trash" aria-hidden="true"></i>
-                Reset
-            </button>
-        </header>
-
-        <div class="top-bar" role="status">
-            <div class="url-counter">
-                <span class="url-counter-value" id="urlCounter">0</span>
-                <span class="url-counter-label">URLs</span>
-            </div>
-            <div class="keyboard-shortcut" aria-label="Keyboard shortcut">
-                <span class="key">⌘</span>
-                <span>+</span>
-                <span class="key">⇧</span>
-                <span>+</span>
-                <span class="key">Space</span>
-            </div>
-        </div>
-
         <main id="search-container" role="main">
             <div class="search-wrapper">
                 <i class="fas fa-search search-icon" aria-hidden="true"></i>
                 <input
                     type="text"
                     id="search-input"
-                    placeholder="Search your URLs… (use 'b:' for only bookmarks)"
+                    placeholder="SiteSeeker - Search your URLs… (use 'b:' for only bookmarks)"
                     autofocus
                     aria-label="Search in history and bookmarks"
                     role="searchbox"
@@ -94,10 +94,3 @@
     <script src="scripts/main.js"></script>
 </body>
 </html>
-
-<style>
-  .bookmark-icon {
-    color: #ffd700;
-    margin-left: 8px;
-  }
-</style>

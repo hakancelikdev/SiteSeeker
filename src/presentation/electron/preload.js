@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld(
                 'importHistoryResponse',
                 'resetHistoryResponse',
                 'history-updated',
+                'bookmarks-updated',
                 'search-results',
                 'error',
                 'bookmark-import-complete'

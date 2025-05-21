@@ -14,7 +14,8 @@ function debounce(func, wait) {
 // DOM Elements
 const searchInput = document.getElementById('search-input');
 const resultsContainer = document.getElementById('results-container');
-const urlCounter = document.getElementById('urlCounter');
+const historyCounter = document.getElementById('historyCounter');
+const bookmarkCounter = document.getElementById('bookmarkCounter');
 const notification = document.getElementById('notification');
 const importButton = document.querySelector('button[data-action="import"]');
 const resetButton = document.querySelector('button[data-action="reset"]');
@@ -29,7 +30,8 @@ const INITIAL_SCORE = 1;
 console.log('DOM Elements:', {
     searchInput: !!searchInput,
     resultsContainer: !!resultsContainer,
-    urlCounter: !!urlCounter,
+    historyCounter: !!historyCounter,
+    bookmarkCounter: !!bookmarkCounter,
     notification: !!notification,
     importButton: !!importButton,
     resetButton: !!resetButton,
@@ -45,6 +47,8 @@ let searchResults = [];
 let currentSearchTerm = '';
 let selectedResultIndex = -1;
 let isCommandKeyPressed = false; // Track Command key state
+let historyCount = 0;
+let bookmarkCount = 0;
 
 // Theme Management
 let currentTheme = null; // No default theme, will be set by system
@@ -116,20 +120,22 @@ if (!window.api) {
 
 // IPC Event Listeners
 if (window.api) {
-    let historyCount = 0;
-    let bookmarkCount = 0;
+    console.log('Setting up IPC event listeners...');
 
     window.api.receive('history-updated', (count) => {
         console.log('Received history-updated event with count:', count);
-        historyCount = count;
-        updateUrlCounter(count);
+        console.log('Previous history count:', historyCount);
+        historyCount = parseInt(count, 10) || 0;
+        console.log('New history count:', historyCount);
+        updateCounters();
     });
 
-    window.api.receive('bookmark-import-complete', (count) => {
-        console.log('Received bookmark-import-complete event with count:', count);
-        bookmarkCount = count;
-        hideLoading();
-        showNotification(`Successfully imported ${historyCount} history items and ${bookmarkCount} bookmarks`, 'success');
+    window.api.receive('bookmarks-updated', (count) => {
+        console.log('Received bookmarks-updated event with count:', count);
+        console.log('Previous bookmark count:', bookmarkCount);
+        bookmarkCount = parseInt(count, 10) || 0;
+        console.log('New bookmark count:', bookmarkCount);
+        updateCounters();
     });
 
     window.api.receive('search-results', (results) => {
@@ -156,7 +162,9 @@ if (window.api) {
         console.log('Received reset response:', response);
         hideLoading();
         if (response.success) {
-            updateUrlCounter(0);
+            historyCount = 0;
+            bookmarkCount = 0;
+            updateCounters();
             clearResults();
             showNotification('History reset successfully', 'success');
         } else {
@@ -364,12 +372,23 @@ function clearResults() {
     }
 }
 
-function updateUrlCounter(count) {
-    console.log('Updating URL counter to:', count);
-    if (urlCounter) {
-        urlCounter.textContent = count;
+function updateCounters() {
+    console.log('Updating counters - History:', historyCount, 'Bookmarks:', bookmarkCount);
+    console.log('historyCounter element exists:', !!historyCounter);
+    console.log('bookmarkCounter element exists:', !!bookmarkCounter);
+
+    if (historyCounter) {
+        console.log('Setting history counter text to:', historyCount.toString());
+        historyCounter.textContent = historyCount.toString();
     } else {
-        console.error('URL counter element not found');
+        console.error('historyCounter element not found');
+    }
+
+    if (bookmarkCounter) {
+        console.log('Setting bookmark counter text to:', bookmarkCount.toString());
+        bookmarkCounter.textContent = bookmarkCount.toString();
+    } else {
+        console.error('bookmarkCounter element not found');
     }
 }
 
@@ -541,13 +560,18 @@ function resetHistory() {
 function initialize() {
     try {
         console.log('Initializing application...');
+        console.log('window.api available:', !!window.api);
+
         if (window.api) {
+            console.log('Requesting initial counts...');
             window.api.send('get-url-count');
+            console.log('Initial count request sent');
         } else {
             console.error('Cannot initialize: window.api is not available');
         }
     } catch (error) {
         console.error('Error initializing:', error);
+        console.error('Error stack:', error.stack);
         showNotification('Error initializing application', 'error');
     }
 }

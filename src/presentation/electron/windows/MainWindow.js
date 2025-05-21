@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { BrowserWindow, screen, nativeTheme } = require('electron');
+const { BrowserWindow, screen, nativeTheme, ipcMain } = require('electron');
 const log = require('electron-log');
 
 const WindowPositionRepository = require('../../../infrastructure/persistence/WindowPositionRepository');
@@ -140,6 +140,8 @@ class MainWindow {
     this.window.webContents.on('did-finish-load', () => {
       log.info('Window loaded successfully');
       this.applySystemTheme();
+      // Request initial counts
+      ipcMain.emit('get-url-count');
     });
 
     // Remove the auto-center on show event

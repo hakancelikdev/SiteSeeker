@@ -65,7 +65,8 @@ class IpcHandlers {
         // Then import bookmarks
         log.info('Starting bookmark import...');
         const bookmarkCount = await this.bookmarkService.importFromBrowser();
-        this.mainWindow.send('bookmark-import-complete', bookmarkCount);
+        log.info(`Bookmark import completed with count: ${bookmarkCount}`);
+        this.mainWindow.send('bookmarks-updated', bookmarkCount);
 
         log.info(`Import completed. History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
       } catch (error) {
@@ -78,10 +79,23 @@ class IpcHandlers {
     ipcMain.on('get-url-count', async (_) => {
       try {
         log.info('Get URL count request received');
-        const count = await this.historyService.getUrlCount();
-        this.mainWindow.send('history-updated', count);
+
+        log.info('Getting history count...');
+        const historyCount = await this.historyService.getUrlCount();
+        log.info(`History count retrieved: ${historyCount}`);
+
+        log.info('Getting bookmark count...');
+        const bookmarkCount = await this.bookmarkService.getBookmarkCount();
+        log.info(`Bookmark count retrieved: ${bookmarkCount}`);
+
+        log.info(`Sending counts to renderer - History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
+        this.mainWindow.send('history-updated', historyCount);
+        this.mainWindow.send('bookmarks-updated', bookmarkCount);
+
+        log.info('Counts sent to renderer successfully');
       } catch (error) {
         log.error('Error getting URL count:', error);
+        log.error('Error stack:', error.stack);
         this.mainWindow.send('error', error.message);
       }
     });
