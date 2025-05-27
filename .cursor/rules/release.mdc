@@ -33,7 +33,9 @@ git status
 ```bash
 # Update version in package.json and CHANGELOG.md
 # Commit changes
-git add package.json CHANGELOG.md
+npm install
+# check changes via git diff
+git add .
 git commit -m "chore: bump version to X.Y.Z"
 ```
 
