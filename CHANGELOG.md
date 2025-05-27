@@ -3,6 +3,20 @@
 Track the evolution of your favorite browser history search tool. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.2.7] - 2025-05-27
+
+### 🐛 Bug Fixes
+- **Fixed UI Update Events**: Standardized event names for history and bookmark updates to ensure consistent UI updates
+- **Fixed Bookmark Count Inconsistency**: Improved bookmark import mechanism to store all bookmarks in history repository, ensuring consistent bookmark counts between initial load and manual imports
+
+
+## [1.2.6] - 2025-05-27
+
+### 🐛 Bug Fixes
+- **Fixed UI Update Events**: Standardized event names for history and bookmark updates to ensure consistent UI updates
+- **Fixed Bookmark Count Inconsistency**: Improved bookmark import mechanism to store all bookmarks in history repository, ensuring consistent bookmark counts between initial load and manual imports
+
+
 ## [1.2.5] - 2025-05-27
 
 ### 🐛 Bug Fixes
