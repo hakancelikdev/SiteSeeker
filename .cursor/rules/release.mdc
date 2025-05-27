@@ -31,10 +31,9 @@ git status
 
 ### 2. Version Update
 ```bash
-# Update version in package.json and CHANGELOG.md
-# Commit changes
+- Update version in package.json and CHANGELOG.md
 npm install
-# check changes via git diff
+- check changes via git diff
 git add .
 git commit -m "chore: bump version to X.Y.Z"
 ```
