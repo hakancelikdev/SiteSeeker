@@ -3,6 +3,21 @@
 Track the evolution of your favorite browser history search tool. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.2.6] - 2025-05-28
+
+### 🔄 Improvements
+- **Import Process**: Unified import mechanism for both automatic and manual imports
+- **Data Consistency**: Enhanced history and bookmark merging logic
+- **Resource Management**: Added comprehensive cleanup procedures for all services
+- **Window Management**: Improved window state handling during application quit
+
+### 🐛 Bug Fixes
+- **Fixed URL Count Inconsistency**: Resolved discrepancy between initial and manual import counts
+- **Fixed Bookmark Preservation**: Ensured bookmark status is maintained during history updates
+- **Fixed Memory Leaks**: Added proper cleanup of resources and event listeners
+- **Fixed Window State**: Improved handling of window state during application quit
+
+
 ## [1.2.5] - 2025-05-27
 
 ### 🐛 Bug Fixes

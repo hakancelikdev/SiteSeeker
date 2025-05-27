@@ -104,6 +104,19 @@ class HistoryRepository {
             );
         }
     }
+
+    async cleanup() {
+        log.info('Cleaning up history repository...');
+        try {
+            // Store'u temizle
+            if (this.store) {
+                this.store.clear();
+            }
+            log.info('History repository cleaned up successfully');
+        } catch (error) {
+            log.error('Error cleaning up history repository:', error);
+        }
+    }
 }
 
 module.exports = HistoryRepository;

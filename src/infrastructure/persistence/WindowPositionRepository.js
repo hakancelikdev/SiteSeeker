@@ -8,6 +8,7 @@ class WindowPositionRepository {
     constructor() {
         this.dbPath = path.join(app.getPath('userData'), 'window-positions.db');
         this.db = null;
+        this.isClosed = false;
         this.initialize();
     }
 
@@ -79,8 +80,24 @@ class WindowPositionRepository {
     }
 
     close() {
-        if (this.db) {
-            this.db.close();
+        if (this.db && !this.isClosed) {
+            try {
+                // Tüm bekleyen işlemlerin tamamlanmasını bekle
+                this.db.serialize(() => {
+                    this.db.close((err) => {
+                        if (err) {
+                            log.error('Error closing database:', err);
+                        } else {
+                            this.isClosed = true;
+                            log.info('Database connection closed successfully');
+                        }
+                    });
+                });
+            } catch (error) {
+                log.error('Error during database closure:', error);
+            }
+        } else if (this.isClosed) {
+            log.debug('Database already closed, skipping close operation');
         }
     }
 }

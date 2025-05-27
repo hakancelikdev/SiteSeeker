@@ -57,6 +57,20 @@ class UpdateHandlers {
       log.error('Error checking for updates:', error);
     }
   }
+
+  cleanup() {
+    log.info('Cleaning up update handlers...');
+    try {
+      // Auto updater'ı temizle
+      if (this.autoUpdater) {
+        this.autoUpdater.removeAllListeners();
+      }
+
+      log.info('Update handlers cleaned up successfully');
+    } catch (error) {
+      log.error('Error cleaning up update handlers:', error);
+    }
+  }
 }
 
 module.exports = UpdateHandlers;

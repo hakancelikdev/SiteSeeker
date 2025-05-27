@@ -11,7 +11,7 @@ class ApplicationService {
     this.historyService = historyService;
     this.bookmarkService = bookmarkService;
     this.mainWindow = new MainWindow();
-    this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this.mainWindow);
+    this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this, this.mainWindow);
     this.updateHandlers = new UpdateHandlers(this.mainWindow);
     this.permissionService = new PermissionService(this.mainWindow);
 
@@ -40,7 +40,15 @@ class ApplicationService {
       app.on('before-quit', () => {
         // Unregister shortcut
         globalShortcut.unregisterAll();
+        app.isQuitting = true;
         this.mainWindow.setQuitting(true);
+      });
+
+      // Handle force quit
+      app.on('quit', () => {
+        log.info('Application is quitting...');
+        // Ensure all resources are cleaned up
+        this.cleanup();
       });
 
       // Setup auto start
@@ -48,10 +56,11 @@ class ApplicationService {
 
       // Check permissions before starting history import
       if (this.permissionService.checkPermissions()) {
-        // Start history import
-        await this.startHistoryImport();
-        // Start bookmark import
-        await this.startBookmarkImport();
+        // Start initial import
+        await this.importBrowserData();
+
+        // Start periodic imports
+        this.startPeriodicImports();
       }
     } catch (error) {
       log.error('Failed to initialize application services:', error);
@@ -91,30 +100,50 @@ class ApplicationService {
     }
   }
 
+  async importBrowserData() {
+    try {
+      log.info('Starting browser data import...');
+
+      // First import history
+      log.info('Starting history import...');
+      const historyCount = await this.historyService.importFromBrowser();
+      if (this.mainWindow) {
+        this.mainWindow.send('history-updated', historyCount);
+      }
+
+      // Then import bookmarks
+      log.info('Starting bookmark import...');
+      const bookmarkCount = await this.bookmarkService.importFromBrowser();
+      if (this.mainWindow) {
+        this.mainWindow.send('bookmarks-updated', bookmarkCount);
+      }
+
+      // Get final counts after all imports
+      const finalHistoryCount = await this.historyService.getUrlCount();
+      const finalBookmarkCount = await this.bookmarkService.getBookmarkCount();
+
+      log.info(`Import completed. History: ${finalHistoryCount}, Bookmarks: ${finalBookmarkCount}`);
+      return { historyCount: finalHistoryCount, bookmarkCount: finalBookmarkCount };
+    } catch (error) {
+      log.error('Error during browser data import:', error);
+      throw error;
+    }
+  }
+
   async startHistoryImport() {
     let isFirstRun = true;
 
     const importHistory = async () => {
       try {
         if (isFirstRun) {
-          log.info('Starting initial history import...');
-          const result = await this.historyService.importFromBrowser();
-          if (result > 0) {
-            log.info(`Initial history import successful. Total records: ${result}`);
-            // Update UI with imported count
-            if (this.mainWindow) {
-              this.mainWindow.send('history-updated', result);
-            }
-          } else {
-            log.error('Initial history import failed: No records imported');
-          }
+          log.info('Starting initial browser data import...');
+          await this.importBrowserData();
           isFirstRun = false;
         } else {
           const twoMinutesAgo = Date.now() - (2 * 60 * 1000);
           const result = await this.historyService.importRecentHistory(twoMinutesAgo);
           if (result > 0) {
             log.info(`Incremental import successful. New records: ${result}`);
-            // Update UI with new count
             if (this.mainWindow) {
               this.mainWindow.send('history-updated', result);
             }
@@ -138,23 +167,13 @@ class ApplicationService {
     const importBookmarks = async () => {
       try {
         if (isFirstRun) {
-          log.info('Starting initial bookmark import...');
-          const result = await this.bookmarkService.importFromBrowser();
-          if (result > 0) {
-            log.info(`Initial bookmark import successful. Total records: ${result}`);
-            // Update UI with imported count
-            if (this.mainWindow) {
-              this.mainWindow.send('bookmarks-updated', result);
-            }
-          } else {
-            log.error('Initial bookmark import failed: No records imported');
-          }
+          log.info('Starting initial browser data import...');
+          await this.importBrowserData();
           isFirstRun = false;
         } else {
           const result = await this.bookmarkService.importRecentBookmarks();
           if (result > 0) {
             log.info(`Bookmark import successful. Total records: ${result}`);
-            // Update UI with new count
             if (this.mainWindow) {
               this.mainWindow.send('bookmarks-updated', result);
             }
@@ -200,6 +219,68 @@ class ApplicationService {
 
   async getUrlCount() {
     return await this.historyService.getUrlCount();
+  }
+
+  async cleanup() {
+    log.info('Starting application cleanup...');
+    try {
+      // IPC handler'ları temizle
+      if (this.ipcHandlers) {
+        this.ipcHandlers.cleanup();
+      }
+
+      // Update handler'ları temizle
+      if (this.updateHandlers) {
+        this.updateHandlers.cleanup();
+      }
+
+      // Ana pencereyi temizle
+      if (this.mainWindow) {
+        await this.mainWindow.cleanup();
+      }
+
+      // History ve bookmark servislerini temizle
+      if (this.historyService) {
+        await this.historyService.cleanup();
+      }
+
+      if (this.bookmarkService) {
+        await this.bookmarkService.cleanup();
+      }
+
+      log.info('Application cleanup completed successfully');
+    } catch (error) {
+      log.error('Error during application cleanup:', error);
+    }
+  }
+
+  startPeriodicImports() {
+    // Schedule periodic imports every minute
+    setInterval(async () => {
+      try {
+        const twoMinutesAgo = Date.now() - (2 * 60 * 1000);
+
+        // Import recent history
+        const historyResult = await this.historyService.importRecentHistory(twoMinutesAgo);
+        if (historyResult > 0) {
+          log.info(`Incremental history import successful. New records: ${historyResult}`);
+          if (this.mainWindow) {
+            this.mainWindow.send('history-updated', historyResult);
+          }
+        }
+
+        // Import recent bookmarks
+        const bookmarkResult = await this.bookmarkService.importRecentBookmarks();
+        if (bookmarkResult > 0) {
+          log.info(`Bookmark import successful. Total records: ${bookmarkResult}`);
+          if (this.mainWindow) {
+            this.mainWindow.send('bookmarks-updated', bookmarkResult);
+          }
+        }
+      } catch (error) {
+        log.error('Periodic import error:', error);
+      }
+    }, 60000);
   }
 }
 

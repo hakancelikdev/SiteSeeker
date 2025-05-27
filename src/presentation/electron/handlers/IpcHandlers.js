@@ -3,9 +3,10 @@ const log = require('electron-log');
 const { shell } = require('electron');
 
 class IpcHandlers {
-  constructor(historyService, bookmarkService, mainWindow) {
+  constructor(historyService, bookmarkService, applicationService, mainWindow) {
     this.historyService = historyService;
     this.bookmarkService = bookmarkService;
+    this.applicationService = applicationService;
     this.mainWindow = mainWindow;
   }
 
@@ -55,19 +56,8 @@ class IpcHandlers {
     ipcMain.on('importHistory', async (_) => {
       try {
         log.info('Import request received');
-
-        // First import history
-        log.info('Starting history import...');
-        const historyCount = await this.historyService.importFromBrowser();
+        const { historyCount, bookmarkCount } = await this.applicationService.importBrowserData();
         this.mainWindow.send('importHistoryResponse', { success: true, count: historyCount });
-        this.mainWindow.send('history-updated', historyCount);
-
-        // Then import bookmarks
-        log.info('Starting bookmark import...');
-        const bookmarkCount = await this.bookmarkService.importFromBrowser();
-        log.info(`Bookmark import completed with count: ${bookmarkCount}`);
-        this.mainWindow.send('bookmarks-updated', bookmarkCount);
-
         log.info(`Import completed. History: ${historyCount}, Bookmarks: ${bookmarkCount}`);
       } catch (error) {
         log.error('Error during import:', error);
@@ -104,6 +94,23 @@ class IpcHandlers {
     ipcMain.on('hide-window', () => {
       this.mainWindow.hide();
     });
+  }
+
+  cleanup() {
+    log.info('Cleaning up IPC handlers...');
+    try {
+      // Tüm IPC event listener'larını temizle
+      ipcMain.removeAllListeners('search');
+      ipcMain.removeAllListeners('resetHistory');
+      ipcMain.removeAllListeners('open-url');
+      ipcMain.removeAllListeners('search-history');
+      ipcMain.removeAllListeners('get-url-count');
+      ipcMain.removeAllListeners('command-key-state');
+
+      log.info('IPC handlers cleaned up successfully');
+    } catch (error) {
+      log.error('Error cleaning up IPC handlers:', error);
+    }
   }
 }
 

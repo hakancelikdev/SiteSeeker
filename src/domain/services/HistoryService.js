@@ -148,6 +148,13 @@ class HistoryService {
             const permissions = await this.checkBrowserPermissions();
             log.info('Browser permissions:', permissions);
 
+            // Get existing history items first
+            const existingHistory = await this.historyRepository.getAll();
+            log.info(`Retrieved ${existingHistory.length} existing history items`);
+
+            // Create a map of existing items
+            const historyMap = new Map(existingHistory.map(item => [item.url, item]));
+
             let allHistory = [];
             this.uniqueUrls.clear();
 
@@ -159,11 +166,30 @@ class HistoryService {
             const results = await Promise.all(importPromises);
             allHistory = results.flat();
 
-            // Save imported history
-            await this.saveHistory(allHistory);
+            // Merge new history items with existing ones
+            for (const item of allHistory) {
+                const existing = historyMap.get(item.url);
+                if (existing) {
+                    // Update existing item while preserving bookmark status
+                    historyMap.set(item.url, {
+                        ...existing,
+                        ...item,
+                        isBookmark: existing.isBookmark,
+                        score: Math.max(existing.score, item.score)
+                    });
+                } else {
+                    historyMap.set(item.url, item);
+                }
+            }
 
-            log.info(`Successfully imported ${allHistory.length} history items`);
-            return allHistory.length;
+            // Convert map back to array
+            const mergedHistory = Array.from(historyMap.values());
+
+            // Save merged history
+            await this.saveHistory(mergedHistory);
+
+            log.info(`Successfully imported ${mergedHistory.length} history items`);
+            return mergedHistory.length;
         } catch (error) {
             log.error('Error importing browser histories:', error);
             throw new HistoryServiceError(
@@ -250,6 +276,23 @@ class HistoryService {
                 'RESET_FAILED',
                 error
             );
+        }
+    }
+
+    async cleanup() {
+        log.info('Cleaning up history service...');
+        try {
+            // Tüm kaynakları temizle
+            this.uniqueUrls.clear();
+
+            // Repository'yi temizle
+            if (this.historyRepository) {
+                await this.historyRepository.cleanup();
+            }
+
+            log.info('History service cleaned up successfully');
+        } catch (error) {
+            log.error('Error cleaning up history service:', error);
         }
     }
 }

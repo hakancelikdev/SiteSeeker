@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { BrowserWindow, screen, nativeTheme, ipcMain } = require('electron');
+const { BrowserWindow, screen, nativeTheme, ipcMain, app } = require('electron');
 const log = require('electron-log');
 
 const WindowPositionRepository = require('../../../infrastructure/persistence/WindowPositionRepository');
@@ -165,10 +165,14 @@ class MainWindow {
     });
 
     this.window.on('close', (event) => {
-      if (!this.isQuitting) {
-        event.preventDefault();
-        this.window.hide();
+      // Eğer sistem güncellemesi veya zorla kapatma varsa, pencereyi kapat
+      if (this.isQuitting || process.platform === 'darwin' && app.isQuitting) {
+        return;
       }
+
+      // Normal kapatma işleminde pencereyi gizle
+      event.preventDefault();
+      this.window.hide();
     });
 
     this.window.on('closed', () => {
@@ -268,11 +272,44 @@ class MainWindow {
 
   destroy() {
     if (this.window) {
+      // Tüm event listener'ları temizle
+      this.window.removeAllListeners('moved');
+      this.window.removeAllListeners('hide');
+      this.window.removeAllListeners('blur');
+      this.window.removeAllListeners('close');
+      this.window.removeAllListeners('closed');
+
+      // Pencereyi kapat
       this.window.destroy();
       this.window = null;
     }
+
+    // Veritabanı bağlantısını kapat
     if (this.windowPositionRepository) {
       this.windowPositionRepository.close();
+    }
+  }
+
+  cleanup() {
+    log.info('Cleaning up window resources...');
+    try {
+      // Tüm event listener'ları temizle
+      if (this.window) {
+        this.window.removeAllListeners();
+        this.window.webContents.removeAllListeners();
+      }
+
+      // Veritabanı bağlantısını kapat
+      if (this.windowPositionRepository) {
+        this.windowPositionRepository.close();
+      }
+
+      // Pencereyi kapat
+      this.destroy();
+
+      log.info('Window cleanup completed successfully');
+    } catch (error) {
+      log.error('Error during window cleanup:', error);
     }
   }
 }
