@@ -103,8 +103,7 @@ class ApplicationService {
             log.info(`Initial history import successful. Total records: ${result}`);
             // Update UI with imported count
             if (this.mainWindow) {
-              this.mainWindow.send('import-complete', result);
-              this.mainWindow.send('update-url-count', result);
+              this.mainWindow.send('history-updated', result);
             }
           } else {
             log.error('Initial history import failed: No records imported');
@@ -117,7 +116,7 @@ class ApplicationService {
             log.info(`Incremental import successful. New records: ${result}`);
             // Update UI with new count
             if (this.mainWindow) {
-              this.mainWindow.send('update-url-count', result);
+              this.mainWindow.send('history-updated', result);
             }
           }
         }
@@ -145,7 +144,7 @@ class ApplicationService {
             log.info(`Initial bookmark import successful. Total records: ${result}`);
             // Update UI with imported count
             if (this.mainWindow) {
-              this.mainWindow.send('bookmark-import-complete', result);
+              this.mainWindow.send('bookmarks-updated', result);
             }
           } else {
             log.error('Initial bookmark import failed: No records imported');
@@ -155,6 +154,10 @@ class ApplicationService {
           const result = await this.bookmarkService.importRecentBookmarks();
           if (result > 0) {
             log.info(`Bookmark import successful. Total records: ${result}`);
+            // Update UI with new count
+            if (this.mainWindow) {
+              this.mainWindow.send('bookmarks-updated', result);
+            }
           }
         }
       } catch (error) {

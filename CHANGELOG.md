@@ -2,7 +2,15 @@
 
 Track the evolution of your favorite browser history search tool. This changelog follows the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format and adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.4] - 2024-05-21
+
+## [1.2.5] - 2025-05-27
+
+### 🐛 Bug Fixes
+- **Fixed UI Update Events**: Standardized event names for history and bookmark updates to ensure consistent UI updates
+- **Fixed Bookmark Count Inconsistency**: Improved bookmark import mechanism to store all bookmarks in history repository, ensuring consistent bookmark counts between initial load and manual imports
+
+
+## [1.2.4] - 2025-05-21
 
 ### ✨ New Features
 - **Counter System**: Separate history and bookmark count display
@@ -30,23 +38,23 @@ Track the evolution of your favorite browser history search tool. This changelog
 - Removed Google Analytics integration
 - Removed automatic import mechanism
 
-## [1.2.3] - 2024-05-07
+## [1.2.3] - 2025-05-07
 
 ### 🔄 Improvements
 - Enhanced client ID generation with persistent storage
 
-## [1.2.2] - 2024-05-06
+## [1.2.2] - 2025-05-06
 
 ### ✨ New Features
 - **Command Key Support**: Hold Command (⌘) while clicking links to keep window open
 
 
-## [1.2.1] - 2024-05-05
+## [1.2.1] - 2025-05-05
 
 ### Fixed
 - Enhanced window management with improved hide functionality
 
-## [1.2.0] - 2024-05-04
+## [1.2.0] - 2025-05-04
 
 ### ✨ New Features
 - **Smart Search**: Introduced partial word matching for more intuitive results
@@ -87,7 +95,7 @@ Track the evolution of your favorite browser history search tool. This changelog
 - **Keyboard Shortcuts**: Quick window control with ESC key
 - **Intuitive Interaction**: Click-outside window dismissal
 
-## [1.0.6] - 2024-04-27
+## [1.0.6] - 2025-04-27
 
 ### 🔄 Improvements
 - **Architecture**: Implemented domain-driven design principles
@@ -101,7 +109,7 @@ Track the evolution of your favorite browser history search tool. This changelog
 - Improved debugging capabilities
 - Resolved code quality issues
 
-## [1.0.5] - 2024-04-26
+## [1.0.5] - 2025-04-26
 
 ### ✨ New Features
 - **Bookmark Integration**: Seamless browser bookmark synchronization
@@ -118,7 +126,7 @@ Track the evolution of your favorite browser history search tool. This changelog
 - Streamlined import processes
 - Enhanced error handling
 
-## [1.0.4] - 2024-04-26
+## [1.0.4] - 2025-04-26
 
 ### 🐛 Bug Fixes
 - Removed history import limitations
@@ -127,7 +135,7 @@ Track the evolution of your favorite browser history search tool. This changelog
 ### 🔄 Improvements
 - Enhanced time display formatting
 
-## [1.0.3] - 2024-04-21
+## [1.0.3] - 2025-04-21
 
 ### ✨ New Features
 - **Modern Architecture**: Domain-driven design implementation

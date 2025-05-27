@@ -28,40 +28,35 @@ class BookmarkService {
             const results = await Promise.all(importPromises);
             allBookmarks = results.flat();
 
-            // Update history items with bookmark names
-            await this.updateHistoryWithBookmarks(allBookmarks);
+            // Get existing history items
+            const historyItems = await this.historyRepository.getAll();
+            const historyMap = new Map(historyItems.map(item => [item.url, item]));
 
+            // Process all bookmarks
+            for (const bookmark of allBookmarks) {
+                const existingHistory = historyMap.get(bookmark.url);
+                if (existingHistory) {
+                    // Update existing history item
+                    existingHistory.title = bookmark.title;
+                    existingHistory.isBookmark = true;
+                } else {
+                    // Add new history item for bookmark
+                    historyMap.set(bookmark.url, {
+                        title: bookmark.title,
+                        url: bookmark.url,
+                        score: 1,
+                        lastVisitTime: null,
+                        isBookmark: true
+                    });
+                }
+            }
+
+            // Save all updated history items
+            await this.historyRepository.save([...historyMap.values()]);
             log.info(`Successfully imported ${allBookmarks.length} bookmarks`);
             return allBookmarks.length;
         } catch (error) {
             log.error('Error importing browser bookmarks:', error);
-            throw error;
-        }
-    }
-
-    async updateHistoryWithBookmarks(bookmarks) {
-        try {
-            const historyItems = await this.historyRepository.getAll();
-            const historyMap = new Map(historyItems.map(item => [item.url, item]));
-            let updatedCount = 0;
-
-            for (const bookmark of bookmarks) {
-                const existingHistory = historyMap.get(bookmark.url);
-                if (existingHistory && !existingHistory.isBookmark) {
-                    // Update the history item with bookmark name
-                    existingHistory.title = bookmark.title;
-                    existingHistory.isBookmark = true;
-                    updatedCount++;
-                }
-            }
-
-            if (updatedCount > 0) {
-                // Save the updated history
-                await this.historyRepository.save([...historyMap.values()]);
-                log.info(`Updated ${updatedCount} history items with bookmark information`);
-            }
-        } catch (error) {
-            log.error('Error updating history with bookmarks:', error);
             throw error;
         }
     }
