@@ -7,7 +7,6 @@ contextBridge.exposeInMainWorld(
         send: (channel, data) => {
             // whitelist channels
             const validChannels = [
-                'toMain',
                 'importHistory',
                 'resetHistory',
                 'search',
@@ -25,14 +24,12 @@ contextBridge.exposeInMainWorld(
         },
         receive: (channel, func) => {
             const validChannels = [
-                'fromMain',
                 'importHistoryResponse',
                 'resetHistoryResponse',
                 'history-updated',
                 'bookmarks-updated',
                 'search-results',
                 'error',
-                'bookmark-import-complete'
             ];
             if (validChannels.includes(channel)) {
                 console.log('Registering IPC listener for channel:', channel);

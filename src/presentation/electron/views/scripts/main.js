@@ -92,6 +92,14 @@ if (window.matchMedia) {
 if (searchInput) {
     searchInput.addEventListener('input', debounce(handleSearch, 300));
     searchInput.addEventListener('keydown', handleKeyboardNavigation);
+
+    // Add click event listener to the search wrapper
+    const searchWrapper = document.querySelector('.search-wrapper');
+    if (searchWrapper) {
+        searchWrapper.addEventListener('click', () => {
+            searchInput.focus();
+        });
+    }
 }
 document.addEventListener('keydown', handleKeyboardShortcuts);
 
