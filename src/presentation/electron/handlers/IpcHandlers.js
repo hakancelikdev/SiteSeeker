@@ -97,19 +97,13 @@ class IpcHandlers {
   }
 
   cleanup() {
-    log.info('Cleaning up IPC handlers...');
     try {
-      // Tüm IPC event listener'larını temizle
-      ipcMain.removeAllListeners('search');
-      ipcMain.removeAllListeners('resetHistory');
-      ipcMain.removeAllListeners('open-url');
-      ipcMain.removeAllListeners('search-history');
-      ipcMain.removeAllListeners('get-url-count');
-      ipcMain.removeAllListeners('command-key-state');
-
+      // Clear all IPC event listeners
+      ipcMain.removeAllListeners();
       log.info('IPC handlers cleaned up successfully');
     } catch (error) {
-      log.error('Error cleaning up IPC handlers:', error);
+      log.error('Error during IPC handlers cleanup:', error);
+      throw error;
     }
   }
 }

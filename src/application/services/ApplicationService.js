@@ -223,35 +223,33 @@ class ApplicationService {
 
   async cleanup() {
     log.info('Starting application cleanup...');
-    try {
-      // IPC handler'ları temizle
-      if (this.ipcHandlers) {
-        this.ipcHandlers.cleanup();
-      }
 
-      // Update handler'ları temizle
-      if (this.updateHandlers) {
-        this.updateHandlers.cleanup();
-      }
+    // Clean up IPC handlers
+    log.info('Cleaning up IPC handlers...');
+    this.ipcHandlers.cleanup();
+    log.info('IPC handlers cleaned up successfully');
 
-      // Ana pencereyi temizle
-      if (this.mainWindow) {
-        await this.mainWindow.cleanup();
-      }
+    // Clean up update handlers
+    log.info('Cleaning up update handlers...');
+    this.updateHandlers.cleanup();
+    log.info('Update handlers cleaned up successfully');
 
-      // History ve bookmark servislerini temizle
-      if (this.historyService) {
-        await this.historyService.cleanup();
-      }
+    // Clean up window resources
+    log.info('Cleaning up window resources...');
+    this.mainWindow.cleanup();
+    log.info('Window cleanup completed successfully');
 
-      if (this.bookmarkService) {
-        await this.bookmarkService.cleanup();
-      }
+    // Clean up history service
+    log.info('Cleaning up history service...');
+    this.historyService.cleanup();
+    log.info('History service cleaned up successfully');
 
-      log.info('Application cleanup completed successfully');
-    } catch (error) {
-      log.error('Error during application cleanup:', error);
-    }
+    // Clean up bookmark service
+    log.info('Cleaning up bookmark service...');
+    this.bookmarkService.cleanup();
+    log.info('Bookmark service cleaned up successfully');
+
+    log.info('Application cleanup completed successfully');
   }
 
   startPeriodicImports() {

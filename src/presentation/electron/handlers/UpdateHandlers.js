@@ -59,16 +59,15 @@ class UpdateHandlers {
   }
 
   cleanup() {
-    log.info('Cleaning up update handlers...');
     try {
-      // Auto updater'ı temizle
+      // Clean up auto updater
       if (this.autoUpdater) {
         this.autoUpdater.removeAllListeners();
       }
-
       log.info('Update handlers cleaned up successfully');
     } catch (error) {
-      log.error('Error cleaning up update handlers:', error);
+      log.error('Error during update handlers cleanup:', error);
+      throw error;
     }
   }
 }

@@ -95,10 +95,8 @@ body {
     -webkit-app-region: drag;
 }
 
-/* Sürüklenebilir alan dışındaki elementler için */
-.search-wrapper,
-#results-container,
-.toolbar button {
+/* For elements outside the draggable area */
+.no-drag {
     -webkit-app-region: no-drag;
 }
 

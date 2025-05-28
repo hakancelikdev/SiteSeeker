@@ -82,7 +82,7 @@ class WindowPositionRepository {
     close() {
         if (this.db && !this.isClosed) {
             try {
-                // Tüm bekleyen işlemlerin tamamlanmasını bekle
+                // Wait for all pending operations to complete
                 this.db.serialize(() => {
                     this.db.close((err) => {
                         if (err) {

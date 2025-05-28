@@ -52,34 +52,34 @@ class MainWindow {
     const windowWidth = 700;
     const windowHeight = 500;
 
-    // Kaydedilmiş pozisyonu yükle
+    // Load saved position
     const savedPosition = await this.loadWindowPosition();
     let x, y;
 
     if (savedPosition && typeof savedPosition.x === 'number' && typeof savedPosition.y === 'number') {
-      // Ekran sınırlarını kontrol et
+      // Check screen boundaries
       const isOutOfBounds =
-        savedPosition.x + windowWidth < 0 || // Pencere tamamen ekranın solunda
-        savedPosition.x > screenWidth || // Pencere tamamen ekranın sağında
-        savedPosition.y + windowHeight < 0 || // Pencere tamamen ekranın üstünde
-        savedPosition.y > screenHeight; // Pencere tamamen ekranın altında
+        savedPosition.x + windowWidth < 0 || // Window is completely to the left of the screen
+        savedPosition.x > screenWidth || // Window is completely to the right of the screen
+        savedPosition.y + windowHeight < 0 || // Window is completely above the screen
+        savedPosition.y > screenHeight; // Window is completely below the screen
 
       if (isOutOfBounds) {
-        // Pencere ekranın dışındaysa sol tarafa yerleştir
-        x = 20; // Sol taraftan 20px boşluk
+        // If window is outside screen, place it on the left side
+        x = 20; // 20px margin from left
         y = Math.min(
-          Math.max(20, savedPosition.y), // Üstten en az 20px boşluk
-          screenHeight - windowHeight - 20 // Alttan en az 20px boşluk
+          Math.max(20, savedPosition.y), // At least 20px margin from top
+          screenHeight - windowHeight - 20 // At least 20px margin from bottom
         );
       } else {
-        // Pencere ekranın içindeyse kaydedilen pozisyonda göster
+        // If window is inside screen, show at saved position
         x = savedPosition.x;
         y = savedPosition.y;
       }
     } else {
-      // Eğer kaydedilmiş pozisyon yoksa veya geçersizse, sol tarafta göster
-      x = 20; // Sol taraftan 20px boşluk
-      y = Math.floor((screenHeight - windowHeight) / 2); // Dikey olarak ortala
+      // If no saved position or invalid, show on the left side
+      x = 20; // 20px margin from left
+      y = Math.floor((screenHeight - windowHeight) / 2); // Center vertically
     }
 
     log.info('Creating window with position:', { x, y });
@@ -102,12 +102,12 @@ class MainWindow {
       }
     });
 
-    // Pencere sürükleme işlemleri için
+    // For window dragging operations
     this.window.setMovable(true);
     this.window.setMinimizable(false);
     this.window.setMaximizable(false);
 
-    // Pencere pozisyonunu kaydetmek için
+    // To save window position
     let saveTimeout;
     this.window.on('moved', () => {
       // Debounce the save operation to prevent multiple saves
@@ -119,7 +119,7 @@ class MainWindow {
       }, 100);
     });
 
-    // Pencere gizlendiğinde pozisyonu kaydet
+    // Save position when window is hidden
     this.window.on('hide', () => {
       const [x, y] = this.window.getPosition();
       log.info('Window hide event triggered:', { x, y });
@@ -165,12 +165,12 @@ class MainWindow {
     });
 
     this.window.on('close', (event) => {
-      // Eğer sistem güncellemesi veya zorla kapatma varsa, pencereyi kapat
+      // If system update or force quit, close the window
       if (this.isQuitting || process.platform === 'darwin' && app.isQuitting) {
         return;
       }
 
-      // Normal kapatma işleminde pencereyi gizle
+      // On normal close, hide the window
       event.preventDefault();
       this.window.hide();
     });
@@ -180,7 +180,7 @@ class MainWindow {
       this.window = null;
     });
 
-    // Listener'ları sadece bir kez ekle
+    // Add listeners only once
     this.window.webContents.removeAllListeners('before-input-event');
     this.window.webContents.on('before-input-event', (event, input) => {
       if (input.key === 'Escape') {
@@ -231,7 +231,7 @@ class MainWindow {
     }
 
     try {
-      // Pencereyi göster ve odakla
+      // Show window and focus
       this.window.show();
       this.window.focus();
       log.info('Window shown successfully');
@@ -244,7 +244,7 @@ class MainWindow {
 
   hide() {
     if (this.window) {
-      // Pencere gizlenmeden önce pozisyonu kaydet
+      // Save position before hiding window
       const [x, y] = this.window.getPosition();
       log.info('Window hiding, saving position:', { x, y });
       this.saveWindowPosition(x, y);
@@ -272,39 +272,34 @@ class MainWindow {
 
   destroy() {
     if (this.window) {
-      // Tüm event listener'ları temizle
+      // Clear all event listeners
       this.window.removeAllListeners('moved');
       this.window.removeAllListeners('hide');
       this.window.removeAllListeners('blur');
       this.window.removeAllListeners('close');
       this.window.removeAllListeners('closed');
 
-      // Pencereyi kapat
+      // Close window
       this.window.destroy();
       this.window = null;
-    }
-
-    // Veritabanı bağlantısını kapat
-    if (this.windowPositionRepository) {
-      this.windowPositionRepository.close();
     }
   }
 
   cleanup() {
     log.info('Cleaning up window resources...');
     try {
-      // Tüm event listener'ları temizle
+      // Clear all event listeners
       if (this.window) {
         this.window.removeAllListeners();
         this.window.webContents.removeAllListeners();
       }
 
-      // Veritabanı bağlantısını kapat
+      // Close database connection
       if (this.windowPositionRepository) {
         this.windowPositionRepository.close();
       }
 
-      // Pencereyi kapat
+      // Close window
       this.destroy();
 
       log.info('Window cleanup completed successfully');

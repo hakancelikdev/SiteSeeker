@@ -426,11 +426,10 @@ function handleKeyboardShortcuts(event) {
     }
 }
 
-// Pencere görünür olduğunda otomatik odaklanma
-document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && searchInput) {
+// Auto focus when window becomes visible
+window.addEventListener('focus', () => {
+    if (searchInput) {
         searchInput.focus();
-        searchInput.select();
     }
 });
 

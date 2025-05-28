@@ -280,19 +280,13 @@ class HistoryService {
     }
 
     async cleanup() {
-        log.info('Cleaning up history service...');
         try {
-            // Tüm kaynakları temizle
-            this.uniqueUrls.clear();
-
-            // Repository'yi temizle
-            if (this.historyRepository) {
-                await this.historyRepository.cleanup();
-            }
-
+            // Clear all resources
+            await this.historyRepository.cleanup();
             log.info('History service cleaned up successfully');
         } catch (error) {
-            log.error('Error cleaning up history service:', error);
+            log.error('Error during history service cleanup:', error);
+            throw error;
         }
     }
 }

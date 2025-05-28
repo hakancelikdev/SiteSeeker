@@ -95,19 +95,13 @@ class BookmarkService {
     }
 
     async cleanup() {
-        log.info('Cleaning up bookmark service...');
         try {
-            // Tüm kaynakları temizle
-            this.uniqueUrls.clear();
-
-            // Repository'yi temizle
-            if (this.historyRepository) {
-                await this.historyRepository.cleanup();
-            }
-
+            // Clear all resources
+            await this.historyRepository.cleanup();
             log.info('Bookmark service cleaned up successfully');
         } catch (error) {
-            log.error('Error cleaning up bookmark service:', error);
+            log.error('Error during bookmark service cleanup:', error);
+            throw error;
         }
     }
 }

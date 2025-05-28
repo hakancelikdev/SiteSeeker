@@ -15,17 +15,17 @@ repos:
       - id: conventional-pre-commit
         stages: [commit-msg]
         args:
-          - feat     # Yeni özellikler
-          - fix      # Hata düzeltmeleri
-          - docs     # Dokümantasyon değişiklikleri
-          - style    # Kod stili değişiklikleri (formatting, semicolons vs)
-          - refactor # Kod refactoring
-          - perf     # Performans iyileştirmeleri
-          - test     # Test ekleme veya düzenleme
-          - build    # Build sistemi veya dış bağımlılık değişiklikleri
-          - ci       # CI konfigürasyon değişiklikleri
-          - chore    # Diğer değişiklikler
-          - revert   # Önceki bir commit'i geri alma
+          - feat     # New features
+          - fix      # Bug fixes
+          - docs     # Documentation changes
+          - style    # Code style changes (formatting, semicolons etc)
+          - refactor # Code refactoring
+          - perf     # Performance improvements
+          - test     # Adding or modifying tests
+          - build    # Build system or external dependency changes
+          - ci       # CI configuration changes
+          - chore    # Other changes
+          - revert   # Reverting a previous commit
 
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v9.25.1
