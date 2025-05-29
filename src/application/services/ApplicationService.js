@@ -1,16 +1,22 @@
 const { app, globalShortcut } = require('electron');
 const log = require('electron-log');
 
+const ElectronStore = require('../../infrastructure/persistence/ElectronStore');
+const HistoryService = require('../../domain/services/HistoryService');
+const BookmarkService = require('../../domain/services/BookmarkService');
+const HistoryRepository = require('../../domain/repositories/HistoryRepository');
 const MainWindow = require('../../presentation/electron/windows/MainWindow');
 const IpcHandlers = require('../../presentation/electron/handlers/IpcHandlers');
 const UpdateHandlers = require('../../presentation/electron/handlers/UpdateHandlers');
 
 class ApplicationService {
-  constructor(historyService, bookmarkService) {
-    this.historyService = historyService;
-    this.bookmarkService = bookmarkService;
+  constructor() {
+    this.store = new ElectronStore();
+    this.historyRepository = new HistoryRepository(this.store);
+    this.historyService = new HistoryService(this.historyRepository);
+    this.bookmarkService = new BookmarkService(this.historyRepository);
     this.mainWindow = new MainWindow();
-    this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this, this.mainWindow);
+    this.ipcHandlers = new IpcHandlers(this.historyService, this.bookmarkService, this, this.mainWindow);
     this.updateHandlers = new UpdateHandlers(this.mainWindow);
 
     // Bind methods to maintain context
@@ -57,6 +63,8 @@ class ApplicationService {
 
       // Start periodic imports
       this.startPeriodicImports();
+
+      log.info('Application services initialized successfully');
     } catch (error) {
       log.error('Failed to initialize application services:', error);
       app.quit();
@@ -99,14 +107,14 @@ class ApplicationService {
     try {
       log.info('Starting browser data import...');
 
-      // First import history
+      // Import history
       log.info('Starting history import...');
       const historyCount = await this.historyService.importFromBrowser();
       if (this.mainWindow) {
         this.mainWindow.send('history-updated', historyCount);
       }
 
-      // Then import bookmarks
+      // Import bookmarks
       log.info('Starting bookmark import...');
       const bookmarkCount = await this.bookmarkService.importFromBrowser();
       if (this.mainWindow) {
@@ -120,7 +128,7 @@ class ApplicationService {
       log.info(`Import completed. History: ${finalHistoryCount}, Bookmarks: ${finalBookmarkCount}`);
       return { historyCount: finalHistoryCount, bookmarkCount: finalBookmarkCount };
     } catch (error) {
-      log.error('Error during browser data import:', error);
+      log.error('Error importing browser data:', error);
       throw error;
     }
   }
@@ -217,34 +225,39 @@ class ApplicationService {
   }
 
   async cleanup() {
-    log.info('Starting application cleanup...');
+    try {
+      log.info('Starting application cleanup...');
 
-    // Clean up IPC handlers
-    log.info('Cleaning up IPC handlers...');
-    this.ipcHandlers.cleanup();
-    log.info('IPC handlers cleaned up successfully');
+      // Clean up IPC handlers
+      log.info('Cleaning up IPC handlers...');
+      this.ipcHandlers.cleanup();
+      log.info('IPC handlers cleaned up successfully');
 
-    // Clean up update handlers
-    log.info('Cleaning up update handlers...');
-    this.updateHandlers.cleanup();
-    log.info('Update handlers cleaned up successfully');
+      // Clean up update handlers
+      log.info('Cleaning up update handlers...');
+      this.updateHandlers.cleanup();
+      log.info('Update handlers cleaned up successfully');
 
-    // Clean up window resources
-    log.info('Cleaning up window resources...');
-    this.mainWindow.cleanup();
-    log.info('Window cleanup completed successfully');
+      // Clean up window resources
+      log.info('Cleaning up window resources...');
+      this.mainWindow.cleanup();
+      log.info('Window cleanup completed successfully');
 
-    // Clean up history service
-    log.info('Cleaning up history service...');
-    this.historyService.cleanup();
-    log.info('History service cleaned up successfully');
+      // Clean up history service
+      log.info('Cleaning up history service...');
+      await this.historyService.cleanup();
+      log.info('History service cleaned up successfully');
 
-    // Clean up bookmark service
-    log.info('Cleaning up bookmark service...');
-    this.bookmarkService.cleanup();
-    log.info('Bookmark service cleaned up successfully');
+      // Clean up bookmark service
+      log.info('Cleaning up bookmark service...');
+      await this.bookmarkService.cleanup();
+      log.info('Bookmark service cleaned up successfully');
 
-    log.info('Application cleanup completed successfully');
+      log.info('Application cleanup completed successfully');
+    } catch (error) {
+      log.error('Error during application services cleanup:', error);
+      throw error;
+    }
   }
 
   startPeriodicImports() {

@@ -1,32 +1,20 @@
 const log = require('electron-log');
 
-const ChromeBookmarkProvider = require('../../infrastructure/browsers/ChromeBookmarkProvider');
-const FirefoxBookmarkProvider = require('../../infrastructure/browsers/FirefoxBookmarkProvider');
+const BookmarkProviderFactory = require('../../infrastructure/browsers/bookmark/BookmarkProviderFactory');
 
 class BookmarkService {
     constructor(historyRepository) {
         this.historyRepository = historyRepository;
-        this.bookmarkProviders = [
-            new ChromeBookmarkProvider(),
-            new FirefoxBookmarkProvider()
-        ];
-        this.uniqueUrls = new Set();
+        this.bookmarkFactory = BookmarkProviderFactory;
     }
 
     async importFromBrowser() {
         try {
             log.info('Starting browser bookmark import...');
 
-            let allBookmarks = [];
-            this.uniqueUrls.clear();
-
-            // Import from all browser providers in parallel
-            const importPromises = this.bookmarkProviders.map(provider =>
-                provider.importBookmarks(this.uniqueUrls)
-            );
-
-            const results = await Promise.all(importPromises);
-            allBookmarks = results.flat();
+            // Import from all browser providers
+            const allBookmarks = await this.bookmarkFactory.importAllBookmarks();
+            log.info(`Imported ${allBookmarks.length} bookmarks from all providers`);
 
             // Get existing history items
             const historyItems = await this.historyRepository.getAll();
@@ -73,7 +61,7 @@ class BookmarkService {
 
     async importRecentBookmarks() {
         try {
-            log.info('Importing all bookmarks...');
+            log.info('Starting bookmark import...');
             return await this.importFromBrowser();
         } catch (error) {
             log.error('Error importing bookmarks:', error);
