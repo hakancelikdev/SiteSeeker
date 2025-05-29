@@ -19,15 +19,19 @@ class DatabaseConnection {
     }
 
     async initializeDatabase() {
-        // Burada gerekli tabloları oluşturabilirsiniz
-        // Örnek:
-        // await this.run(`
-        //     CREATE TABLE IF NOT EXISTS users (
-        //         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        //         name TEXT NOT NULL,
-        //         email TEXT UNIQUE NOT NULL
-        //     )
-        // `);
+        // Önce tabloyu sil
+        await this.run(`DROP TABLE IF EXISTS window_positions`);
+
+        // Sonra yeniden oluştur
+        await this.run(`
+            CREATE TABLE IF NOT EXISTS window_positions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                x INTEGER NOT NULL,
+                y INTEGER NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        // Diğer tabloları da burada oluşturabilirsin
     }
 
     async query(sql, params = []) {
