@@ -13,3 +13,4 @@ alwaysApply: true
 - Always respect Domain-Driven Design (DDD)
 - Always respect to build a scalable, maintainable, and extendable
 - Existing tests should never be changed. If the feature has changed, it should be changed.
+- Development language is english

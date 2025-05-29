@@ -30,6 +30,9 @@ This rule defines the standardized process for creating commits that follow conv
 - `chore`: Other changes that don't modify src or test files
 - `revert`: Reverts a previous commit
 
+## Commit message lenght
+max length of message must be 76 character
+
 ## Scope
 - Optional part that provides additional contextual information
 - Should be a noun describing the section of the codebase

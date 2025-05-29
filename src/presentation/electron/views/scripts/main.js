@@ -26,22 +26,6 @@ const errorRetry = document.getElementById('errorRetry');
 const emptyState = document.getElementById('emptyState');
 const INITIAL_SCORE = 1;
 
-// Log DOM elements for debugging
-console.log('DOM Elements:', {
-    searchInput: !!searchInput,
-    resultsContainer: !!resultsContainer,
-    historyCounter: !!historyCounter,
-    bookmarkCounter: !!bookmarkCounter,
-    notification: !!notification,
-    importButton: !!importButton,
-    resetButton: !!resetButton,
-    loadingOverlay: !!loadingOverlay,
-    errorOverlay: !!errorOverlay,
-    errorMessage: !!errorMessage,
-    errorRetry: !!errorRetry,
-    emptyState: !!emptyState
-});
-
 // State
 let searchResults = [];
 let currentSearchTerm = '';
