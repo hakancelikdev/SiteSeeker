@@ -1,23 +1,24 @@
-const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 const { app } = require('electron');
-const log = require('electron-log');
 
-const { HistoryItem, INITIAL_SCORE } = require('../../domain/models/HistoryItem');
+const { BaseHistoryProvider } = require('../BaseHistoryProvider');
+const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 
-class ChromeHistoryProvider {
+class ChromeHistoryProvider extends BaseHistoryProvider {
   constructor() {
+    super();
     this.basePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
-    log.info('ChromeHistoryProvider initialized with base path:', this.basePath);
+    this.logInfo('ChromeHistoryProvider initialized with base path: ' + this.basePath);
   }
 
   async getProfiles() {
     try {
       if (!fs.existsSync(this.basePath)) {
-        log.warn('Chrome base path does not exist:', this.basePath);
+        this.logWarn('Chrome base path does not exist: ' + this.basePath);
         return [];
       }
 
@@ -29,10 +30,10 @@ class ChromeHistoryProvider {
                  fs.existsSync(path.join(itemPath, 'History'));
         });
 
-      log.info(`Found ${profiles.length} Chrome profiles`);
+      this.logInfo(`Found ${profiles.length} Chrome profiles`);
       return profiles;
     } catch (error) {
-      log.error('Error getting Chrome profiles:', error);
+      this.logError('Error getting Chrome profiles:', error);
       return [];
     }
   }
@@ -42,7 +43,7 @@ class ChromeHistoryProvider {
     const profiles = await this.getProfiles();
 
     if (profiles.length === 0) {
-      log.warn('No Chrome profiles found to import history from');
+      this.logWarn('No Chrome profiles found to import history from');
       return allHistory;
     }
 
@@ -51,18 +52,17 @@ class ChromeHistoryProvider {
         const historyPath = path.join(this.basePath, profile, 'History');
         const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
 
-        log.info(`Importing Chrome history from profile: ${profile}`);
+        this.logInfo(`Importing Chrome history from profile: ${profile}`);
 
-        // Check if history file exists and is accessible
         if (!fs.existsSync(historyPath)) {
-          log.warn(`History file not found for profile ${profile}: ${historyPath}`);
+          this.logWarn(`History file not found for profile ${profile}: ${historyPath}`);
           continue;
         }
 
         try {
           fs.copyFileSync(historyPath, tempPath);
         } catch (error) {
-          log.error(`Failed to copy Chrome history file for profile ${profile}:`, error);
+          this.logError(`Failed to copy Chrome history file for profile ${profile}:`, error);
           continue;
         }
 
@@ -70,7 +70,7 @@ class ChromeHistoryProvider {
         try {
           db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
         } catch (error) {
-          log.error(`Failed to open Chrome history database for profile ${profile}:`, error);
+          this.logError(`Failed to open Chrome history database for profile ${profile}:`, error);
           continue;
         }
 
@@ -91,7 +91,7 @@ class ChromeHistoryProvider {
                 return;
               }
 
-              log.info(`Found ${rows.length} history items in Chrome profile ${profile}`);
+              this.logInfo(`Found ${rows.length} history items in Chrome profile ${profile}`);
 
               for (const row of rows) {
                 if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
@@ -99,8 +99,8 @@ class ChromeHistoryProvider {
                   const score = row.visit_count
                     ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
                     : INITIAL_SCORE;
-                  allHistory.push(new HistoryItem(
-                    row.title.trim(),
+                  allHistory.push(this.createHistoryItem(
+                    row.title,
                     row.url,
                     score,
                     row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
@@ -111,20 +111,20 @@ class ChromeHistoryProvider {
             });
           });
         } catch (error) {
-          log.error(`Failed to execute query for Chrome profile ${profile}:`, error);
+          this.logError(`Failed to execute query for Chrome profile ${profile}:`, error);
           continue;
         }
 
         db.close();
         fs.unlinkSync(tempPath);
       } catch (error) {
-        log.error(`Error importing Chrome history for profile ${profile}:`, error);
+        this.logError(`Error importing Chrome history for profile ${profile}:`, error);
       }
     }
 
-    log.info(`Successfully imported ${allHistory.length} items from Chrome history`);
+    this.logInfo(`Successfully imported ${allHistory.length} items from Chrome history`);
     return allHistory;
   }
 }
 
-module.exports = ChromeHistoryProvider;
+module.exports = { ChromeHistoryProvider };

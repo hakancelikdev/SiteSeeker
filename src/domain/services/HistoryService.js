@@ -1,7 +1,7 @@
 const log = require('electron-log');
 
-const ChromeHistoryProvider = require('../../infrastructure/browsers/ChromeHistoryProvider');
-const FirefoxHistoryProvider = require('../../infrastructure/browsers/FirefoxHistoryProvider');
+const { HistoryProviderFactory } = require('../../infrastructure/browsers/history/HistoryProviderFactory');
+const { HistoryItem } = require('../models/HistoryItem');
 
 class HistoryServiceError extends Error {
     constructor(message, code) {
@@ -15,10 +15,8 @@ class HistoryService {
     constructor(historyRepository) {
         this.historyRepository = historyRepository;
         this.uniqueUrls = new Set();
-        this.browserProviders = [
-            new ChromeHistoryProvider(),
-            new FirefoxHistoryProvider()
-        ];
+        this.browserProviders = HistoryProviderFactory.getSupportedBrowsers()
+            .map(browser => HistoryProviderFactory.createProvider(browser));
     }
 
     async getUrlCount() {
@@ -258,4 +256,4 @@ class HistoryService {
     }
 }
 
-module.exports = HistoryService;
+module.exports = { HistoryService };

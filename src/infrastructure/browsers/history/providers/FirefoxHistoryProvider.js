@@ -1,23 +1,24 @@
-const path = require('path');
 const fs = require('fs');
 const os = require('os');
+const path = require('path');
 
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 const { app } = require('electron');
-const log = require('electron-log');
 
-const { HistoryItem, INITIAL_SCORE } = require('../../domain/models/HistoryItem');
+const { BaseHistoryProvider } = require('../BaseHistoryProvider');
+const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 
-class FirefoxHistoryProvider {
+class FirefoxHistoryProvider extends BaseHistoryProvider {
   constructor() {
+    super();
     this.basePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
-    log.info('FirefoxHistoryProvider initialized with base path:', this.basePath);
+    this.logInfo('FirefoxHistoryProvider initialized with base path: ' + this.basePath);
   }
 
   async getProfiles() {
     try {
       if (!fs.existsSync(this.basePath)) {
-        log.warn('Firefox base path does not exist:', this.basePath);
+        this.logWarn('Firefox base path does not exist: ' + this.basePath);
         return [];
       }
 
@@ -29,10 +30,10 @@ class FirefoxHistoryProvider {
                  fs.existsSync(path.join(itemPath, 'places.sqlite'));
         });
 
-      log.info(`Found ${profiles.length} Firefox profiles`);
+      this.logInfo(`Found ${profiles.length} Firefox profiles`);
       return profiles;
     } catch (error) {
-      log.error('Error getting Firefox profiles:', error);
+      this.logError('Error getting Firefox profiles:', error);
       return [];
     }
   }
@@ -42,7 +43,7 @@ class FirefoxHistoryProvider {
     const profiles = await this.getProfiles();
 
     if (profiles.length === 0) {
-      log.warn('No Firefox profiles found to import history from');
+      this.logWarn('No Firefox profiles found to import history from');
       return allHistory;
     }
 
@@ -51,18 +52,17 @@ class FirefoxHistoryProvider {
         const placesPath = path.join(this.basePath, profile, 'places.sqlite');
         const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
 
-        log.info(`Importing Firefox history from profile: ${profile}`);
+        this.logInfo(`Importing Firefox history from profile: ${profile}`);
 
-        // Check if places file exists and is accessible
         if (!fs.existsSync(placesPath)) {
-          log.warn(`Places file not found for profile ${profile}: ${placesPath}`);
+          this.logWarn(`Places file not found for profile ${profile}: ${placesPath}`);
           continue;
         }
 
         try {
           fs.copyFileSync(placesPath, tempPath);
         } catch (error) {
-          log.error(`Failed to copy Firefox places file for profile ${profile}:`, error);
+          this.logError(`Failed to copy Firefox places file for profile ${profile}:`, error);
           continue;
         }
 
@@ -70,7 +70,7 @@ class FirefoxHistoryProvider {
         try {
           db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
         } catch (error) {
-          log.error(`Failed to open Firefox places database for profile ${profile}:`, error);
+          this.logError(`Failed to open Firefox places database for profile ${profile}:`, error);
           continue;
         }
 
@@ -97,13 +97,13 @@ class FirefoxHistoryProvider {
                 return;
               }
 
-              log.info(`Found ${rows.length} history items in Firefox profile ${profile}`);
+              this.logInfo(`Found ${rows.length} history items in Firefox profile ${profile}`);
 
               for (const row of rows) {
                 if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
                   uniqueUrls.add(row.url);
-                  allHistory.push(new HistoryItem(
-                    row.title.trim(),
+                  allHistory.push(this.createHistoryItem(
+                    row.title,
                     row.url,
                     INITIAL_SCORE,
                     row.visit_date ? (row.visit_date/1000000) * 1000 : null
@@ -114,20 +114,20 @@ class FirefoxHistoryProvider {
             });
           });
         } catch (error) {
-          log.error(`Failed to execute query for Firefox profile ${profile}:`, error);
+          this.logError(`Failed to execute query for Firefox profile ${profile}:`, error);
           continue;
         }
 
         db.close();
         fs.unlinkSync(tempPath);
       } catch (error) {
-        log.error(`Error importing Firefox history for profile ${profile}:`, error);
+        this.logError(`Error importing Firefox history for profile ${profile}:`, error);
       }
     }
 
-    log.info(`Successfully imported ${allHistory.length} items from Firefox history`);
+    this.logInfo(`Successfully imported ${allHistory.length} items from Firefox history`);
     return allHistory;
   }
 }
 
-module.exports = FirefoxHistoryProvider;
+module.exports = { FirefoxHistoryProvider };

@@ -19,10 +19,7 @@ class DatabaseConnection {
     }
 
     async initializeDatabase() {
-        // Önce tabloyu sil
-        await this.run(`DROP TABLE IF EXISTS window_positions`);
-
-        // Sonra yeniden oluştur
+        // Create window_positions table if it doesn't exist
         await this.run(`
             CREATE TABLE IF NOT EXISTS window_positions (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
