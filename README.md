@@ -44,12 +44,7 @@ Your intelligent browser history and bookmark search companion for macOS. Find a
      2. Move to Applications
 
 3. **Launch** SiteSeeker from Applications
-4. **Grant Permissions** when prompted:
-   - Full Disk Access (for browser history)
-   - Chrome history access
-   - Firefox profile access
-
-5. **Start Searching** with ⌘+⇧+Space!
+4. **Start Searching** with ⌘+⇧+Space!
 
 ### Auto Updates
 
@@ -123,7 +118,6 @@ SiteSeeker/
 ### Security Features
 - Local data storage
 - Secure browser access
-- Permission management
 - Data validation
 
 ## 🤝 Community & Support

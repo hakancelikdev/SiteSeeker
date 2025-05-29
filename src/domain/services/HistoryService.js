@@ -2,7 +2,6 @@ const log = require('electron-log');
 
 const ChromeHistoryProvider = require('../../infrastructure/browsers/ChromeHistoryProvider');
 const FirefoxHistoryProvider = require('../../infrastructure/browsers/FirefoxHistoryProvider');
-const BrowserPermissions = require('../../infrastructure/permissions/BrowserPermissions');
 
 class HistoryServiceError extends Error {
     constructor(message, code) {
@@ -20,34 +19,6 @@ class HistoryService {
             new ChromeHistoryProvider(),
             new FirefoxHistoryProvider()
         ];
-    }
-
-    async checkBrowserPermissions() {
-        try {
-            const [chromePermission, firefoxPermission] = await Promise.all([
-                BrowserPermissions.checkChromePermissions(),
-                BrowserPermissions.checkFirefoxPermissions()
-            ]);
-
-            if (!chromePermission && !firefoxPermission) {
-                throw new HistoryServiceError(
-                    'No browser permissions available. Please grant access to browser history files.',
-                    'NO_BROWSER_PERMISSIONS'
-                );
-            }
-
-            return {
-                chrome: chromePermission,
-                firefox: firefoxPermission
-            };
-        } catch (error) {
-            log.error('Error checking browser permissions:', error);
-            throw new HistoryServiceError(
-                'Failed to check browser permissions',
-                'PERMISSION_CHECK_FAILED',
-                error
-            );
-        }
     }
 
     async getUrlCount() {
@@ -143,10 +114,6 @@ class HistoryService {
     async importFromBrowser() {
         try {
             log.info('Starting browser history import...');
-
-            // Check permissions first
-            const permissions = await this.checkBrowserPermissions();
-            log.info('Browser permissions:', permissions);
 
             // Get existing history items first
             const existingHistory = await this.historyRepository.getAll();

@@ -4,7 +4,6 @@ const log = require('electron-log');
 const MainWindow = require('../../presentation/electron/windows/MainWindow');
 const IpcHandlers = require('../../presentation/electron/handlers/IpcHandlers');
 const UpdateHandlers = require('../../presentation/electron/handlers/UpdateHandlers');
-const PermissionService = require('../../infrastructure/permissions/PermissionService');
 
 class ApplicationService {
   constructor(historyService, bookmarkService) {
@@ -13,7 +12,6 @@ class ApplicationService {
     this.mainWindow = new MainWindow();
     this.ipcHandlers = new IpcHandlers(historyService, bookmarkService, this, this.mainWindow);
     this.updateHandlers = new UpdateHandlers(this.mainWindow);
-    this.permissionService = new PermissionService(this.mainWindow);
 
     // Bind methods to maintain context
     this.handleWindowAllClosed = this.handleWindowAllClosed.bind(this);
@@ -54,14 +52,11 @@ class ApplicationService {
       // Setup auto start
       this.setupAutoStart();
 
-      // Check permissions before starting history import
-      if (this.permissionService.checkPermissions()) {
-        // Start initial import
-        await this.importBrowserData();
+      // Start initial import
+      await this.importBrowserData();
 
-        // Start periodic imports
-        this.startPeriodicImports();
-      }
+      // Start periodic imports
+      this.startPeriodicImports();
     } catch (error) {
       log.error('Failed to initialize application services:', error);
       app.quit();
