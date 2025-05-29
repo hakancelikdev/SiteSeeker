@@ -1,4 +1,4 @@
-const BaseRepository = require('./base-repository');
+const BaseRepository = require('../db/base-repository');
 
 class WindowPositionRepository extends BaseRepository {
     constructor() {

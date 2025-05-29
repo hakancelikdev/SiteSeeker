@@ -3,7 +3,7 @@ const path = require('path');
 const { BrowserWindow, screen, nativeTheme, ipcMain, app } = require('electron');
 const log = require('electron-log');
 
-const WindowPositionRepository = require('../../../infrastructure/persistence/WindowPositionRepository');
+const WindowPositionRepository = require('../../../infrastructure/persistence/repositories/WindowPositionRepository');
 
 class MainWindow {
   constructor() {
