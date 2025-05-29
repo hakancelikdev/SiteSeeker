@@ -30,7 +30,7 @@ const INITIAL_SCORE = 1;
 let searchResults = [];
 let currentSearchTerm = '';
 let selectedResultIndex = -1;
-let isCommandKeyPressed = false; // Track Command key state
+let isCommandKeyPressed = false; // eslint-disable-line
 let historyCount = 0;
 let bookmarkCount = 0;
 
@@ -573,20 +573,20 @@ document.addEventListener('DOMContentLoaded', () => {
     initialize();
 });
 
-function handleImportClick() {
-    if (window.api) {
-        window.api.send('importHistory');
-    }
-}
+// function handleImportClick() {
+//     if (window.api) {
+//         window.api.send('importHistory');
+//     }
+// }
 
-function handleResetClick() {
-    if (window.api) {
-        window.api.send('resetHistory');
-    }
-}
+// function handleResetClick() {
+//     if (window.api) {
+//         window.api.send('resetHistory');
+//     }
+// }
 
-function handleResultClick(result, event) {
-    if (window.api) {
-        window.api.send('open-url', result.url);
-    }
-}
+// function handleResultClick(result, event) {  // noqa: no-unused-vars
+//     if (window.api) {
+//         window.api.send('open-url', result.url);
+//     }
+// }

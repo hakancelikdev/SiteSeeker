@@ -13,7 +13,7 @@ class BaseHistoryProvider {
     throw new Error('getProfiles() must be implemented by subclass');
   }
 
-  async importHistory(uniqueUrls = new Set(), fromTime = 0) {
+  async importHistory(uniqueUrls = new Set(), fromTime = 0) {  // eslint-disable-line
     throw new Error('importHistory() must be implemented by subclass');
   }
 
@@ -32,15 +32,6 @@ class BaseHistoryProvider {
   logWarn(message) {
     log.warn(message);
   }
-
-  async getHistory() {
-    throw new Error('getHistory method must be implemented by subclasses');
-  }
-
-  async getHistoryByTimeRange(fromTime, toTime) {
-    const history = await this.getHistory();
-    return history.filter(item => item.lastVisitTime >= fromTime && item.lastVisitTime <= toTime);
-  }
 }
 
-module.exports = { BaseHistoryProvider };
+module.exports = BaseHistoryProvider;

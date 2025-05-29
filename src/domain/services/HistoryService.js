@@ -1,7 +1,6 @@
 const log = require('electron-log');
 
-const { HistoryProviderFactory } = require('../../infrastructure/browsers/history/HistoryProviderFactory');
-const { HistoryItem } = require('../models/HistoryItem');
+const HistoryProviderFactory = require('../../infrastructure/browsers/history/HistoryProviderFactory');
 
 class HistoryServiceError extends Error {
     constructor(message, code) {
@@ -256,4 +255,4 @@ class HistoryService {
     }
 }
 
-module.exports = { HistoryService };
+module.exports = HistoryService;

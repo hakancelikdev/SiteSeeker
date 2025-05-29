@@ -1,11 +1,11 @@
+const path = require('path');
 const fs = require('fs');
 const os = require('os');
-const path = require('path');
 
-const sqlite3 = require('sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const { app } = require('electron');
 
-const { BaseHistoryProvider } = require('../BaseHistoryProvider');
+const BaseHistoryProvider = require('../BaseHistoryProvider');
 const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 
 class FirefoxHistoryProvider extends BaseHistoryProvider {
@@ -130,4 +130,4 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
   }
 }
 
-module.exports = { FirefoxHistoryProvider };
+module.exports = FirefoxHistoryProvider;

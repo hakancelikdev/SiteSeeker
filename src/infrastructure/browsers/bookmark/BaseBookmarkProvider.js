@@ -1,6 +1,4 @@
-const path = require('path');
 const fs = require('fs');
-const os = require('os');
 
 const log = require('electron-log');
 
@@ -26,7 +24,7 @@ class BaseBookmarkProvider {
         }
     }
 
-    filterProfiles(items) {
+    filterProfiles(items) {  // eslint-disable-line
         throw new Error('filterProfiles method must be implemented by child class');
     }
 
@@ -52,7 +50,7 @@ class BaseBookmarkProvider {
         return allBookmarks;
     }
 
-    importBookmarksFromProfile(profile, uniqueUrls) {
+    importBookmarksFromProfile(profile, uniqueUrls) {  // eslint-disable-line
         throw new Error('importBookmarksFromProfile method must be implemented by child class');
     }
 }
