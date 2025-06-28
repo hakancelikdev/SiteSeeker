@@ -2,6 +2,17 @@
 
 Your intelligent browser history and bookmark search companion for macOS. Find anything in your browsing history instantly with a beautiful, native interface.
 
+## 🌐 Website
+
+Visit our beautiful landing page: **[SiteSeeker Website](https://hakancelikdev.github.io/SiteSeeker)**
+
+The website includes:
+- ✨ Interactive demo and feature showcase
+- 📱 Responsive design for all devices
+- 🎯 Clear installation and usage instructions
+- 🚀 Download links and system requirements
+- 👨‍💻 Developer information and mission/vision
+
 ## ✨ Key Features
 
 ### 🔍 Smart Search
