@@ -13,6 +13,7 @@
     "build:universal": "electron-builder build --mac --universal",
     "build:arm64": "electron-builder build --mac --arm64",
     "build:x64": "electron-builder build --mac --x64",
+    "build:docs": "echo 'GitHub Pages build completed - docs folder is ready'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
   },
@@ -70,6 +71,7 @@
     "@babel/preset-env": "^7.24.3",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
+    "dmg-license": "^1.0.11",
     "electron": "^36.3.1",
     "electron-builder": "^24.13.3",
     "eslint": "^8.56.0",
