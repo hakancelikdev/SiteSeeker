@@ -1,0 +1,119 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Commit Standards
+
+## Description
+This rule defines the standardized process for creating commits that follow conventional commit format and best practices.
+
+## Commit Format
+```
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+## Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Code style changes (formatting, missing semi colons, etc)
+- `refactor`: Code refactoring
+- `perf`: Performance improvements
+- `test`: Adding or modifying tests
+- `build`: Build system or external dependency changes
+- `ci`: CI configuration changes
+- `chore`: Other changes that don't modify src or test files
+- `revert`: Reverts a previous commit
+
+## Commit message lenght
+max length of message must be 76 character
+
+## Scope
+- Optional part that provides additional contextual information
+- Should be a noun describing the section of the codebase
+- Examples: `auth`, `api`, `ui`, `deps`, `core`
+
+## Description
+- Use imperative, present tense: "change" not "changed" nor "changes"
+- Don't capitalize first letter
+- No period (.) at the end
+- Maximum 72 characters
+- Should complete the sentence "If applied, this commit will..."
+
+## Body
+- Optional detailed description
+- Use imperative, present tense
+- Include motivation for change
+- Contrast with previous behavior
+- Wrap at 72 characters
+
+## Footer
+- Optional
+- Reference issues and PRs
+- Breaking changes must start with `BREAKING CHANGE:`
+- Format: `<token>: <value>`
+
+## Examples
+```bash
+# Feature with scope
+feat(auth): add OAuth2 authentication
+
+# Bug fix
+fix: resolve memory leak in worker pool
+
+# Breaking change
+feat(api)!: remove deprecated endpoints
+
+BREAKING CHANGE: API endpoints /v1/* have been removed
+
+# Multiple scopes
+feat(api,auth): implement token refresh mechanism
+
+# Referencing issues
+fix: prevent racing of requests
+
+Refs: #123
+```
+
+## Validation
+- Commit message follows conventional commit format
+- Type is one of the allowed types
+- Description is clear and concise
+- Breaking changes are properly marked
+- Related issues are referenced
+- Body wraps at 72 characters
+
+## Git Commands
+```bash
+# Good commit
+git commit -m "feat(auth): implement password reset flow"
+
+# With body
+git commit -m "feat(api): add new endpoint for user preferences
+
+This change introduces a new REST endpoint for managing user preferences.
+The endpoint supports both GET and PUT operations.
+
+Refs: #456"
+
+# Amend last commit
+git commit --amend
+
+# Interactive rebase to clean up commits
+git rebase -i HEAD~3
+```
+
+## Tools
+- Commitlint: Lint commit messages
+- Commitizen: Interactive commit message builder
+- Husky: Git hooks for commit validation
+
+## Related
+- `.husky/commit-msg`: Commit message hook
+- `.commitlintrc.js`: Commit lint configuration
+- `CHANGELOG.md`: Generated from commits

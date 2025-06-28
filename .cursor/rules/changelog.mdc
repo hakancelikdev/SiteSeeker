@@ -1,0 +1,76 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Changelog Writing Guidelines
+
+## General Format
+- Follow the Keep a Changelog (https://keepachangelog.com/en/1.0.0/) format
+- Adhere to Semantic Versioning (https://semver.org/spec/v2.0.0.html) rules
+- Include date for each version in [YYYY-MM-DD] format
+
+## Version Structure
+Each version should include the following sections:
+
+### ✨ New Features
+- Newly added features
+- Short and descriptive title for each feature
+- **Bold** emphasis for important features
+- Detailed sub-points where necessary
+
+### 🔄 Improvements
+- Enhancements to existing features
+- Performance improvements
+- Code quality updates
+- User experience improvements
+
+### 🐛 Bug Fixes
+- Resolved bugs
+- Fixed issues
+- Optimizations
+
+### 🗑️ Removed
+- Removed features
+- Deprecated functions
+- Legacy/unsupported features
+
+### 🔒 Security
+- Security updates
+- Security improvements
+- Security fixes
+
+## Writing Rules
+1. Write clear and understandable descriptions for each change
+2. Use technical terms correctly
+3. Start each item with a verb (e.g., "Added", "Fixed", "Improved")
+4. Use **bold** text to emphasize important changes
+5. Mark relevant sections with emojis
+6. Include date for each version
+7. Categorize changes appropriately
+8. List items under each category with dashes (-)
+
+## Example Format
+```markdown
+## [X.Y.Z] - YYYY-MM-DD
+
+### ✨ New Features
+- **Important Feature**: Detailed description
+- New feature 1
+- New feature 2
+
+### 🔄 Improvements
+- Improvement 1
+- Improvement 2
+
+### 🐛 Bug Fixes
+- Bug fix 1
+- Bug fix 2
+```
+
+## Important Notes
+1. Each version number should be meaningful (MAJOR.MINOR.PATCH)
+2. Dates should be accurate and consistent
+3. Changes should be listed in chronological order (newest at top)
+4. Provide sufficient detail for each change
+5. Use technical terms and jargon correctly

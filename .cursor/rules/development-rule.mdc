@@ -1,0 +1,16 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+- Always up to date
+- Always respect DDD princibles
+- Always respect best practices in software design
+- Always respect particularly around Clean Code
+- Always respect SOLID principles
+- Always respect TDD practices
+- Always respect Object-Oriented Design
+- Always respect Domain-Driven Design (DDD)
+- Always respect to build a scalable, maintainable, and extendable
+- Existing tests should never be changed. If the feature has changed, it should be changed.
+- Development language is english

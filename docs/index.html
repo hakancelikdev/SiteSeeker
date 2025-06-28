@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiteSeeker - Intelligent Browser History & Bookmark Search for macOS</title>
+    <meta name="description" content="Find anything in your browsing history instantly with SiteSeeker. A beautiful, native macOS app for lightning-fast search through Chrome and Firefox history and bookmarks.">
+    <meta name="keywords" content="macOS, browser history, bookmark search, productivity, Chrome, Firefox, search tool, browser search, history search">
+    <meta name="author" content="Hakan Çelik">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#007AFF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="SiteSeeker">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hakancelikdev.github.io/SiteSeeker/">
+    <meta property="og:title" content="SiteSeeker - Intelligent Browser History & Bookmark Search">
+    <meta property="og:description" content="Find anything in your browsing history instantly with a beautiful, native interface.">
+    <meta property="og:image" content="https://hakancelikdev.github.io/SiteSeeker/assets/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="SiteSeeker">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://hakancelikdev.github.io/SiteSeeker/">
+    <meta property="twitter:title" content="SiteSeeker - Intelligent Browser History & Bookmark Search">
+    <meta property="twitter:description" content="Find anything in your browsing history instantly with a beautiful, native interface.">
+    <meta property="twitter:image" content="https://hakancelikdev.github.io/SiteSeeker/assets/og-image.png">
+    <meta property="twitter:creator" content="@hakancelikdev">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "SiteSeeker",
+        "description": "Intelligent browser history and bookmark search companion for macOS",
+        "url": "https://hakancelikdev.github.io/SiteSeeker/",
+        "applicationCategory": "ProductivityApplication",
+        "operatingSystem": "macOS",
+        "operatingSystemVersion": "10.15+",
+        "softwareVersion": "1.2.6",
+        "downloadUrl": "https://github.com/hakancelikdev/SiteSeeker/releases/latest",
+        "author": {
+            "@type": "Person",
+            "name": "Hakan Çelik",
+            "url": "https://x.com/hakancelikdev"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "150"
+        }
+    }
+    </script>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="assets/hero-app.png" as="image">
+    <link rel="preload" href="assets/logo.png" as="image">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <img src="assets/logo.png" alt="SiteSeeker Logo" class="logo-img" width="32" height="32">
+                <span class="logo-text">SiteSeeker</span>
+            </div>
+            <div class="nav-links" role="menubar">
+                <a href="#features" role="menuitem">Features</a>
+                <a href="#download" role="menuitem">Download</a>
+                <a href="#how-to-use" role="menuitem">How to Use</a>
+                <a href="#about" role="menuitem">About</a>
+                <a href="https://apps.apple.com/app/siteseeker/id1234567890" target="_blank" rel="noopener noreferrer" class="app-store-link" role="menuitem" aria-label="Download from App Store">
+                    <i class="fab fa-app-store" aria-hidden="true"></i> App Store
+                </a>
+            </div>
+            <button class="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main content wrapper -->
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="hero" role="banner">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        Find Anything in Your Browser History
+                        <span class="hero-subtitle">Instantly</span>
+                    </h1>
+                    <p class="hero-description">
+                        SiteSeeker is your intelligent companion for searching through browser history and bookmarks.
+                        Lightning-fast search with a beautiful, native macOS interface.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="https://apps.apple.com/app/siteseeker/id1234567890" target="_blank" rel="noopener noreferrer" class="btn btn-primary" aria-label="Download SiteSeeker from Mac App Store">
+                            <i class="fab fa-app-store" aria-hidden="true"></i>
+                            Download from App Store
+                        </a>
+                    </div>
+                    <div class="hero-stats" role="list" aria-label="Key features">
+                        <div class="stat" role="listitem">
+                            <span class="stat-number" aria-label="Lightning fast">⚡</span>
+                            <span class="stat-text">Lightning Fast</span>
+                        </div>
+                        <div class="stat" role="listitem">
+                            <span class="stat-number" aria-label="Privacy first">🔒</span>
+                            <span class="stat-text">Privacy First</span>
+                        </div>
+                        <div class="stat" role="listitem">
+                            <span class="stat-number" aria-label="Smart search">🎯</span>
+                            <span class="stat-text">Smart Search</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="assets/hero-app.png" alt="SiteSeeker App Interface showing search results" class="app-screenshot" width="800" height="600" loading="eager">
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features" role="region" aria-labelledby="features-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="features-heading">Why Choose SiteSeeker?</h2>
+                    <p>Built with modern macOS design principles and powerful search capabilities</p>
+                </div>
+
+                <div class="features-grid" role="list">
+                    <div class="feature-card" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>Smart Search</h3>
+                        <p>Intelligent ranking with bookmarks and frequently visited pages prioritized. Find what you need even with partial words.</p>
+                        <ul class="feature-list">
+                            <li>Lightning fast results in milliseconds</li>
+                            <li>Partial matching support</li>
+                            <li>Bookmark search with 'b:' prefix</li>
+                            <li>Intelligent relevance scoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Multi-Browser Support</h3>
+                        <p>Search through Chrome and Firefox history and bookmarks in one unified interface.</p>
+                        <ul class="feature-list">
+                            <li>Chrome integration</li>
+                            <li>Firefox integration</li>
+                            <li>Real-time sync</li>
+                            <li>Visual indicators for bookmarks</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-apple"></i>
+                        </div>
+                        <h3>Native Experience</h3>
+                        <p>Built specifically for macOS with modern design and seamless integration.</p>
+                        <ul class="feature-list">
+                            <li>Global shortcut ⌘+⇧+Space</li>
+                            <li>macOS Sonoma style interface</li>
+                            <li>Automatic dark/light mode following system preference</li>
+                            <li>Multi-display support</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Privacy & Performance</h3>
+                        <p>Your data stays on your computer with minimal system impact.</p>
+                        <ul class="feature-list">
+                            <li>Local-first data storage</li>
+                            <li>Resource efficient</li>
+                            <li>macOS sandbox compliance</li>
+                            <li>Optimized SQLite database</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card" role="listitem">
+                        <div class="feature-icon" aria-hidden="true">
+                            <i class="fas fa-palette"></i>
+                        </div>
+                        <h3>Smart Theme System</h3>
+                        <p>Seamlessly adapts to your system preferences for the perfect viewing experience.</p>
+                        <ul class="feature-list">
+                            <li>Automatic dark/light mode detection</li>
+                            <li>Follows macOS system theme preference</li>
+                            <li>Real-time theme switching</li>
+                            <li>Optimized for both light and dark environments</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Section -->
+        <section id="download" class="download" role="region" aria-labelledby="download-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="download-heading">Download SiteSeeker</h2>
+                    <p>Get started with the latest version for macOS</p>
+                </div>
+
+                <div class="download-options" role="list">
+                    <div class="download-card" role="listitem">
+                        <div class="download-icon" aria-hidden="true">
+                            <i class="fab fa-app-store"></i>
+                        </div>
+                        <h3>Mac App Store</h3>
+                        <p class="version">v1.2.6</p>
+                        <p>Official App Store version with automatic updates</p>
+                        <a href="https://apps.apple.com/app/siteseeker/id1234567890" target="_blank" rel="noopener noreferrer" class="btn btn-primary" aria-label="Download SiteSeeker from Mac App Store">
+                            Download from App Store
+                        </a>
+                    </div>
+                </div>
+
+                <div class="system-requirements">
+                    <h3>System Requirements</h3>
+                    <div class="requirements-grid" role="list">
+                        <div class="requirement" role="listitem">
+                            <i class="fab fa-apple" aria-hidden="true"></i>
+                            <span>macOS 10.15+</span>
+                        </div>
+                        <div class="requirement" role="listitem">
+                            <i class="fas fa-memory" aria-hidden="true"></i>
+                            <span>4GB RAM</span>
+                        </div>
+                        <div class="requirement" role="listitem">
+                            <i class="fas fa-hdd" aria-hidden="true"></i>
+                            <span>50MB free space</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How to Use Section -->
+        <section id="how-to-use" class="how-to-use" role="region" aria-labelledby="how-to-use-heading">
+            <div class="container">
+                <div class="section-header">
+                    <h2 id="how-to-use-heading">How to Use SiteSeeker</h2>
+                    <p>Get up and running in minutes</p>
+                </div>
+
+                <div class="steps-container" role="list">
+                    <div class="step" role="listitem">
+                        <div class="step-number" aria-label="Step 1">1</div>
+                        <div class="step-content">
+                            <h3>Download and Install</h3>
+                            <p>Download SiteSeeker from the Mac App Store. Install and launch the application.</p>
+                            <div class="step-image">
+                                <img src="assets/install-step.png" alt="Install step showing Applications folder" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step" role="listitem">
+                        <div class="step-number" aria-label="Step 2">2</div>
+                        <div class="step-content">
+                            <h3>Start Searching</h3>
+                            <p>Use the global shortcut ⌘+⇧+Space to open SiteSeeker anywhere. Type to search through your history and bookmarks.</p>
+                            <div class="step-image">
+                                <img src="assets/search-step.png" alt="Search step showing active search interface" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step" role="listitem">
+                        <div class="step-number" aria-label="Step 3">3</div>
+                        <div class="step-content">
+                            <h3>Advanced Features</h3>
+                            <p>Use 'b:' prefix to search only bookmarks. Results are intelligently ranked by relevance and visit frequency.</p>
+                            <div class="step-image">
+                                <img src="assets/advanced-step.png" alt="Advanced features step showing bookmark search" loading="lazy">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="keyboard-shortcuts">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="shortcuts-grid" role="list">
+                        <div class="shortcut" role="listitem">
+                            <kbd>⌘ + ⇧ + Space</kbd>
+                            <span>Open SiteSeeker</span>
+                        </div>
+                        <div class="shortcut" role="listitem">
+                            <kbd>↑ ↓</kbd>
+                            <span>Navigate results</span>
+                        </div>
+                        <div class="shortcut" role="listitem">
+                            <kbd>Command + Click or Enter</kbd>
+                            <span>Open selected item</span>
+                        </div>
+                        <div class="shortcut" role="listitem">
+                            <kbd>Esc or Click Outside</kbd>
+                            <span>Invisible SiteSeeker</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="about" role="region" aria-labelledby="about-heading">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2 id="about-heading">About SiteSeeker</h2>
+
+                        <div class="mission-vision">
+                            <div class="mission">
+                                <h3><i class="fas fa-bullseye" aria-hidden="true"></i> Our Mission</h3>
+                                <p>To provide macOS users with the fastest, most intuitive way to search through their browser history and bookmarks, enhancing productivity through intelligent search technology.</p>
+                            </div>
+
+                            <div class="vision">
+                                <h3><i class="fas fa-eye" aria-hidden="true"></i> Our Vision</h3>
+                                <p>To become the go-to search companion for macOS users, offering seamless integration with all major browsers while maintaining the highest standards of privacy and performance.</p>
+                            </div>
+                        </div>
+
+                        <div class="values">
+                            <h3>Our Values</h3>
+                            <div class="values-grid" role="list">
+                                <div class="value" role="listitem">
+                                    <i class="fas fa-rocket" aria-hidden="true"></i>
+                                    <h4>Performance</h4>
+                                    <p>Lightning-fast search with minimal system impact</p>
+                                </div>
+                                <div class="value" role="listitem">
+                                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                                    <h4>Privacy</h4>
+                                    <p>Your data stays on your computer, always</p>
+                                </div>
+                                <div class="value" role="listitem">
+                                    <i class="fas fa-palette" aria-hidden="true"></i>
+                                    <h4>Design</h4>
+                                    <p>Beautiful, native macOS interface</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="developer">
+                            <h3>Developer</h3>
+                            <div class="developer-info">
+                                <img src="https://pbs.twimg.com/profile_images/1856415817933410304/JohC0bSE_400x400.jpg" alt="Hakan Çelik" class="developer-avatar" width="80" height="80" loading="lazy">
+                                <div class="developer-details">
+                                    <h4>Hakan Çelik</h4>
+                                    <p>Software developer @ Trendyol | Solving my problems — and yours too.</p>
+                                    <div class="developer-links">
+                                        <a href="https://x.com/hakancelikdev" target="_blank" rel="noopener noreferrer" aria-label="Follow Hakan Çelik on Twitter">
+                                            <i class="fab fa-twitter" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="https://linkedin.com/in/hakancelikdev" target="_blank" rel="noopener noreferrer" aria-label="Connect with Hakan Çelik on LinkedIn">
+                                            <i class="fab fa-linkedin" aria-hidden="true"></i>
+                                        </a>
+                                        <a href="https://github.com/hakancelikdev" target="_blank" rel="noopener noreferrer" aria-label="View Hakan Çelik on GitHub">
+                                            <i class="fab fa-github" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta" role="region" aria-labelledby="cta-heading">
+            <div class="container">
+                <div class="cta-content">
+                    <h2 id="cta-heading">Ready to Boost Your Productivity?</h2>
+                    <p>Join thousands of users who have made SiteSeeker their go-to search companion</p>
+                    <div class="cta-buttons">
+                        <a href="https://apps.apple.com/app/siteseeker/id1234567890" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-large" aria-label="Download SiteSeeker from Mac App Store">
+                            <i class="fab fa-app-store" aria-hidden="true"></i>
+                            Download from App Store
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="assets/logo.png" alt="SiteSeeker Logo" class="logo-img" width="32" height="32">
+                        <span class="logo-text">SiteSeeker</span>
+                    </div>
+                    <p>Your intelligent browser history and bookmark search companion for macOS.</p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Links</h4>
+                    <ul role="list">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#download">Download</a></li>
+                        <li><a href="#how-to-use">How to Use</a></li>
+                        <li><a href="#about">About</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul role="list">
+                        <li><a href="https://x.com/hakancelikdev" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+                        <li><a href="https://linkedin.com/in/hakancelikdev" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+                        <li><a href="https://github.com/hakancelikdev" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>&copy; 2025 Hakan Çelik. Made with ❤️</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

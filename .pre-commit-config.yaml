@@ -1,0 +1,27 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v4.0.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+        args:
+          - feat     # New features
+          - fix      # Bug fixes
+          - docs     # Documentation changes
+          - style    # Code style changes (formatting, semicolons etc)
+          - refactor # Code refactoring
+          - perf     # Performance improvements
+          - test     # Adding or modifying tests
+          - build    # Build system or external dependency changes
+          - ci       # CI configuration changes
+          - chore    # Other changes
+          - revert   # Reverting a previous commit

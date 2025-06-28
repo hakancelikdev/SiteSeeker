@@ -1,0 +1,69 @@
+# GitHub Pages Configuration for SiteSeeker
+# This file configures the GitHub Pages site
+
+# Site settings
+title: SiteSeeker
+description: Intelligent browser history and bookmark search for macOS
+author: Hakan Çelik
+email: contact@hakancelik.dev
+url: https://siteseeker.hakancelik.dev/
+
+# Repository settings
+repository: hakancelikdev/SiteSeeker
+repository_url: https://github.com/hakancelikdev/SiteSeeker
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+      author: "Hakan Çelik"
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .github
+  - README.md
+  - LICENSE
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - package.json
+  - package-lock.json
+  - main.js
+  - src/
+  - build/
+  - dist/
+
+# Include files
+include:
+  - _config.yml
+  - index.html
+  - styles.css
+  - script.js
+  - assets/
+
+# SEO settings
+lang: en_US
+locale: en_US
