@@ -60,6 +60,7 @@ class BookmarkService {
     }
 
     async importRecentBookmarks() {
+        // For bookmarks, we always import all since they don't have timestamps like history
         try {
             log.info('Starting bookmark import...');
             return await this.importFromBrowser();
@@ -78,6 +79,25 @@ class BookmarkService {
             return bookmarkCount;
         } catch (error) {
             log.error('Error getting bookmark count:', error);
+            throw error;
+        }
+    }
+
+    async resetBookmarks() {
+        try {
+            log.info('Resetting bookmarks...');
+            const historyItems = await this.historyRepository.getAll();
+
+            // Remove bookmark flag from all items
+            const updatedHistory = historyItems.map(item => ({
+                ...item,
+                isBookmark: false
+            }));
+
+            await this.historyRepository.save(updatedHistory);
+            log.info('Bookmarks reset successfully');
+        } catch (error) {
+            log.error('Error resetting bookmarks:', error);
             throw error;
         }
     }

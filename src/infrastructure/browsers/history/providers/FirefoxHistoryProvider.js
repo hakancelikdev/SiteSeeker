@@ -2,9 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const sqlite3 = require('sqlite3').verbose();
 const { app } = require('electron');
+const sqlite3 = require('sqlite3').verbose();
 
+const ElectronStore = require('../../../persistence/ElectronStore');
 const BaseHistoryProvider = require('../BaseHistoryProvider');
 const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 
@@ -12,6 +13,7 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
   constructor() {
     super();
     this.basePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+    this.electronStore = new ElectronStore();
     this.logInfo('FirefoxHistoryProvider initialized with base path: ' + this.basePath);
   }
 
@@ -102,12 +104,13 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
               for (const row of rows) {
                 if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
                   uniqueUrls.add(row.url);
-                  allHistory.push(this.createHistoryItem(
+                  const historyItem = this.createHistoryItem(
                     row.title,
                     row.url,
                     INITIAL_SCORE,
                     row.visit_date ? (row.visit_date/1000000) * 1000 : null
-                  ));
+                  );
+                  allHistory.push(historyItem);
                 }
               }
               resolve();
@@ -122,6 +125,16 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
         fs.unlinkSync(tempPath);
       } catch (error) {
         this.logError(`Error importing Firefox history for profile ${profile}:`, error);
+      }
+    }
+
+    // Bulk save all imported history items to electron-store
+    if (allHistory.length > 0) {
+      try {
+        this.electronStore.setArray("history", allHistory);
+        this.logInfo(`Bulk saved ${allHistory.length} history items to electron-store`);
+      } catch (error) {
+        this.logError('Failed to bulk save history items to electron-store:', error);
       }
     }
 

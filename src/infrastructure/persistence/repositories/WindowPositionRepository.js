@@ -1,22 +1,31 @@
-const BaseRepository = require('../db/base-repository');
+const ElectronStore = require('../ElectronStore');
 
-class WindowPositionRepository extends BaseRepository {
+class WindowPositionRepository {
     constructor() {
-        super('window_positions');
+        this.store = new ElectronStore();
     }
 
     async savePosition(x, y) {
-        const data = {
-            x: x,
-            y: y
-        };
-        return await this.create(data);
+        try {
+            this.store.set('windowPosition', { x, y });
+        } catch (error) {
+            console.error('Error saving window position:', error);
+            throw error;
+        }
     }
 
     async getLatestPosition() {
-        const query = 'SELECT x, y FROM window_positions ORDER BY created_at DESC LIMIT 1';
-        const result = await this.executeQuery(query);
-        return result[0] ? { x: result[0].x, y: result[0].y } : null;
+        try {
+            return this.store.get('windowPosition', null);
+        } catch (error) {
+            console.error('Error getting window position:', error);
+            return null;
+        }
+    }
+
+    async close() {
+        // ElectronStore doesn't need explicit closing
+        // This method is kept for compatibility
     }
 }
 

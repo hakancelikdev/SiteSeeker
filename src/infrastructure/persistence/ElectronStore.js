@@ -91,6 +91,27 @@ class ElectronStore {
         }
     }
 
+    setArray(key, array) {
+        if (!this.store) {
+            throw new ElectronStoreError(
+                'Store not initialized',
+                'STORE_NOT_INITIALIZED'
+            );
+        }
+
+        try {
+            this.store.set(key, array);
+            log.debug(`Set array with ${array.length} items for key: ${key}`);
+        } catch (error) {
+            log.error(`Error setting array for key ${key}:`, error);
+            throw new ElectronStoreError(
+                `Failed to set array for key ${key}`,
+                'SET_ARRAY_FAILED',
+                error
+            );
+        }
+    }
+
     clear() {
         if (!this.store) {
             throw new ElectronStoreError(

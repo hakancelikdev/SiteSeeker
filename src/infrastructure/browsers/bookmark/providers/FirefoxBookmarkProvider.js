@@ -8,11 +8,13 @@ const log = require('electron-log');
 
 const BaseBookmarkProvider = require('../BaseBookmarkProvider');
 const BookmarkItem = require('../../../../domain/models/BookmarkItem');
+const ElectronStore = require('../../../../infrastructure/persistence/ElectronStore');
 
 class FirefoxBookmarkProvider extends BaseBookmarkProvider {
     constructor() {
         const basePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
         super('Firefox', basePath);
+        this.store = new ElectronStore();
     }
 
     filterProfiles(items) {
@@ -38,6 +40,7 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
         }
 
         try {
+            // Copy the database file to avoid locking issues
             fs.copyFileSync(placesPath, tempPath);
         } catch (error) {
             log.error(`Failed to copy Firefox places file for profile ${profile}:`, error);
@@ -48,7 +51,7 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
         try {
             db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
         } catch (error) {
-            log.error(`Failed to open Firefox places database for profile ${profile}:`, error);
+            log.error(`Failed to open Firefox database for profile ${profile}:`, error);
             return bookmarks;
         }
 
@@ -70,17 +73,32 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
 
                     log.info(`Found ${rows.length} bookmarks in Firefox profile ${profile}`);
 
+                    const importedBookmarks = [];
                     for (const row of rows) {
                         if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
                             uniqueUrls.add(row.url);
-                            bookmarks.push(new BookmarkItem(
+
+                            const bookmarkItem = new BookmarkItem(
                                 row.title.trim(),
                                 row.url,
                                 '', // Firefox'ta folder bilgisi farklı şekilde tutuluyor, şimdilik boş bırakıyoruz
                                 row.dateAdded ? (row.dateAdded/1000000) * 1000 : null
-                            ));
+                            );
+
+                            bookmarks.push(bookmarkItem);
+
+                            importedBookmarks.push({
+                                title: bookmarkItem.title,
+                                url: bookmarkItem.url,
+                                folder: bookmarkItem.folder,
+                                lastModified: bookmarkItem.lastModified,
+                                profile: profile
+                            });
                         }
                     }
+
+                    this.saveBookmarksToStore(importedBookmarks, profile);
+
                     resolve();
                 });
             });
@@ -96,6 +114,23 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
         }
 
         return bookmarks;
+    }
+
+    saveBookmarksToStore(importedBookmarks, profile) {
+        try {
+            const existingBookmarks = this.store.get('bookmarks', []);
+
+            const otherProfilesBookmarks = existingBookmarks.filter(bookmark =>
+                bookmark.profile !== profile
+            );
+
+            const updatedBookmarks = [...otherProfilesBookmarks, ...importedBookmarks];
+            this.store.set('bookmarks', updatedBookmarks);
+
+            log.info(`Saved ${importedBookmarks.length} bookmarks to electron-storage for profile ${profile}`);
+        } catch (error) {
+            log.error(`Failed to save bookmarks to electron-storage for profile ${profile}:`, error);
+        }
     }
 }
 

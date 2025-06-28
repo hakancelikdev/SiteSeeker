@@ -2,9 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const sqlite3 = require('sqlite3').verbose();
 const { app } = require('electron');
+const sqlite3 = require('sqlite3').verbose();
 
+const ElectronStore = require('../../../persistence/ElectronStore');
 const BaseHistoryProvider = require('../BaseHistoryProvider');
 const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 
@@ -12,6 +13,7 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
   constructor() {
     super();
     this.basePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+    this.electronStore = new ElectronStore();
     this.logInfo('ChromeHistoryProvider initialized with base path: ' + this.basePath);
   }
 
@@ -99,12 +101,13 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
                   const score = row.visit_count
                     ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
                     : INITIAL_SCORE;
-                  allHistory.push(this.createHistoryItem(
+                  const historyItem = this.createHistoryItem(
                     row.title,
                     row.url,
                     score,
                     row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
-                  ));
+                  );
+                  allHistory.push(historyItem);
                 }
               }
               resolve();
@@ -119,6 +122,16 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
         fs.unlinkSync(tempPath);
       } catch (error) {
         this.logError(`Error importing Chrome history for profile ${profile}:`, error);
+      }
+    }
+
+    // Bulk save all imported history items to electron-store
+    if (allHistory.length > 0) {
+      try {
+        this.electronStore.setArray("history", allHistory);
+        this.logInfo(`Bulk saved ${allHistory.length} history items to electron-store`);
+      } catch (error) {
+        this.logError('Failed to bulk save history items to electron-store:', error);
       }
     }
 
