@@ -28,8 +28,6 @@ docs/
 ├── script.js           # Interactive functionality
 ├── _config.yml         # GitHub Pages configuration
 ├── assets/             # Images and media files
-│   ├── logo.png
-│   ├── hero-app.png
 │   ├── install-step.png
 │   └── ...
 └── README.md           # Assets documentation

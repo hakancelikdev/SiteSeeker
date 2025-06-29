@@ -2,7 +2,7 @@
 
 Your intelligent browser history and bookmark search companion for macOS. Find anything in your browsing history instantly with a beautiful, native interface.
 
-![SiteSeeker Hero](hero-app.png)
+![SiteSeeker Hero](docs/assets/search-step.png)
 
 ## 🌐 Website
 
@@ -20,7 +20,7 @@ The website includes:
 
 ## ✨ Key Features
 
-<img src="icon.png" alt="SiteSeeker Icon" width="64" height="64">
+<img src="docs/assets/favicon.png" alt="SiteSeeker Icon" width="64" height="64">
 
 ### 🔍 Smart Search
 - **Lightning Fast**: Results in milliseconds
@@ -112,34 +112,6 @@ This repository contains the documentation website for SiteSeeker, built with we
 4. **Open in browser**
    Visit `http://localhost:8080` to see the website
 
-### Project Structure
-
-```
-SiteSeeker/
-├── docs/                  # Website files (GitHub Pages)
-│   ├── index.html         # Main website page
-│   ├── styles.css         # Website styles
-│   ├── script.js          # Website JavaScript
-│   ├── assets/            # Website images and assets
-│   │   ├── logo.png       # SiteSeeker logo
-│   │   ├── favicon.png    # Site favicon
-│   │   ├── hero-app.png   # Main app screenshot
-│   │   ├── og-image.png   # Social media image
-│   │   └── *.png          # Other step images
-│   ├── sitemap.xml        # SEO sitemap
-│   ├── robots.txt         # Search engine directives
-│   ├── _headers           # Security headers
-│   ├── _config.yml        # GitHub Pages configuration
-│   └── README.md          # Website documentation
-├── .github/              # GitHub workflows and templates
-│   └── workflows/        # CI/CD workflows
-│       ├── deploy.yml    # GitHub Pages deployment
-│       └── lint.yml      # Code linting
-├── README.md             # Project documentation
-├── CONTRIBUTING.md       # Contribution guidelines
-├── CHANGELOG.md          # Version history
-└── LICENSE              # Project license
-```
 
 ### Available Scripts
 

@@ -21,10 +21,7 @@ GitHub Pages automatically uses the `docs` folder. No build process is required 
 
 All necessary image files should be in the `assets/` folder:
 
-- `logo.png` - SiteSeeker logo
 - `favicon.png` - Site favicon
-- `hero-app.png` - Main application screenshot
-- `og-image.png` - Social media sharing image
 - `install-step.png` - Screenshot showing installation process
 - `search-step.png` - Screenshot showing search interface
 - `advanced-step.png` - Screenshot showing advanced features
