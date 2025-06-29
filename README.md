@@ -2,6 +2,8 @@
 
 Your intelligent browser history and bookmark search companion for macOS. Find anything in your browsing history instantly with a beautiful, native interface.
 
+![SiteSeeker Hero](hero-app.png)
+
 ## 🌐 Website
 
 Visit our beautiful landing page: **[SiteSeeker Website](https://siteseeker.hakancelik.dev/)**
@@ -17,6 +19,8 @@ The website includes:
 - 🔍 SEO optimized
 
 ## ✨ Key Features
+
+<img src="icon.png" alt="SiteSeeker Icon" width="64" height="64">
 
 ### 🔍 Smart Search
 - **Lightning Fast**: Results in milliseconds
