@@ -65,21 +65,18 @@ class MainWindow {
         savedPosition.y > screenHeight; // Window is completely below the screen
 
       if (isOutOfBounds) {
-        // If window is outside screen, place it on the left side
-        x = 20; // 20px margin from left
-        y = Math.min(
-          Math.max(20, savedPosition.y), // At least 20px margin from top
-          screenHeight - windowHeight - 20 // At least 20px margin from bottom
-        );
+        // If window is outside screen, place it in the center
+        x = Math.round((screenWidth - windowWidth) / 2); // Center horizontally
+        y = Math.round((screenHeight - windowHeight) / 2); // Center vertically
       } else {
         // If window is inside screen, show at saved position
         x = savedPosition.x;
         y = savedPosition.y;
       }
     } else {
-      // If no saved position or invalid, show on the left side
-      x = 20; // 20px margin from left
-      y = Math.floor((screenHeight - windowHeight) / 2); // Center vertically
+      // If no saved position or invalid, show in the center of the screen
+      x = Math.round((screenWidth - windowWidth) / 2); // Center horizontally
+      y = Math.round((screenHeight - windowHeight) / 2); // Center vertically
     }
 
     log.info('Creating window with position:', { x, y });

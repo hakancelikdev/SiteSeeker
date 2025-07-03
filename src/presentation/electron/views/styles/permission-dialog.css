@@ -1,0 +1,308 @@
+/* Permission Dialog Styles */
+:root {
+    --primary-bg: rgba(28, 28, 28, 0.85);
+    --secondary-bg: rgba(255, 255, 255, 0.08);
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --accent-color: #0A84FF;
+    --danger-color: #FF453A;
+    --success-color: #32D74B;
+    --border-radius: 12px;
+    --button-radius: 8px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --text-on-accent: #0A84FF;
+}
+
+/* Light theme variables */
+[data-theme="light"] {
+    --primary-bg: rgba(255, 255, 255, 0.85);
+    --secondary-bg: rgba(0, 0, 0, 0.08);
+    --text-primary: rgba(0, 0, 0, 0.95);
+    --text-secondary: rgba(0, 0, 0, 0.65);
+    --accent-color: #0071E3;
+    --danger-color: #FF3B30;
+    --success-color: #34C759;
+    --result-border: rgba(0,0,0,0.08);
+    --text-on-accent: #0071E3;
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+    --primary-bg: rgba(28, 28, 28, 0.85);
+    --secondary-bg: rgba(255, 255, 255, 0.08);
+    --text-primary: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --accent-color: #0A84FF;
+    --danger-color: #FF453A;
+    --success-color: #32D74B;
+    --result-border: rgba(255,255,255,0.08);
+    --text-on-accent: #0A84FF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: var(--primary-bg);
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+}
+
+.permission-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.permission-content {
+    background: var(--primary-bg);
+    backdrop-filter: blur(30px) saturate(180%);
+    border-radius: var(--border-radius);
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--result-border);
+    text-align: center;
+}
+
+.permission-header {
+    margin-bottom: 32px;
+}
+
+.app-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--accent-color);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 24px rgba(10, 132, 255, 0.3);
+}
+
+.app-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.app-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.permission-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+.permission-body {
+    margin-bottom: 32px;
+}
+
+.permission-description {
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.permission-paths {
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.paths-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+.path-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 16px;
+}
+
+.path-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--secondary-bg);
+    border-radius: 12px;
+    border: 1px solid var(--result-border);
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+    font-size: 13px;
+    word-break: break-all;
+}
+
+.path-item i {
+    font-size: 16px;
+    color: var(--accent-color);
+    width: 20px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.path-item .path-text {
+    color: var(--text-primary);
+    flex: 1;
+}
+
+.path-item .browser-name {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.permission-note {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(10, 132, 255, 0.1);
+    border-radius: 12px;
+    border: 1px solid rgba(10, 132, 255, 0.2);
+    text-align: left;
+}
+
+.permission-note i {
+    color: var(--accent-color);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.permission-note span {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.permission-actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+.permission-btn {
+    padding: 14px 28px;
+    border-radius: var(--button-radius);
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 160px;
+    justify-content: center;
+}
+
+.permission-btn.primary {
+    background: var(--accent-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
+}
+
+.permission-btn.primary:hover {
+    background: var(--text-on-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(10, 132, 255, 0.4);
+}
+
+.permission-btn.secondary {
+    background: var(--secondary-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--result-border);
+}
+
+.permission-btn.secondary:hover {
+    background: var(--result-border);
+    transform: translateY(-2px);
+}
+
+.permission-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .permission-content {
+        padding: 20px;
+        margin: 12px;
+    }
+    
+    .permission-actions {
+        flex-direction: column;
+    }
+    
+    .permission-btn {
+        width: 100%;
+    }
+    
+    .app-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .app-icon i {
+        font-size: 28px;
+    }
+    
+    .app-title {
+        font-size: 24px;
+    }
+    
+    .permission-title {
+        font-size: 18px;
+    }
+}
+
+/* Scrollbar styling */
+.path-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.path-list::-webkit-scrollbar-track {
+    background: var(--secondary-bg);
+    border-radius: 3px;
+}
+
+.path-list::-webkit-scrollbar-thumb {
+    background: var(--result-border);
+    border-radius: 3px;
+}
+
+.path-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+} 

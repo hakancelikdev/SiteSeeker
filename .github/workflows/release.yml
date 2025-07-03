@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - main
+  pull_request:
+    branches: [ main ]
 
 permissions:
   contents: write
@@ -11,12 +15,13 @@ permissions:
 jobs:
   release:
     runs-on: macos-latest
+    if: startsWith(github.ref, 'refs/tags/')
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
@@ -50,6 +55,19 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         npm_config_build_from_source: true
 
+    - name: Build MAS (Mac App Store)
+      run: npm run build:mas
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        npm_config_build_from_source: true
+
+    - name: Upload to App Store Connect
+      run: |
+        xcrun altool --upload-app --type macos --file "dist/SiteSeeker-*-universal-mas.pkg" --username "${{ secrets.APPLE_ID }}" --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
@@ -57,6 +75,7 @@ jobs:
           dist/SiteSeeker-*-arm64-mac.pkg
           dist/SiteSeeker-*-x64-mac.pkg
           dist/SiteSeeker-*-universal-mac.pkg
+          dist/SiteSeeker-*-universal-mas.pkg
           dist/*.blockmap
           dist/latest-mac.yml
         generate_release_notes: true
@@ -64,3 +83,37 @@ jobs:
         prerelease: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  testflight:
+    runs-on: macos-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build MAS (Mac App Store)
+      run: npm run build:mas
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        npm_config_build_from_source: true
+
+    - name: Upload to TestFlight
+      run: |
+        xcrun altool --upload-app --type macos --file "dist/SiteSeeker-*-universal-mas.pkg" --username "${{ secrets.APPLE_ID }}" --password "${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}"
+      env:
+        APPLE_ID: ${{ secrets.APPLE_ID }}
+        APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+    - name: Notify TestFlight Upload
+      run: |
+        echo "✅ TestFlight'a yüklendi! Build: ${{ github.sha }}"
+        echo "📱 TestFlight'ta test edebilirsin"

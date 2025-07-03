@@ -1,4 +1,5 @@
 const { app, globalShortcut } = require('electron');
+const path = require('path');
 const log = require('electron-log');
 
 const ElectronStore = require('../../infrastructure/persistence/ElectronStore');
@@ -15,9 +16,9 @@ class ApplicationService {
     this.historyRepository = new HistoryRepository(this.store);
     this.historyService = new HistoryService(this.historyRepository);
     this.bookmarkService = new BookmarkService(this.historyRepository);
-    this.mainWindow = new MainWindow();
-    this.ipcHandlers = new IpcHandlers(this.historyService, this.bookmarkService, this, this.mainWindow);
-    this.updateHandlers = new UpdateHandlers(this.mainWindow);
+    this.mainWindow = null; // Will be created after permission is granted
+    this.ipcHandlers = null; // Will be created after permission is granted
+    this.updateHandlers = null; // Will be created after permission is granted
 
     // Bind methods to maintain context
     this.handleWindowAllClosed = this.handleWindowAllClosed.bind(this);
@@ -26,26 +27,22 @@ class ApplicationService {
 
   async initialize() {
     try {
-      log.info('Initializing application services...');
+      log.info('Initializing basic application services...');
 
       await app.whenReady();
 
-      this.mainWindow.create();
-      this.ipcHandlers.setup();
-      this.updateHandlers.setup();
-
-      // Register global shortcut
-      this.registerGlobalShortcut();
-
+      // Setup basic app event handlers
       app.on('window-all-closed', this.handleWindowAllClosed);
       app.on('activate', this.handleActivate);
 
       // Handle app quit
       app.on('before-quit', () => {
-        // Unregister shortcut
+        // Unregister shortcut if registered
         globalShortcut.unregisterAll();
         app.isQuitting = true;
-        this.mainWindow.setQuitting(true);
+        if (this.mainWindow) {
+          this.mainWindow.setQuitting(true);
+        }
       });
 
       // Handle force quit
@@ -58,13 +55,13 @@ class ApplicationService {
       // Setup auto start
       this.setupAutoStart();
 
-      // Start initial import
-      await this.importBrowserData();
+      // Note: Main window, IPC handlers, and global shortcut will be initialized after permission is granted
+      // this.mainWindow.create();
+      // this.ipcHandlers.setup();
+      // this.updateHandlers.setup();
+      // this.registerGlobalShortcut();
 
-      // Start periodic imports
-      this.startPeriodicImports();
-
-      log.info('Application services initialized successfully');
+      log.info('Basic application services initialized successfully');
     } catch (error) {
       log.error('Failed to initialize application services:', error);
       app.quit();
@@ -78,7 +75,9 @@ class ApplicationService {
   }
 
   handleActivate() {
-    this.mainWindow.show();
+    if (this.mainWindow) {
+      this.mainWindow.show();
+    }
   }
 
   setupAutoStart() {
@@ -129,6 +128,38 @@ class ApplicationService {
       return { historyCount: finalHistoryCount, bookmarkCount: finalBookmarkCount };
     } catch (error) {
       log.error('Error importing browser data:', error);
+      throw error;
+    }
+  }
+
+  async startImportAfterPermission() {
+    try {
+      log.info('Starting full application services after permission granted...');
+      
+      // Create main window
+      this.mainWindow = new MainWindow();
+      this.mainWindow.create();
+      
+      // Create and setup IPC handlers
+      this.ipcHandlers = new IpcHandlers(this.historyService, this.bookmarkService, this, this.mainWindow);
+      this.ipcHandlers.setup();
+      
+      // Create and setup update handlers
+      this.updateHandlers = new UpdateHandlers(this.mainWindow);
+      this.updateHandlers.setup();
+      
+      // Register global shortcut
+      this.registerGlobalShortcut();
+      
+      // Start initial import
+      await this.importBrowserData();
+
+      // Start periodic imports
+      this.startPeriodicImports();
+
+      log.info('Full application services started successfully after permission');
+    } catch (error) {
+      log.error('Error starting application services after permission:', error);
       throw error;
     }
   }
@@ -199,7 +230,7 @@ class ApplicationService {
       const results = await this.historyService.search(searchTerm);
       return results;
     } catch (error) {
-      log.error('Search error:', error);
+      log.error('Error searching:', error);
       throw error;
     }
   }
@@ -287,6 +318,127 @@ class ApplicationService {
         log.error('Periodic import error:', error);
       }
     }, 60000);
+  }
+
+  async hasStoredBrowserDataPaths() {
+    try {
+      const storedPaths = this.store.get('browserDataPaths');
+      return storedPaths && storedPaths.length > 0;
+    } catch (error) {
+      log.error('Error checking stored browser data paths:', error);
+      return false;
+    }
+  }
+
+  async storeBrowserDataPaths(selectedPath) {
+    try {
+      log.info('Storing browser data paths:', selectedPath);
+      
+      // Store the selected path
+      this.store.set('browserDataPaths', [selectedPath]);
+      
+      // Also update the browser providers with the new path
+      await this.updateBrowserProvidersWithPath(selectedPath);
+      
+      log.info('Browser data paths stored successfully');
+    } catch (error) {
+      log.error('Error storing browser data paths:', error);
+      throw error;
+    }
+  }
+
+  async updateBrowserProvidersWithPath(selectedPath) {
+    try {
+      log.info('Updating browser providers with path:', selectedPath);
+      
+      // Update Chrome provider
+      const ChromeHistoryProvider = require('../../infrastructure/browsers/history/providers/ChromeHistoryProvider');
+      const ChromeBookmarkProvider = require('../../infrastructure/browsers/bookmark/providers/ChromeBookmarkProvider');
+      
+      // Update Firefox provider
+      const FirefoxHistoryProvider = require('../../infrastructure/browsers/history/providers/FirefoxHistoryProvider');
+      const FirefoxBookmarkProvider = require('../../infrastructure/browsers/bookmark/providers/FirefoxBookmarkProvider');
+      
+      // Store the custom path for each provider
+      this.store.set('chromeHistoryPath', selectedPath);
+      this.store.set('chromeBookmarkPath', selectedPath);
+      this.store.set('firefoxHistoryPath', selectedPath);
+      this.store.set('firefoxBookmarkPath', selectedPath);
+      
+      log.info('Browser providers updated with custom path');
+    } catch (error) {
+      log.error('Error updating browser providers:', error);
+      throw error;
+    }
+  }
+
+  async getCustomBrowserDataPaths() {
+    try {
+      const storedPaths = this.store.get('browserDataPaths', []);
+      return storedPaths;
+    } catch (error) {
+      log.error('Error getting custom browser data paths:', error);
+      return [];
+    }
+  }
+
+  async storeDefaultBrowserDataPaths() {
+    try {
+      log.info('Storing default browser data paths...');
+      
+      // Get the default paths from the system
+      const homeDir = require('os').homedir();
+      const defaultPaths = [
+        path.join(homeDir, 'Library/Application Support/Google/Chrome'),
+        path.join(homeDir, 'Library/Application Support/Firefox/Profiles')
+      ];
+      
+      // Store the default paths
+      this.store.set('browserDataPaths', defaultPaths);
+      
+      // Also update the browser providers with the default paths
+      this.store.set('chromeHistoryPath', defaultPaths[0]);
+      this.store.set('chromeBookmarkPath', defaultPaths[0]);
+      this.store.set('firefoxHistoryPath', defaultPaths[1]);
+      this.store.set('firefoxBookmarkPath', defaultPaths[1]);
+      
+      log.info('Default browser data paths stored successfully');
+    } catch (error) {
+      log.error('Error storing default browser data paths:', error);
+      throw error;
+    }
+  }
+
+  async getBrowserDataPaths() {
+    try {
+      log.info('Getting browser data paths...');
+      
+      const homeDir = require('os').homedir();
+      log.info('Home directory:', homeDir);
+      
+      const chromePath = path.join(homeDir, 'Library/Application Support/Google/Chrome');
+      const firefoxPath = path.join(homeDir, 'Library/Application Support/Firefox/Profiles');
+      
+      log.info('Chrome path:', chromePath);
+      log.info('Firefox path:', firefoxPath);
+      
+      const paths = [
+        {
+          path: chromePath,
+          browser: 'Chrome'
+        },
+        {
+          path: firefoxPath,
+          browser: 'Firefox'
+        }
+      ];
+      
+      log.info('Browser data paths array:', paths);
+      return paths;
+    } catch (error) {
+      log.error('Error getting browser data paths:', error);
+      return [];
+    }
   }
 }
 

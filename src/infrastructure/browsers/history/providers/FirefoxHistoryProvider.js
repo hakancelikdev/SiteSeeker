@@ -3,7 +3,8 @@ const fs = require('fs');
 const os = require('os');
 
 const { app } = require('electron');
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
+const log = require('electron-log');
 
 const ElectronStore = require('../../../persistence/ElectronStore');
 const BaseHistoryProvider = require('../BaseHistoryProvider');
@@ -12,9 +13,24 @@ const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 class FirefoxHistoryProvider extends BaseHistoryProvider {
   constructor() {
     super();
-    this.basePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
     this.electronStore = new ElectronStore();
+    this.basePath = FirefoxHistoryProvider.getFirefoxBasePath();
     this.logInfo('FirefoxHistoryProvider initialized with base path: ' + this.basePath);
+  }
+
+  static getFirefoxBasePath() {
+    // Check for custom path first
+    const electronStore = new ElectronStore();
+    const customPath = electronStore.get('firefoxHistoryPath');
+    if (customPath && fs.existsSync(customPath)) {
+      log.info('Using custom Firefox path: ' + customPath);
+      return customPath;
+    }
+
+    // Fall back to default path
+    const defaultPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+    log.info('Using default Firefox path: ' + defaultPath);
+    return defaultPath;
   }
 
   async getProfiles() {
@@ -22,6 +38,17 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
       if (!fs.existsSync(this.basePath)) {
         this.logWarn('Firefox base path does not exist: ' + this.basePath);
         return [];
+      }
+
+      // If using custom path, check if it's a direct profile directory
+      const customPath = this.electronStore.get('firefoxHistoryPath');
+      if (customPath && customPath !== this.basePath) {
+        // Check if the custom path itself is a profile directory
+        const placesFile = path.join(customPath, 'places.sqlite');
+        if (fs.existsSync(placesFile)) {
+          this.logInfo('Custom path is a Firefox profile directory');
+          return [path.basename(customPath)];
+        }
       }
 
       const profiles = fs.readdirSync(this.basePath)
@@ -51,7 +78,17 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
 
     for (const profile of profiles) {
       try {
-        const placesPath = path.join(this.basePath, profile, 'places.sqlite');
+        let placesPath;
+        const customPath = this.electronStore.get('firefoxHistoryPath');
+        
+        if (customPath && customPath !== this.basePath) {
+          // Use custom path directly
+          placesPath = path.join(customPath, 'places.sqlite');
+        } else {
+          // Use profile-based path
+          placesPath = path.join(this.basePath, profile, 'places.sqlite');
+        }
+
         const tempPath = path.join(app.getPath('temp'), `firefox_history_temp_${profile}`);
 
         this.logInfo(`Importing Firefox history from profile: ${profile}`);
@@ -70,7 +107,7 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
 
         let db;
         try {
-          db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
+          db = new Database(tempPath, { readonly: true });
         } catch (error) {
           this.logError(`Failed to open Firefox places database for profile ${profile}:`, error);
           continue;
@@ -92,30 +129,21 @@ class FirefoxHistoryProvider extends BaseHistoryProvider {
              ORDER BY moz_historyvisits.visit_date DESC`;
 
         try {
-          await new Promise((resolve, reject) => {
-            db.all(query, fromTime === 0 ? [] : [Math.floor(fromTime / 1000)], (error, rows) => {
-              if (error) {
-                reject(error);
-                return;
-              }
+          const rows = db.prepare(query).all(fromTime === 0 ? [] : [Math.floor(fromTime / 1000)]);
+          this.logInfo(`Found ${rows.length} history items in Firefox profile ${profile}`);
 
-              this.logInfo(`Found ${rows.length} history items in Firefox profile ${profile}`);
-
-              for (const row of rows) {
-                if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
-                  uniqueUrls.add(row.url);
-                  const historyItem = this.createHistoryItem(
-                    row.title,
-                    row.url,
-                    INITIAL_SCORE,
-                    row.visit_date ? (row.visit_date/1000000) * 1000 : null
-                  );
-                  allHistory.push(historyItem);
-                }
-              }
-              resolve();
-            });
-          });
+          for (const row of rows) {
+            if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
+              uniqueUrls.add(row.url);
+              const historyItem = this.createHistoryItem(
+                row.title,
+                row.url,
+                INITIAL_SCORE,
+                row.visit_date ? (row.visit_date/1000000) * 1000 : null
+              );
+              allHistory.push(historyItem);
+            }
+          }
         } catch (error) {
           this.logError(`Failed to execute query for Firefox profile ${profile}:`, error);
           continue;

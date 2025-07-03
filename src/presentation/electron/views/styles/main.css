@@ -739,7 +739,10 @@ body {
 }
 
 .empty-message {
-    font-size: 14px;
     color: var(--text-secondary);
-    max-width: 300px;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 8px;
 }
+
+

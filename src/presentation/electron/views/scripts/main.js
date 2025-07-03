@@ -24,6 +24,10 @@ const errorOverlay = document.getElementById('errorOverlay');
 const errorMessage = document.getElementById('errorMessage');
 const errorRetry = document.getElementById('errorRetry');
 const emptyState = document.getElementById('emptyState');
+
+
+
+// Constants
 const INITIAL_SCORE = 1;
 
 // State
@@ -33,6 +37,7 @@ let selectedResultIndex = -1;
 let isCommandKeyPressed = false; // eslint-disable-line
 let historyCount = 0;
 let bookmarkCount = 0;
+let hasShownPermissionDialog = false;
 
 // Theme Management
 let currentTheme = null; // No default theme, will be set by system
@@ -168,6 +173,8 @@ if (window.api) {
     window.api.receive('theme-changed', (data) => {
         applyTheme(data.isDarkMode);
     });
+
+
 }
 
 // Functions
@@ -259,6 +266,14 @@ function renderResults() {
         selectedResultIndex = -1;
         hideLoading();
 
+        if (!Array.isArray(searchResults)) {
+            console.error('Search results is not an array:', searchResults);
+            showError('Invalid search results format', () => {
+                renderResults();
+            });
+            return;
+        }
+
         if (searchResults.length === 0) {
             console.log('No results found, showing empty state');
             showEmptyState();
@@ -270,9 +285,18 @@ function renderResults() {
         const fragment = document.createDocumentFragment();
 
         searchResults.forEach((result, index) => {
-            console.log(`Creating result element ${index + 1}:`, result);
-            const resultElement = createResultElement(result);
-            fragment.appendChild(resultElement);
+            try {
+                console.log(`Creating result element ${index + 1}:`, result);
+                if (!result || typeof result !== 'object') {
+                    console.warn(`Invalid result at index ${index}:`, result);
+                    return;
+                }
+                const resultElement = createResultElement(result);
+                fragment.appendChild(resultElement);
+            } catch (error) {
+                console.error(`Error creating result element ${index}:`, error);
+                // Continue with other results instead of failing completely
+            }
         });
 
         resultsContainer.appendChild(fragment);
@@ -292,7 +316,15 @@ function createResultElement(result) {
     // Create favicon element
     const favicon = document.createElement('img');
     favicon.className = 'result-icon';
-    favicon.src = `https://www.google.com/s2/favicons?domain=${new URL(result.url).hostname}&sz=32`;
+    
+    try {
+        const url = new URL(result.url);
+        favicon.src = `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
+    } catch (error) {
+        console.warn('Invalid URL for favicon:', result.url);
+        favicon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    }
+    
     favicon.alt = '';
     favicon.onerror = () => {
         favicon.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
@@ -340,6 +372,9 @@ function createResultElement(result) {
     // Add click handler directly to the div element
     div.onclick = (event) => {
         try {
+            // Validate URL before opening
+            new URL(result.url);
+            
             if (window.api) {
                 window.api.send('open-url', result.url);
                 // Only hide window if Command key is not pressed
@@ -351,7 +386,8 @@ function createResultElement(result) {
                 console.error('Cannot open URL: window.api is not available');
             }
         } catch (error) {
-            showNotification('Error opening URL', 'error');
+            console.error('Invalid URL:', result.url, error);
+            showNotification('Invalid URL', 'error');
         }
     };
 
@@ -590,3 +626,5 @@ document.addEventListener('DOMContentLoaded', () => {
 //         window.api.send('open-url', result.url);
 //     }
 // }
+
+

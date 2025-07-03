@@ -13,7 +13,10 @@ contextBridge.exposeInMainWorld(
                 'get-url-count',
                 'open-url',
                 'hide-window',
-                'command-key-state'
+                'command-key-state',
+                'get-browser-data-paths',
+                'grant-browser-data-access',
+                'permission-dialog-completed'
             ];
             if (validChannels.includes(channel)) {
                 console.log('Sending IPC message:', channel, data);
@@ -30,6 +33,9 @@ contextBridge.exposeInMainWorld(
                 'bookmarks-updated',
                 'search-results',
                 'error',
+                'browser-data-paths',
+                'browser-data-access-result',
+                'theme-changed'
             ];
             if (validChannels.includes(channel)) {
                 console.log('Registering IPC listener for channel:', channel);
