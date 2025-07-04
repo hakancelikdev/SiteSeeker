@@ -6,11 +6,14 @@ const log = require('electron-log');
 
 const BaseBookmarkProvider = require('../BaseBookmarkProvider');
 const BookmarkItem = require('../../../../domain/models/BookmarkItem');
+const ElectronStore = require('../../../persistence/ElectronStore');
 
 class ChromeBookmarkProvider extends BaseBookmarkProvider {
     constructor() {
-        const basePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+        const basePath = ChromeBookmarkProvider.getChromeBasePath();
         super('Chrome', basePath);
+
+        this.electronStore = new ElectronStore();
 
         // Known non-profile files to ignore
         this.ignoreFiles = new Set([
@@ -24,8 +27,33 @@ class ChromeBookmarkProvider extends BaseBookmarkProvider {
         ]);
     }
 
+    static getChromeBasePath() {
+        // Check for custom path first
+        const electronStore = new ElectronStore();
+        const customPath = electronStore.get('chromeBookmarkPath');
+        if (customPath && fs.existsSync(customPath)) {
+            log.info('Using custom Chrome bookmark path: ' + customPath);
+            return customPath;
+        }
+
+        // Fall back to default path
+        const defaultPath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+        log.info('Using default Chrome bookmark path: ' + defaultPath);
+        return defaultPath;
+    }
+
     filterProfiles(items) {
         const profiles = [];
+
+        // Check if using custom path that might be a direct profile
+        const customPath = this.electronStore.get('chromeBookmarkPath');
+        if (customPath && customPath !== this.basePath) {
+            const bookmarkFile = path.join(customPath, 'Bookmarks');
+            if (fs.existsSync(bookmarkFile)) {
+                log.info('Custom path is a Chrome profile directory');
+                return [path.basename(customPath)];
+            }
+        }
 
         for (const item of items) {
             // Skip known non-profile files
@@ -60,7 +88,16 @@ class ChromeBookmarkProvider extends BaseBookmarkProvider {
 
     async importBookmarksFromProfile(profile, uniqueUrls) {
         const bookmarks = [];
-        const bookmarkPath = path.join(this.basePath, profile, 'Bookmarks');
+        let bookmarkPath;
+        
+        const customPath = this.electronStore.get('chromeBookmarkPath');
+        if (customPath && customPath !== this.basePath) {
+            // Use custom path directly
+            bookmarkPath = path.join(customPath, 'Bookmarks');
+        } else {
+            // Use profile-based path
+            bookmarkPath = path.join(this.basePath, profile, 'Bookmarks');
+        }
 
         if (!fs.existsSync(bookmarkPath)) {
             log.warn(`Bookmarks file not found for profile ${profile}: ${bookmarkPath}`);

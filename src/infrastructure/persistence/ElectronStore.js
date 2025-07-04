@@ -21,8 +21,9 @@ class ElectronStore {
                 clearInvalidConfig: true,
                 encryptionKey: 'siteseeker-secure-key',
                 fileExtension: 'json',
-                watch: true
+                watch: false
             });
+            
             log.info('Electron store initialized successfully');
         } catch (error) {
             log.error('Failed to initialize electron-store:', error);

@@ -13,25 +13,56 @@
     "build:universal": "electron-builder build --mac --universal",
     "build:arm64": "electron-builder build --mac --arm64",
     "build:x64": "electron-builder build --mac --x64",
+    "build:mas": "electron-builder build --mac mas --universal",
+    "build:mas-dev": "electron-builder build --mac mas-dev --universal",
     "build:docs": "echo 'GitHub Pages build completed - docs folder is ready'",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "notarize": "electron-notarize",
+    "sign": "node scripts/sign.js",
+    "sign:mas": "BUILD_TARGET=mas node scripts/sign.js",
+    "build:signed": "node scripts/build-with-signing.js",
+    "build:signed:universal": "node scripts/build-with-signing.js universal --sign",
+    "build:signed:arm64": "node scripts/build-with-signing.js arm64 --sign",
+    "build:signed:x64": "node scripts/build-with-signing.js x64 --sign",
+    "build:signed:mas": "node scripts/build-with-signing.js mas --sign",
+    "build:signed:mas-dev": "node scripts/build-with-signing.js mas-dev --sign"
   },
   "build": {
     "appId": "com.hakancelikdev.siteseeker",
     "productName": "SiteSeeker",
     "mac": {
-      "category": "public.app-category.utilities",
+      "category": "public.app-category.productivity",
       "target": [
-        "dmg",
-        "zip"
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        }
       ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "identity": null,
-      "artifactName": "SiteSeeker-${version}-${arch}-mac.${ext}"
+      "artifactName": "SiteSeeker-${version}-${arch}-mac.${ext}",
+      "icon": "build/icon.icns"
+    },
+    "mas": {
+      "target": [
+        {
+          "target": "mas",
+          "arch": [
+            "universal"
+          ]
+        }
+      ],
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "hardenedRuntime": false,
+      "provisioningProfile": "build/embedded.provisionprofile",
+      "artifactName": "SiteSeeker-${version}-${arch}-mas.${ext}",
+      "icon": "build/icon.icns"
     },
     "files": [
       "**/*",
@@ -61,18 +92,23 @@
     "npmRebuild": true,
     "asar": true,
     "asarUnpack": [
-      "**/node_modules/sqlite3/**"
-    ]
+      "**/node_modules/better-sqlite3/**"
+    ],
+    "afterSign": "scripts/notarize.js",
+    "afterAllArtifactBuild": "scripts/notarize.js"
   },
   "author": "Hakan Çelik",
   "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.24.3",
     "@babel/preset-env": "^7.24.3",
+    "@electron/notarize": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
+    "dotenv": "^16.4.5",
     "electron": "^36.3.1",
     "electron-builder": "^24.13.3",
+    "electron-osx-sign": "^0.6.0",
     "eslint": "^8.56.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-promise": "^7.2.1",
@@ -82,9 +118,9 @@
     "dmg-license": "^1.0.11"
   },
   "dependencies": {
+    "better-sqlite3": "^12.2.0",
     "electron-log": "^5.1.1",
     "electron-store": "^8.2.0",
-    "electron-updater": "^6.2.1",
-    "sqlite3": "^5.1.7"
+    "electron-updater": "^6.2.1"
   }
 }

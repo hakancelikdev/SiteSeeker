@@ -3,7 +3,8 @@ const fs = require('fs');
 const os = require('os');
 
 const { app } = require('electron');
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
+const log = require('electron-log');
 
 const ElectronStore = require('../../../persistence/ElectronStore');
 const BaseHistoryProvider = require('../BaseHistoryProvider');
@@ -12,9 +13,24 @@ const { INITIAL_SCORE } = require('../../../../domain/models/HistoryItem');
 class ChromeHistoryProvider extends BaseHistoryProvider {
   constructor() {
     super();
-    this.basePath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
     this.electronStore = new ElectronStore();
+    this.basePath = ChromeHistoryProvider.getChromeBasePath();
     this.logInfo('ChromeHistoryProvider initialized with base path: ' + this.basePath);
+  }
+
+  static getChromeBasePath() {
+    // Check for custom path first
+    const electronStore = new ElectronStore();
+    const customPath = electronStore.get('chromeHistoryPath');
+    if (customPath && fs.existsSync(customPath)) {
+      log.info('Using custom Chrome path: ' + customPath);
+      return customPath;
+    }
+
+    // Fall back to default path
+    const defaultPath = path.join(os.homedir(), 'Library/Application Support/Google/Chrome');
+    log.info('Using default Chrome path: ' + defaultPath);
+    return defaultPath;
   }
 
   async getProfiles() {
@@ -22,6 +38,17 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
       if (!fs.existsSync(this.basePath)) {
         this.logWarn('Chrome base path does not exist: ' + this.basePath);
         return [];
+      }
+
+      // If using custom path, check if it's a direct profile directory
+      const customPath = this.electronStore.get('chromeHistoryPath');
+      if (customPath && customPath !== this.basePath) {
+        // Check if the custom path itself is a profile directory
+        const historyFile = path.join(customPath, 'History');
+        if (fs.existsSync(historyFile)) {
+          this.logInfo('Custom path is a Chrome profile directory');
+          return [path.basename(customPath)];
+        }
       }
 
       const profiles = fs.readdirSync(this.basePath)
@@ -51,7 +78,17 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
 
     for (const profile of profiles) {
       try {
-        const historyPath = path.join(this.basePath, profile, 'History');
+        let historyPath;
+        const customPath = this.electronStore.get('chromeHistoryPath');
+        
+        if (customPath && customPath !== this.basePath) {
+          // Use custom path directly
+          historyPath = path.join(customPath, 'History');
+        } else {
+          // Use profile-based path
+          historyPath = path.join(this.basePath, profile, 'History');
+        }
+
         const tempPath = path.join(app.getPath('temp'), `chrome_history_temp_${profile}`);
 
         this.logInfo(`Importing Chrome history from profile: ${profile}`);
@@ -70,7 +107,7 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
 
         let db;
         try {
-          db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
+          db = new Database(tempPath, { readonly: true });
         } catch (error) {
           this.logError(`Failed to open Chrome history database for profile ${profile}:`, error);
           continue;
@@ -86,33 +123,24 @@ class ChromeHistoryProvider extends BaseHistoryProvider {
              ORDER BY last_visit_time DESC`;
 
         try {
-          await new Promise((resolve, reject) => {
-            db.all(query, fromTime === 0 ? [] : [Math.floor(fromTime / 1000)], (error, rows) => {
-              if (error) {
-                reject(error);
-                return;
-              }
+          const rows = db.prepare(query).all(fromTime === 0 ? [] : [Math.floor(fromTime / 1000)]);
+          this.logInfo(`Found ${rows.length} history items in Chrome profile ${profile}`);
 
-              this.logInfo(`Found ${rows.length} history items in Chrome profile ${profile}`);
-
-              for (const row of rows) {
-                if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
-                  uniqueUrls.add(row.url);
-                  const score = row.visit_count
-                    ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
-                    : INITIAL_SCORE;
-                  const historyItem = this.createHistoryItem(
-                    row.title,
-                    row.url,
-                    score,
-                    row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
-                  );
-                  allHistory.push(historyItem);
-                }
-              }
-              resolve();
-            });
-          });
+          for (const row of rows) {
+            if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
+              uniqueUrls.add(row.url);
+              const score = row.visit_count
+                ? INITIAL_SCORE + row.visit_count + (row.typed_count || 0)
+                : INITIAL_SCORE;
+              const historyItem = this.createHistoryItem(
+                row.title,
+                row.url,
+                score,
+                row.last_visit_time ? (row.last_visit_time/1000000 + (new Date('1601-01-01').getTime()/1000)) * 1000 : null
+              );
+              allHistory.push(historyItem);
+            }
+          }
         } catch (error) {
           this.logError(`Failed to execute query for Chrome profile ${profile}:`, error);
           continue;

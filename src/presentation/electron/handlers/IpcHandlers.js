@@ -1,6 +1,8 @@
-const { ipcMain } = require('electron');
+const { ipcMain, dialog } = require('electron');
 const log = require('electron-log');
 const { shell } = require('electron');
+const path = require('path');
+const fs = require('fs');
 
 class IpcHandlers {
   constructor(historyService, bookmarkService, applicationService, mainWindow) {
@@ -8,6 +10,7 @@ class IpcHandlers {
     this.bookmarkService = bookmarkService;
     this.applicationService = applicationService;
     this.mainWindow = mainWindow;
+    this.browserDataPaths = null;
   }
 
   setup() {
@@ -94,7 +97,83 @@ class IpcHandlers {
     ipcMain.on('hide-window', () => {
       this.mainWindow.hide();
     });
+
+
   }
+
+  getDefaultBrowserDataPath() {
+    const homeDir = require('os').homedir();
+    const platform = process.platform;
+    
+    if (platform === 'darwin') {
+      // macOS default paths
+      return path.join(homeDir, 'Library', 'Application Support');
+    } else if (platform === 'win32') {
+      // Windows default paths
+      return path.join(homeDir, 'AppData', 'Local');
+    } else {
+      // Linux default paths
+      return path.join(homeDir, '.config');
+    }
+  }
+
+  async validateBrowserDataPath(selectedPath) {
+    try {
+      log.info('Validating browser data path:', selectedPath);
+      
+      // Check if the path exists
+      if (!fs.existsSync(selectedPath)) {
+        log.warn('Selected path does not exist');
+        return false;
+      }
+
+      // Check for common browser data directories
+      const possiblePaths = [
+        path.join(selectedPath, 'Google', 'Chrome'),
+        path.join(selectedPath, 'Mozilla', 'Firefox'),
+        path.join(selectedPath, 'Chromium'),
+        path.join(selectedPath, 'BraveSoftware', 'Brave-Browser'),
+        path.join(selectedPath, 'Microsoft', 'Edge'),
+        path.join(selectedPath, 'Opera Software'),
+        path.join(selectedPath, 'Vivaldi'),
+        path.join(selectedPath, 'Safari'),
+        // Direct profile paths
+        path.join(selectedPath, 'Default'),
+        path.join(selectedPath, 'Profile 1'),
+        path.join(selectedPath, 'default'),
+        path.join(selectedPath, 'profile1')
+      ];
+
+      for (const possiblePath of possiblePaths) {
+        if (fs.existsSync(possiblePath)) {
+          log.info('Found valid browser data at:', possiblePath);
+          return true;
+        }
+      }
+
+      // Check if the selected path itself contains browser data files
+      const files = fs.readdirSync(selectedPath);
+      const hasBrowserFiles = files.some(file => 
+        file.includes('History') || 
+        file.includes('Bookmarks') || 
+        file.includes('places.sqlite') ||
+        file.includes('cookies.sqlite')
+      );
+
+      if (hasBrowserFiles) {
+        log.info('Found browser data files in selected path');
+        return true;
+      }
+
+      log.warn('No valid browser data found in selected path');
+      return false;
+    } catch (error) {
+      log.error('Error validating browser data path:', error);
+      return false;
+    }
+  }
+
+
 
   cleanup() {
     try {

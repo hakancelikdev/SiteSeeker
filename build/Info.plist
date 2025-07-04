@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDisplayName</key>
+    <string>SiteSeeker</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.hakancelikdev.siteseeker</string>
+    <key>CFBundleName</key>
+    <string>SiteSeeker</string>
+    <key>CFBundleVersion</key>
+    <string>1.2.6</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.2.6</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleSignature</key>
+    <string>????</string>
+    <key>CFBundleExecutable</key>
+    <string>SiteSeeker</string>
+    <key>CFBundleIconFile</key>
+    <string>icon.icns</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>10.15.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSRequiresAquaSystemAppearance</key>
+    <false/>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    <!-- Privacy descriptions for App Store -->
+    <key>NSDesktopFolderUsageDescription</key>
+    <string>SiteSeeker needs access to your Desktop folder to read browser data files.</string>
+    <key>NSDocumentsFolderUsageDescription</key>
+    <string>SiteSeeker needs access to your Documents folder to read browser data files.</string>
+    <key>NSDownloadsFolderUsageDescription</key>
+    <string>SiteSeeker needs access to your Downloads folder to read browser data files.</string>
+</dict>
+</plist> 

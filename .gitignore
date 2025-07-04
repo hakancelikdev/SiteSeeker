@@ -25,7 +25,6 @@ $RECYCLE.BIN/
 *.swo
 
 # Build output
-build/
 out/
 *.app
 *.exe

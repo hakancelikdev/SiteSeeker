@@ -2,9 +2,9 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
-const sqlite3 = require('sqlite3').verbose();
 const { app } = require('electron');
 const log = require('electron-log');
+const Database = require('better-sqlite3');
 
 const BaseBookmarkProvider = require('../BaseBookmarkProvider');
 const BookmarkItem = require('../../../../domain/models/BookmarkItem');
@@ -12,12 +12,37 @@ const ElectronStore = require('../../../../infrastructure/persistence/ElectronSt
 
 class FirefoxBookmarkProvider extends BaseBookmarkProvider {
     constructor() {
-        const basePath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+        const basePath = FirefoxBookmarkProvider.getFirefoxBasePath();
         super('Firefox', basePath);
         this.store = new ElectronStore();
     }
 
+    static getFirefoxBasePath() {
+        // Check for custom path first
+        const store = new ElectronStore();
+        const customPath = store.get('firefoxBookmarkPath');
+        if (customPath && fs.existsSync(customPath)) {
+            log.info('Using custom Firefox bookmark path: ' + customPath);
+            return customPath;
+        }
+
+        // Fall back to default path
+        const defaultPath = path.join(os.homedir(), 'Library/Application Support/Firefox/Profiles');
+        log.info('Using default Firefox bookmark path: ' + defaultPath);
+        return defaultPath;
+    }
+
     filterProfiles(items) {
+        // Check if using custom path that might be a direct profile
+        const customPath = this.store.get('firefoxBookmarkPath');
+        if (customPath && customPath !== this.basePath) {
+            const placesFile = path.join(customPath, 'places.sqlite');
+            if (fs.existsSync(placesFile)) {
+                log.info('Custom path is a Firefox profile directory');
+                return [path.basename(customPath)];
+            }
+        }
+
         return items.filter(item => {
             const itemPath = path.join(this.basePath, item);
             return fs.existsSync(itemPath) &&
@@ -28,7 +53,17 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
 
     async importBookmarksFromProfile(profile, uniqueUrls) {
         const bookmarks = [];
-        const placesPath = path.join(this.basePath, profile, 'places.sqlite');
+        let placesPath;
+        
+        const customPath = this.store.get('firefoxBookmarkPath');
+        if (customPath && customPath !== this.basePath) {
+            // Use custom path directly
+            placesPath = path.join(customPath, 'places.sqlite');
+        } else {
+            // Use profile-based path
+            placesPath = path.join(this.basePath, profile, 'places.sqlite');
+        }
+
         const tempPath = path.join(app.getPath('temp'), `firefox_bookmarks_temp_${profile}`);
 
         log.info(`Importing Firefox bookmarks from profile: ${profile}`);
@@ -49,7 +84,7 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
 
         let db;
         try {
-            db = new sqlite3.Database(tempPath, sqlite3.OPEN_READONLY);
+            db = new Database(tempPath, { readonly: true });
         } catch (error) {
             log.error(`Failed to open Firefox database for profile ${profile}:`, error);
             return bookmarks;
@@ -65,42 +100,37 @@ class FirefoxBookmarkProvider extends BaseBookmarkProvider {
 
         try {
             await new Promise((resolve, reject) => {
-                db.all(query, [], (error, rows) => {
-                    if (error) {
-                        reject(error);
-                        return;
+                const rows = db.prepare(query).all();
+
+                log.info(`Found ${rows.length} bookmarks in Firefox profile ${profile}`);
+
+                const importedBookmarks = [];
+                for (const row of rows) {
+                    if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
+                        uniqueUrls.add(row.url);
+
+                        const bookmarkItem = new BookmarkItem(
+                            row.title.trim(),
+                            row.url,
+                            '', // Firefox'ta folder bilgisi farklı şekilde tutuluyor, şimdilik boş bırakıyoruz
+                            row.dateAdded ? (row.dateAdded/1000000) * 1000 : null
+                        );
+
+                        bookmarks.push(bookmarkItem);
+
+                        importedBookmarks.push({
+                            title: bookmarkItem.title,
+                            url: bookmarkItem.url,
+                            folder: bookmarkItem.folder,
+                            lastModified: bookmarkItem.lastModified,
+                            profile: profile
+                        });
                     }
+                }
 
-                    log.info(`Found ${rows.length} bookmarks in Firefox profile ${profile}`);
+                this.saveBookmarksToStore(importedBookmarks, profile);
 
-                    const importedBookmarks = [];
-                    for (const row of rows) {
-                        if (!uniqueUrls.has(row.url) && row.title && row.title.trim()) {
-                            uniqueUrls.add(row.url);
-
-                            const bookmarkItem = new BookmarkItem(
-                                row.title.trim(),
-                                row.url,
-                                '', // Firefox'ta folder bilgisi farklı şekilde tutuluyor, şimdilik boş bırakıyoruz
-                                row.dateAdded ? (row.dateAdded/1000000) * 1000 : null
-                            );
-
-                            bookmarks.push(bookmarkItem);
-
-                            importedBookmarks.push({
-                                title: bookmarkItem.title,
-                                url: bookmarkItem.url,
-                                folder: bookmarkItem.folder,
-                                lastModified: bookmarkItem.lastModified,
-                                profile: profile
-                            });
-                        }
-                    }
-
-                    this.saveBookmarksToStore(importedBookmarks, profile);
-
-                    resolve();
-                });
+                resolve();
             });
         } catch (error) {
             log.error(`Failed to execute query for Firefox profile ${profile}:`, error);
