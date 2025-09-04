@@ -71,7 +71,7 @@
     "@babel/preset-env": "^7.24.3",
     "@typescript-eslint/eslint-plugin": "^7.3.1",
     "@typescript-eslint/parser": "^7.3.1",
-    "electron": "^36.3.1",
+    "electron": "^36.8.1",
     "electron-builder": "^24.13.3",
     "eslint": "^8.56.0",
     "eslint-plugin-import": "^2.29.1",
